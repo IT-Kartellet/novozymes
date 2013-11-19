@@ -1,0 +1,65 @@
+.over {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    z-index: 1000;
+}
+
+#welcome {
+    display: none;
+    background-color: gray;
+}
+
+
+#listCourses{
+    background-color: #ccc;
+    display: none;
+}
+
+#addName{
+    background-color: yellow;
+    display: none;
+}
+
+#addPurpose{
+    background-color: red;
+    display: none;
+}
+
+#addTarget{
+    background-color: gray;
+    display: none;
+}
+
+#addContent{
+    background-color: blue;
+    display: none;
+}
+
+#addInstructors{
+    background-color: red;
+    display: none;
+}
+
+#addComment{
+    background-color: yellow;
+    display: none;
+}
+
+#addCoordinator{
+    background-color: green;
+    display: none;
+}
+
+#addProvider{
+    background-color: blue;
+    display: none;
+}
+
+#addDateCourses{
+    background-color: gray;
+    display: none;
+}
