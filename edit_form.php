@@ -8,8 +8,7 @@ class block_metacourse_edit_form extends block_edit_form {
         $mform->addElement('header', 'configheader', "Metacourse editing");
  
         // A sample string variable with a default value.
-        $mform->addElement('text', 'config_text', "Name");
-        $mform->setDefault('config_text', 'default value');
+        $mform->addElement('html', "<p>No settings available</p>");
         $mform->setType('config_text', PARAM_MULTILANG);        
  
     }

@@ -9,7 +9,7 @@ class datecourse_form extends moodleform {
  
         $mform = $this->_form;
         $data = $this->_customdata['data'];
-
+        //get locations from the database
         $locations = $DB->get_records_sql("SELECT * FROM mdl_meta_locations");		
         $locations = array_map(function ($arg){
     			return $arg->location;
@@ -31,7 +31,7 @@ class datecourse_form extends moodleform {
 
 
 
-        // locations
+        // locations. editable input
         $mform->addElement("html","<div class='fitem fitem_fselect' >
             <div class='fitemtitle'>
                 <label>Location:</label>
@@ -51,7 +51,7 @@ class datecourse_form extends moodleform {
         $mform->addElement('text', 'datecourse[0][places]', 'Nr. of places');
         $mform->addElement('html',"</div>");
         $mform->addElement('html',"</div>");
-        $mform->addElement('html',"<a id='addDateCourse' href='#'>Add another course</a>");
+        $mform->addElement('html',"<input type='button' id='addDateCourse' value='Add another course'>");
 
         $mform->setType('datecourse[0][name_course]', PARAM_NOTAGS);
 		$mform->setType('datecourse[0][price]', PARAM_NOTAGS);

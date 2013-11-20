@@ -1,6 +1,6 @@
 (function(){
-	
-	$(document.body).on("click","a#addDateCourse",function(){
+	$('#addDateCourse').unbind('submit');
+	$(document.body).on("click","#addDateCourse",function(){
 		var course = $("div.template").last().clone();
 		$("#wrapper").append(course);
 		var victim = $(".template").last();

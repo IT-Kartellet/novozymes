@@ -58,11 +58,16 @@ foreach ($datecourses as $key => $course) {
 	$dc->free_places = $course['places'];
 	$dc->open = 1;
 	$dc->timemodified = time();
+	if ($dc->location == null || $dc->price == null || $dc->total_places == null) {
+		continue;
+	}
 
 	$datecourseid = $DB->insert_record('meta_datecourse', $dc);
 
 	$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
 	create_new_course($courseName,$courseName, 1);
+
+	//TODO: take the id of the course inserted and update the datecourse record;
 }
 
 header("Location: " . $CFG->wwwroot."/blocks/metacourse/list_metacourses.php" );
