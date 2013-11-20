@@ -28,61 +28,40 @@ class metacourse_form extends moodleform {
         //ELEMENTS
  		$mform->addElement('header', 'header', 'Metacourse Form');
  		$mform->addElement('hidden', 'id', 0);
-        $mform->addElement('text', 'meta[name]', get_string('name')); 
-		$mform->addElement('editor', 'meta[purpose]', 'Purpose', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
-        $mform->addElement('text', 'meta[target]', 'Target group');
-		$mform->addElement('editor', 'meta[content]', 'Content', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
-        $mform->addElement('text', 'meta[instructors]', 'Instructors');
-        $mform->addElement('text', 'meta[comment]', 'Comment');
-        $mform->addElement('select', 'meta[coordinator]', 'Coordinator', $coordinators, null);
-        $mform->addElement('text', 'meta[provider]', 'Provider');
-
-        //ELEMENTS COURSES
- 		$mform->addElement('header', 'header_courses', 'COURSES');
-        $mform->addElement('date_selector', 'datecourse_timestart_0', get_string("from"));
-        $mform->addElement('date_selector', 'datecourse_timeend_0', get_string("to"));
-        $mform->addElement('select', 'meta[datecourse][0][location]', 'Location', $locations, null);
-        $mform->addElement('select', 'meta[datecourse][0][language]', 'Language', $languages, null);
-        $mform->addElement('text', 'meta[datecourse][0][price]', 'Price');
-        $mform->addElement('text', 'meta[datecourse][0][places]', 'Nr. of places');
-
+        $mform->addElement('text', 'name', get_string('name')); 
+		$mform->addElement('editor', 'purpose', 'Purpose', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addElement('text', 'target', 'Target group');
+		$mform->addElement('editor', 'content', 'Content', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addElement('text', 'instructors', 'Instructors');
+        $mform->addElement('text', 'comment', 'Comment');
+        $mform->addElement('select', 'coordinator', 'Coordinator', $coordinators, null);
+        $mform->addElement('text', 'provider', 'Provider');
 
         //ELEMENT TYPES
         $mform->setType('id', PARAM_INT);
-        $mform->setType('meta[name]', PARAM_NOTAGS);
-        $mform->setType('meta[target]', PARAM_NOTAGS);
-		$mform->setType('meta[purpose]', PARAM_RAW); // no XSS prevention here, users must be trusted! :)
-		$mform->setType('meta[content]', PARAM_RAW);
-		$mform->setType('meta[instructors]', PARAM_NOTAGS);
-		$mform->setType('meta[comment]', PARAM_NOTAGS);
-		$mform->setType('meta[provider]', PARAM_NOTAGS);
+        $mform->setType('name', PARAM_NOTAGS);
+        $mform->setType('target', PARAM_NOTAGS);
+		$mform->setType('purpose', PARAM_RAW); // no XSS prevention here, users must be trusted! :)
+		$mform->setType('content', PARAM_RAW);
+		$mform->setType('instructors', PARAM_NOTAGS);
+		$mform->setType('comment', PARAM_NOTAGS);
+		$mform->setType('provider', PARAM_NOTAGS);
 
-		//ELEMENT TYPES COURSES
-		$mform->setType('meta[datecourse][0][name_course]', PARAM_NOTAGS);
-		$mform->setType('meta[datecourse][0][price]', PARAM_NOTAGS);
-		$mform->setType('meta[datecourse][0][places]', PARAM_NOTAGS);
-
-        
         //ELEMENT DEFAULTS
         // $mform->setDefault('name', 'Course name');       
         // $mform->setDefault('target', 'The target of this course');
 
 
 		//RULES
-		$mform->addRule('meta[name]', get_string('required'), 'required', null, 'client');
-		$mform->addRule('meta[purpose]', get_string('required'), 'required', null, 'client');
-		$mform->addRule('meta[target]', get_string('required'), 'required', null, 'client');
-		$mform->addRule('meta[content]', get_string('required'), 'required', null, 'client');
-		$mform->addRule('meta[instructors]', get_string('required'), 'required', null, 'client');
-		$mform->addRule('meta[provider]', get_string('required'), 'required', null, 'client');
-
-		//RULES_COURSES
-		$mform->addRule('meta[datecourse][0][places]', "Needs to be a number", 'numeric', null, 'client');
-
-
+		$mform->addRule('name', get_string('required'), 'required', null, 'client');
+		$mform->addRule('purpose', get_string('required'), 'required', null, 'client');
+		$mform->addRule('target', get_string('required'), 'required', null, 'client');
+		$mform->addRule('content', get_string('required'), 'required', null, 'client');
+		$mform->addRule('instructors', get_string('required'), 'required', null, 'client');
+		$mform->addRule('provider', get_string('required'), 'required', null, 'client');
 
 		//BUTTONS
-      	$this->add_action_buttons();
+      	$this->add_action_buttons(true, "Next");
 
       	$this->set_data($data);
 
