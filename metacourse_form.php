@@ -10,8 +10,13 @@ class metacourse_form extends moodleform {
         $mform = $this->_form;
         $data = $this->_customdata['data'];
 
-        // get coordinator from the database
-        $coordinators = $DB->get_records_sql("select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from mdl_user u where u.id not in (1)"); //skip the guest		
+        // get coordinator from the database - takes only users that already have a teacher role
+        // $coordinators = $DB->get_records_sql("select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from mdl_user u join mdl_role_assignments ra on u.id = ra.userid and ra.roleid = 3 or ra.roleid = 1"); //skip the guest      
+        
+        //this one takes all the users;
+        $coordinators = $DB->get_records_sql("select distinct u.id, u.firstname, u.lastname, u.email from {user} u where u.id not in (1)"); //skip the guest		
+        
+
         $coordinators = array_map(function ($arg){
     			return " (" .$arg->firstname . " " . $arg->lastname . ") " .$arg->email;
     		}, $coordinators);

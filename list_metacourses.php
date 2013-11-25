@@ -17,6 +17,9 @@ $PAGE->navbar->add("List courses", new moodle_url('/blocks/metacourse/list_metac
 
 echo $OUTPUT->header();
 
+//used to hide the buttons for adding new courses;
+$teacher = has_capability("moodle/course:create", get_system_context());
+
 global $DB;
 echo html_writer::tag('h1', 'List of current courses', array('id' => 'course_header', 'class' => 'main'));
 echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
@@ -30,7 +33,7 @@ $table->tablealign = "center";
 $table->head = array('Course name', 'Coordinator', 'Provider');
 
 foreach ($metacourses as $key => $course) {
-	$link = html_writer::link(new moodle_url('/blocks/metacourse/view_metacourse.php', array('id'=>$key)), $course->name);
+	$link = html_writer::link(new moodle_url('/blocks/metacourse/view_metacourse.php', array('id'=>$key)), html_entity_decode($course->name));
 	$coordinator = $course->firstname." ".$course->lastname . " &lt;" . $course->email . "&gt;";
 	$provider = $course->provider;
 	$table->data[] = array($link, $coordinator, $provider);
@@ -38,8 +41,14 @@ foreach ($metacourses as $key => $course) {
 
 echo html_writer::table($table);
 $newCourse = new single_button(new moodle_url('/blocks/metacourse/add_metacourse.php', array()), "Add new metacourse");
+$editTerms = new single_button(new moodle_url('/blocks/metacourse/edit_terms.php', array()), "Edit terms of service");
 
-echo $OUTPUT->render($newCourse);
+if ($teacher) {
+	echo $OUTPUT->render($newCourse);
+	echo "<br />";
+	echo $OUTPUT->render($editTerms);
+}
+
 echo html_writer::end_tag('div');
 
 

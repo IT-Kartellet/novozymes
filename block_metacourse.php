@@ -11,9 +11,6 @@ class block_metacourse extends block_list {
 
     	$course = $this->page->course;
         $context = get_context_instance(CONTEXT_COURSE, $course->id);
-        if (!has_capability('moodle/course:manageactivities', $context)) {
-            return;
-        }
 
     	if ($this->content !== null) {
 	      return $this->content;
@@ -23,7 +20,7 @@ class block_metacourse extends block_list {
 	 	$this->content->items  = array();
 	 	$this->content->icons  = array();
 
-	 	$this->content->items[] = $OUTPUT->action_link("/blocks/metacourse/list_metacourses.php", 'Do the magic trick', null);
+	 	$this->content->items[] = $OUTPUT->action_link("/blocks/metacourse/list_metacourses.php", 'View Courses', null);
 
 	    return $this->content;
     }

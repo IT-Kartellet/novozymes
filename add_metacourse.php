@@ -5,6 +5,8 @@ require_once('metacourse_form.php');
 require_once('lib.php');
 
 require_login();
+require_capability('moodle/course:create', context_system::instance());
+
 
 $id = optional_param('id', 0, PARAM_INT);
 

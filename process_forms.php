@@ -1,10 +1,13 @@
 <?php
 require_once('../../config.php');
 require_once("$CFG->libdir/formslib.php");
+require_once("$CFG->libdir/adminlib.php");
 require_once('datecourse_form.php');
 require_once('lib.php');
 
 require_login();
+require_capability('moodle/course:create', context_system::instance());
+
 
 $PAGE->set_context(get_system_context());
 
@@ -33,13 +36,14 @@ $meta->provider = $provider;
 $meta->timemodified = time();
 
 $metaid = $DB->insert_record('meta_course', $meta);
-foreach ($datecourses as $key => $course) {
 
+foreach ($datecourses as $key => $course) {
 	$dc = new stdClass();
 	$dc->metaid = $metaid;
 
 	$dc->startdate = strtotime( implode("-",array_reverse($timestarts[$key]))  . " 00:00:00");
-	$dc->enddate = strtotime( implode("-",array_reverse($timestarts[$key])) . " 23:59:59");
+	$dc->enddate = strtotime( implode("-",array_reverse($timeends[$key])) . " 23:59:59");
+
 	$loc = $DB->get_records_sql("SELECT id from {meta_locations} where location = :location", array("location"=>$course['location']));
 	$loc = reset($loc);
 
@@ -64,10 +68,21 @@ foreach ($datecourses as $key => $course) {
 
 	$datecourseid = $DB->insert_record('meta_datecourse', $dc);
 
+	//create the course
 	$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
-	create_new_course($courseName,$courseName, 1);
 
-	//TODO: take the id of the course inserted and update the datecourse record;
+	//TODO: replace the third parameter with the category in which to add the courses;
+	$created_courseid = create_new_course($courseName,$courseName, $course['category'], $dc->startdate);
+
+	// add the manual enrolment
+	$DB->insert_record("enrol",array("enrol"=>"manual","status"=>0, "roleid"=>5,"courseid"=>$created_courseid));
+
+	// update the datecourse with the course id
+	$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
+
+	add_coordinator($meta->coordinator, $created_courseid);
+
+	purge_all_caches();
 }
 
 header("Location: " . $CFG->wwwroot."/blocks/metacourse/list_metacourses.php" );

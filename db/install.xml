@@ -43,11 +43,12 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="metaid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="startdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="enddate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="location" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="lang" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="price" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="price" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="total_places" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="free_places" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="open" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="0 = open for registration, 1 = registration closed"/>
@@ -58,6 +59,31 @@
         <KEY NAME="metaid" TYPE="foreign" FIELDS="metaid" REFTABLE="metacourse" REFFIELDS="id"/>
         <KEY NAME="location" TYPE="foreign" FIELDS="location" REFTABLE="meta_locations" REFFIELDS="id"/>
         <KEY NAME="lang" TYPE="foreign" FIELDS="lang" REFTABLE="meta_languages" REFFIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="meta_tos" COMMENT="Defines terms of service for courses. Will only have one row.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="tos" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="meta_tos_accept" COMMENT="Keeps a list of the users and the courses they have accepted to be enrolled in">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user in user table"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="accepted" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timeaccepted" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
 

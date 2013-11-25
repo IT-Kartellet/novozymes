@@ -29,7 +29,8 @@ $capabilities = array(
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
+            'student' => CAP_ALLOW
         )
     ),
     'block/metacourse:myaddinstance' => array(
@@ -37,7 +38,8 @@ $capabilities = array(
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
+            'student'=>CAP_ALLOW
         ),
         'clonepermissionsfrom' => 'moodle/my:manageblocks'
     ),

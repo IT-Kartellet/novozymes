@@ -20,10 +20,17 @@ class datecourse_form extends moodleform {
             return $lang->language;
         }, $languages);
 
+        //create the categories select
+        $categories = $DB->get_records_sql("SELECT id, name FROM {course_categories}");
+        $categories = array_map(function($cat){
+            return $cat->name;
+        }, $categories);
+
 
         $mform->addElement('header', 'header_courses', 'COURSES');
         $mform->addElement('html',"<div id='wrapper'>");
         $mform->addElement('html',"<div class='template'>");
+        $mform->addElement('select', 'datecourse[0][category]', 'Category', $categories, null);
         $mform->addElement('date_selector', 'timestart[0]', get_string("from"));
         $mform->addElement('date_selector', 'timeend[0]', get_string("to"));
         // $mform->addElement('select', 'datecourse[0][location]', 'Location', $locations, null);
@@ -58,12 +65,11 @@ class datecourse_form extends moodleform {
 		$mform->setType('datecourse[0][places]', PARAM_NOTAGS);
 
         $mform->addRule('datecourse[0][places]', "Needs to be a number", 'numeric', null, 'client');
-        $mform->addRule('datecourse[0][price]', "Needs to be a number", 'numeric', null, 'client');
         $mform->addRule('datecourse[0][places]', get_string('required'), 'required', null, 'client');
 		$mform->addRule('datecourse[0][price]', get_string('required'), 'required', null, 'client');
 
            
-	    $this->add_action_buttons(true, "Add courses");
+	    $this->add_action_buttons(true, "FINISH");
     	$this->set_data($data);
 
         $PAGE->requires->js(new moodle_url('/lib/jquery/jquery-1.9.1.min.js'));
