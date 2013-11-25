@@ -58,6 +58,8 @@ if ($id == 0) {
 	}
 } else {
 	//TODO: edit current course
+	redirect("/moodle/blocks/metacourse/add_metacourse.php", 'Course not found!');
+
 }
 
 echo $OUTPUT->footer();
