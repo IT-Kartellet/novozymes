@@ -48,6 +48,7 @@ datalist {
   padding:40px;
   padding-top:20px;
 }
+
 #lean_background {
   margin: auto;
   position: fixed;
@@ -80,4 +81,92 @@ datalist {
 
 #lean_overlay h1 {
   padding-bottom:;
+}
+
+#lean_overlay_loc{
+  margin: auto;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  z-index:102;
+  height:23% !important; 
+  width:20% !important;
+  min-height:200px;
+  background: white;
+}
+
+#lean_overlay_loc h1{
+    text-align: center;
+    padding: 20px 0 0 0;
+}
+
+#lean_overlay_loc input[type='text']{
+    display: block;
+    margin: auto;
+}
+
+#lean_overlay_loc input[name='addL']{
+
+    display: block;
+    margin: auto;
+    padding: 5px 10px;
+    margin-top: 5px;
+}
+
+#lean_overlay_loc input[name='cancel']{
+
+    display: block;
+    margin: auto;
+    padding: 3px 26px;
+    margin-top: 5px;
+}
+
+.ninja {
+  display: none;
+}
+
+#addDateCourse{
+  margin-top: 1em;
+}
+
+.meta_category{
+  background-color:#eee;
+  border:1px solid #aaa;
+  width:90%;
+  height:25%;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+#region-center-post .region-content .content > ul > li,
+#region-center-pre .region-content .content > ul > li {
+  display:inline-block;
+  margin:auto;
+  text-align:center;
+}
+
+#region-center-post .region-content .content > ul,
+#region-center-pre .region-content .content > ul {
+  margin:auto;
+  text-align:center;
+}
+
+#region-center-post .region-content .content > ul > li > div,
+#region-center-pre .region-content .content > ul > li > div {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-right: 0.5em;
+  margin-left: 0.5em;
+}
+
+#region-center-post .region-content .content > ul > li > div img,
+#region-center-pre .region-content .content > ul > li > div img{
+  width: 150px;
+  outline: 1px solid red;
+}
+
+#region-center-post .region-content .content > ul > li div p:first-of-type,
+#region-center-pre .region-content .content > ul > li div p:first-of-type{
+  padding-top:10px;
 }

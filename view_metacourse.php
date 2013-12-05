@@ -21,23 +21,81 @@ $PAGE->navbar->add("List courses", new moodle_url('/blocks/metacourse/list_metac
 $PAGE->navbar->add("View course", new moodle_url("/blocks/metacourse/view_metacourse.php?id=$id"));
 $PAGE->requires->js("/lib/jquery/jquery-1.9.1.min.js");
 $PAGE->requires->js("/blocks/metacourse/js/core.js");
+$isTeacher = has_capability("moodle/course:create", get_system_context());
 
 echo $OUTPUT->header();
 global $DB, $USER;
-$metacourse = $DB->get_records_sql("SELECT * FROM {meta_course} where id = :id", array("id"=>$id));
+$metacourse = $DB->get_records_sql("
+	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.coordinator, p.provider, c.timemodified 
+	FROM {meta_course} c join {meta_providers} p on c.provider = p.id where c.id = :id", array("id"=>$id));
 $metacourse = reset($metacourse);
 
 // default id, just see the list of courses
 if ($metacourse) {
-
-	echo html_writer::tag('h1', 'View course', array('id' => 'course_header', 'class' => 'main'));
-	echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 	
 	$table = new html_table();
 	$table->id = "view_meta_table";
 	$table->width = "100%";
 	$table->tablealign = "center";
+	$title = null;
+	$localTitle = null;
+	$localLang = null;
+
+	//TODO: replace with a switch the if-s
 	foreach ($metacourse as $key => $course) {
+		//if field empty
+		if ($course == "") {
+			continue;
+		}
+		if ($key == 'duration_unit') {
+
+			//skip the duration_unit as a separate row, and add it instead in the duration row
+
+			//get the duration from the table data.
+			$table_index = count( $table->data ) - 1;
+			$unit_index = count($table->data[$table_index]) - 1;
+			$unit = $table->data[$table_index][$unit_index];
+
+			$timeunit = "";
+			switch ($course) {
+				case '1':
+					$timeunit = "seconds";
+					break;
+				case '60':
+					$timeunit = "minutes";
+					break;
+				case '3600':
+					$timeunit = "hours";
+					break;
+				case '86400':
+					$timeunit = "days";
+					break;
+				case '604800':
+					$timeunit = "weeks";
+					break;	
+				default:
+					# code...
+					break;
+			}
+			//add the timeunit to the duration strip the s from the end of the timeunit if only one.
+			$unit .= ($unit == 1) ? " ".substr($timeunit, 0, -1) : " $timeunit";
+			$table->data[$table_index][$unit_index] = $unit;
+			continue;
+		}
+
+		// if name, put it as a header
+		if ($key == 'name') {
+			$title = ucfirst($course);
+			continue;
+		}
+		if ($key == 'localname') {
+			$localTitle = ucfirst($course);
+			continue;
+		}
+		if ($key == 'localname_lang') {
+			$localLang = $course;
+			continue;
+		}
 		if ($key == 'id') continue; //we don't want to display the id
 		// get the name and the email instead of his id
 		if ($key == 'coordinator') {
@@ -49,23 +107,31 @@ if ($metacourse) {
 		if ($key == 'timemodified') {
 			$course = date("F j, Y, g:i a",$course);
 		}
+
 		$table->data[] = array(ucfirst($key), $course);
 	}
+
+	if (!empty($localTitle) && (current_language() == $localLang)) {
+		echo html_writer::tag('h1', $localTitle, array('id' => 'course_header', 'class' => 'main'));
+	} else {
+		echo html_writer::tag('h1', $title, array('id' => 'course_header', 'class' => 'main'));
+	}
+	echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 	echo html_writer::table($table);
 
 	echo html_writer::tag('h1', 'Course dates', array('id' => 'course_header', 'class' => 'main'));
-	$datecourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id", array("id"=>$id));
+	$datecourses = $DB->get_records_sql("SELECT d.*, c.currency FROM {meta_datecourse} d join {meta_currencies} c on d.currencyid=c.id where metaid = :id", array("id"=>$id));
 	
 	$date_table = new html_table();
 	$date_table->id = "view_date_table";
 	$date_table->width = "100%";
 	$date_table->tablealign = "center";
-	$date_table->head = array('Start date', 'End date', 'Location', 'Language', 'Price', 'Total places', 'Free places', 'Action');
+	$date_table->head = array('Start date', 'End date', 'Location', 'Language', 'Price', 'Number of seats/Attendees available', 'Number of participants', 'Action');
 
 	foreach ($datecourses as $key => $datecourse) {
 
-		$start = date("F j, Y",$datecourse->startdate);
-		$end = date("F j, Y",$datecourse->enddate);
+		$start = date("j/m/Y - h:i A",$datecourse->startdate);
+		$end = date("j/m/Y - h:i A",$datecourse->enddate);
 
 		//replace id with location
 		$loc = $DB->get_record('meta_locations', array ('id'=> $datecourse->location), 'location'); 
@@ -74,8 +140,9 @@ if ($metacourse) {
 		//replace id with language
 		$lang = $DB->get_record('meta_languages', array ('id'=> $datecourse->lang), 'language'); 
 		$language =$lang->language;
-
-		$price =$datecourse->price;
+		$price = str_replace(array(".",","), '', $datecourse->price);
+		$price = number_format($price);
+		$price .= " " . $datecourse->currency;
 		$total_places =$datecourse->total_places;
 		$busy_places = $DB->get_records_sql("
 			select count(ra.id) as busy_places from {role_assignments} ra 
@@ -95,19 +162,25 @@ if ($metacourse) {
 		//if no more places, disable the button
 		if ($free_places <= 0) {
 			$free_places = 0;
-			$enrolMe->disabled = true;
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "Add me to waiting list");
+			if ($DB->record_exists('meta_waitlist',array('userid'=>$USER->id, 'courseid'=>$datecourse->courseid))) {
+				$enrolMe->disabled = true;
+			}
 		}
 
 		/// if the user is already enrolled disable the button
 		$coursecontext = context_course::instance($datecourse->courseid);
 		if (is_enrolled($coursecontext, $USER->id)) {
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "You are enrolled");
 			$enrolMe->disabled = true;
 		}
 
-
 		$action = $OUTPUT->render($enrolMe);
-
-		$date_table->data[] = array($start, $end,$location,$language,$price,$total_places, $free_places, $action);
+		if ($isTeacher) {
+			$date_table->data[] = array($start, $end,$location,$language,$price,$total_places, $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$free_places), $action);
+		} else {
+			$date_table->data[] = array($start, $end,$location,$language,$price,$total_places, $free_places, $action);
+		}
 	}
 	echo html_writer::table($date_table);
 
@@ -116,13 +189,14 @@ if ($metacourse) {
 	$tos = $DB->get_records_sql("SELECT * FROM {meta_tos}");
 	$tos = reset($tos);
 
+	// the modal window for TOS
 	echo "<div id='lean_background'>
 			<div id='lean_overlay'>
 			<h1>Terms of agreement</h1>
             <div id='tos_content'>$tos->tos</div>
             <div id='cmd'>
-            	<input type='checkbox' name='accept'> I accept the terms of agreement
-            	<input id='accept_enrol' type='button' name='submit' value='Enrol me' >
+            	<input type='checkbox' name='accept'> I accept the terms of agreement <span id='waitingSpan' style='display:none'>and I have acknowledged that I will be enrolled as soon as there is an available seat</span>
+            	<input id='accept_enrol' type='button' name='submit' value='Enrol' >
             	<input type='button' name='cancel' value='Cancel' >
 
             </div>

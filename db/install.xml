@@ -3,22 +3,74 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
   <TABLES> 
+    <TABLE NAME="meta_waitlist" COMMENT="Main information about meta_waitlist">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="id" NEXT="instanceid"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="userid" NEXT="timestart"/>
+        <FIELD NAME="timestart" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="courseid" NEXT="timeend"/>
+        <FIELD NAME="timeend" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timestart" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timeend"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="meta_providers" COMMENT="Providers for the metacourses">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="provider" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
     <TABLE NAME="meta_course" COMMENT="Defines metacourses">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="localname" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="localname_lang" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="purpose" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="target" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="instructors" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="comment" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="duration" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="duration_unit" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="cancellation" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="coordinator" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user in user table"/>
-        <FIELD NAME="provider" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="provider" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="coordinator" TYPE="foreign" FIELDS="coordinator" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="provider" TYPE="foreign" FIELDS="provider" REFTABLE="meta_providers" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="meta_template" COMMENT="Defines templates for metacourses">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="localname" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="localname_lang" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="purpose" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="target" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="instructors" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="comment" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="duration" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="duration_unit" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="cancellation" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="coordinator" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user in user table"/>
+        <FIELD NAME="provider" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="coordinator" TYPE="foreign" FIELDS="coordinator" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="provider" TYPE="foreign" FIELDS="provider" REFTABLE="meta_providers" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="meta_locations" COMMENT="Locations for the metacourses">
@@ -30,10 +82,22 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="meta_currencies" COMMENT="Currencies for the metacourses">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="currency" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="active" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
     <TABLE NAME="meta_languages" COMMENT="Languages for the metacourses">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="language" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="iso" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="active" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -49,6 +113,7 @@
         <FIELD NAME="location" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="lang" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="price" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="currencyid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="total_places" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="free_places" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="open" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="0 = open for registration, 1 = registration closed"/>
@@ -60,6 +125,7 @@
         <KEY NAME="location" TYPE="foreign" FIELDS="location" REFTABLE="meta_locations" REFFIELDS="id"/>
         <KEY NAME="lang" TYPE="foreign" FIELDS="lang" REFTABLE="meta_languages" REFFIELDS="id"/>
         <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="currencyid" TYPE="foreign" FIELDS="currencyid" REFTABLE="meta_currencies" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="meta_tos" COMMENT="Defines terms of service for courses. Will only have one row.">

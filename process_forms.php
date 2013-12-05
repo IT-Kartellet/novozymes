@@ -11,12 +11,17 @@ require_capability('moodle/course:create', context_system::instance());
 
 $PAGE->set_context(get_system_context());
 
+$metaid = $_SESSION['meta_id'];
 $name = $_SESSION['meta_name'];
+$localname = $_SESSION['meta_localname'];
+$localname_lang = $_SESSION['meta_localname_lang'];
 $purpose = $_SESSION['meta_purpose'];
 $target = $_SESSION['meta_target'];
 $content = $_SESSION['meta_content'];
 $instructors = $_SESSION['meta_instructors'];
 $comment = $_SESSION['meta_comment'];
+$duration = $_SESSION['meta_duration'];
+$cancellation = $_SESSION['meta_cancellation'];
 $coordinator = $_SESSION['meta_coordinator'];
 $provider = $_SESSION['meta_provider'];
 
@@ -25,64 +30,114 @@ $timestarts = $_POST['timestart'];
 $timeends = $_POST['timeend'];
 
 $meta = new stdClass();
+$meta->id = $metaid;
 $meta->name = $name;
+$meta->localname = $localname;
+$iso_lang = $DB->get_record("meta_languages",array('id'=>$localname_lang));
+$meta->localname_lang = $iso_lang->iso;
 $meta->purpose = $purpose['text'];
 $meta->target = $target;
 $meta->content = $content['text'];
 $meta->instructors = $instructors;
 $meta->comment = $comment;
+$meta->duration = $duration['number'];
+$meta->duration_unit = $duration['timeunit'];
+$meta->cancellation = $cancellation['text'];
 $meta->coordinator = $coordinator;
 $meta->provider = $provider;
 $meta->timemodified = time();
 
-$metaid = $DB->insert_record('meta_course', $meta);
+// echo $metaid;
+// echo "<hr />";
+// print_r($meta);
+// echo "<hr />";
+// print_r($datecourses);
+// exit();
+//if we are editing
+if ($metaid) {
+	$DB->update_record('meta_course',$meta);
+} else {
+	$metaid = $DB->insert_record('meta_course', $meta);
+}
 
 foreach ($datecourses as $key => $course) {
 	$dc = new stdClass();
+
+	//if we are editing
+	if ($course['id']) {
+		$dc->id = $course['id'];
+	}
 	$dc->metaid = $metaid;
 
-	$dc->startdate = strtotime( implode("-",array_reverse($timestarts[$key]))  . " 00:00:00");
-	$dc->enddate = strtotime( implode("-",array_reverse($timeends[$key])) . " 23:59:59");
+	$starttime = array(	"day"=>$timestarts[$key]['day'],
+						"month"=>$timestarts[$key]['month'],
+						"year"=>$timestarts[$key]['year'],
+						"hour"=>$timestarts[$key]['hour'],
+						"minute"=>$timestarts[$key]['minute']
+	 );
+	$endtime = array(	"day"=>$timeends[$key]['day'],
+						"month"=>$timeends[$key]['month'],
+						"year"=>$timeends[$key]['year'],
+						"hour"=>$timeends[$key]['hour'],
+						"minute"=>$timeends[$key]['minute']
+	 );
 
-	$loc = $DB->get_records_sql("SELECT id from {meta_locations} where location = :location", array("location"=>$course['location']));
-	$loc = reset($loc);
+	//format the times
+	$ts = implode("-",array($starttime['year'], $starttime['month'], $starttime['day']));
+	$ts .= " " . $starttime['hour'] . ":" . $starttime['minute'] . ":00";
+	$te = implode("-",array($endtime['year'], $endtime['month'], $endtime['day']));
+	$te .= " " . $endtime['hour'] . ":" . $endtime['minute'] . ":00";
 
-	if ($loc->id == null) {
-		$location = new stdClass();
-		$location->location = $course['location'];
-		$loc_id = $DB->insert_record("meta_locations",$location);
-		$dc->location = $loc_id;
-		
-	} else {
-		$dc->location = $loc->id;
-	}
+	$dc->startdate = strtotime($ts);
+	$dc->enddate = strtotime($te);
+
+	$dc->location = $course['location'];
+
 	$dc->lang = $course['language'];
 	$dc->price = $course['price'];
+	$dc->currencyid = $course['currency'];
 	$dc->total_places = $course['places'];
-	$dc->free_places = $course['places'];
+	// only if have a new course we add the free seats
+	if (!$dc->id) {
+		$dc->free_places = $course['places'];
+	} else {
+		// update the nr of free places
+		$places = $DB->get_records_sql("SELECT total_places, free_places from {meta_datecourse} where id=:id",array("id"=>$dc->id));
+		$places = reset($places);
+		$dc->free_places = ($dc->total_places - $places->total_places) + $places->free_places;
+	}
 	$dc->open = 1;
 	$dc->timemodified = time();
-	if ($dc->location == null || $dc->price == null || $dc->total_places == null) {
-		continue;
+
+	//if we have id we update on old one
+	if ($dc->id) {
+		$DB->update_record('meta_datecourse', $dc);
+		$dc = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id",array("id"=>$dc->id));
+		$dc = reset($dc);
+		
+		update_meta_course($metaid,$dc, $course['category']);
+		$updatedCourseId = $DB->get_record('meta_datecourse', array('id'=>$dc->id));
+		add_coordinator($meta->coordinator, $updatedCourseId->courseid);
+
+		//go and add people from the waiting list
+	} else {
+		// else insert and create new courses
+
+		$datecourseid = $DB->insert_record('meta_datecourse', $dc);
+		//create the course
+		$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
+
+		$created_courseid = create_new_course($courseName,$courseName, $course['category'], $dc->startdate);
+
+		// add the manual enrolment
+		$DB->insert_record("enrol",array("enrol"=>"manual","status"=>0, "roleid"=>5,"courseid"=>$created_courseid));
+
+		// update the datecourse with the course id
+		$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
+		add_coordinator($meta->coordinator, $created_courseid);
 	}
 
-	$datecourseid = $DB->insert_record('meta_datecourse', $dc);
-
-	//create the course
-	$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
-
-	//TODO: replace the third parameter with the category in which to add the courses;
-	$created_courseid = create_new_course($courseName,$courseName, $course['category'], $dc->startdate);
-
-	// add the manual enrolment
-	$DB->insert_record("enrol",array("enrol"=>"manual","status"=>0, "roleid"=>5,"courseid"=>$created_courseid));
-
-	// update the datecourse with the course id
-	$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
-
-	add_coordinator($meta->coordinator, $created_courseid);
 
 	purge_all_caches();
 }
-
 header("Location: " . $CFG->wwwroot."/blocks/metacourse/list_metacourses.php" );
