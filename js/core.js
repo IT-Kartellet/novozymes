@@ -32,6 +32,7 @@
 
 		victim.find("select[name='datecourse[" + (index-2) + "][location]']").attr("name", "datecourse[" + (index-1) + "][location]");
 		victim.find("select[name='datecourse[" + (index-2) + "][language]']").attr("name", "datecourse[" + (index-1) + "][language]");
+		victim.find("select[name='datecourse[" + (index-2) + "][coordinator]']").attr("name", "datecourse[" + (index-1) + "][coordinator]");
 
 
 		victim.find("input[name='datecourse[" + (index-2) + "][price]']").attr("name", "datecourse[" + (index-1) + "][price]");
@@ -333,6 +334,10 @@
 			}
 		});
 	});
+
+// remove the seconds from the duration dropdown
+	$('#id_duration_timeunit option[value="1"]').remove();
+
 
 
 })();

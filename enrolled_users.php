@@ -29,9 +29,15 @@ if ($id) {
 	$datecourse = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id",array("id"=>$id));
 	$datecourse = reset($datecourse);
 	if ($datecourse) {
-		$enrolled_users = $DB->get_records_sql("select * from mdl_user u join (select md.courseid as cid, j.* from mdl_meta_datecourse md join 
-			(select ue.userid, e.courseid from mdl_user_enrolments ue join mdl_enrol e on ue.enrolid = e.id) j on 
-			md.courseid = j.courseid where j.courseid = :courseid) a on u.id = a.userid",array("courseid"=>$datecourse->courseid));
+		$enrolled_users = $DB->get_records_sql("
+			SELECT u.username, u.firstname, u.lastname, u.email, u.city, u.country, u.lastaccess
+			FROM mdl_role_assignments ra, mdl_user u, mdl_course c, mdl_context cxt
+			WHERE ra.userid = u.id
+			AND ra.contextid = cxt.id
+			AND cxt.contextlevel =50
+			AND cxt.instanceid = c.id
+			AND c.id = :courseid
+			AND (roleid = 5)", array("courseid"=>$datecourse->courseid));
 
 		$table = new html_table();
 		$table->id = "meta_table";

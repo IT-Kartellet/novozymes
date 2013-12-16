@@ -13,6 +13,7 @@ $deleteLocation = optional_param("deleteLocation", 0, PARAM_INT);
 $newProvider    = optional_param("newProvider", "", PARAM_TEXT);
 $deleteProvider = optional_param("deleteProvider", 0, PARAM_INT);
 $deleteMeta     = optional_param("deleteMeta", 0, PARAM_INT);
+$exportExcel     = optional_param("exportExcel", 0, PARAM_INT);
 
 //template
 $saveTemplate         = optional_param("saveTemplate", 0, PARAM_INT);
@@ -153,4 +154,31 @@ if ($getTemplate != 0) {
 	} else {
 		echo json_encode("");
 	}
+}
+
+if ($exportExcel) {
+	$courseid = $exportExcel;
+
+	$courses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id ", array("id"=> $courseid));
+
+	foreach ($courses as $key => $course) {
+		$context = get_context_instance( CONTEXT_COURSE, $course->courseid );
+
+		$query = 'select u.id as id, firstname, lastname, picture, imagealt, email from {role_assignments} as a, {user} as u where contextid=' . $context->id . ' and roleid=5 and a.userid=u.id';
+		$rs = $DB->get_recordset_sql( $query ); 
+		foreach( $rs as $r ) { 
+         file_put_contents("C:\\xampp\htdocs\moodle\\enrolled_users.xls", $r->firstname . "\t" . $r->lastname ."\t" .$r->email . "\n", FILE_APPEND);
+		}
+	}
+	$file_url = "C:\\xampp\htdocs\moodle\\enrolled_users.xls";
+	header("Content-Type:   application/vnd.ms-excel; charset=utf-8");
+	header("Content-Disposition: attachment; filename=enrolled_users.xls");  //File name extension was wrong
+	header("Expires: 0");
+	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+	header("Cache-Control: private",false);
+    ob_clean();
+    flush();
+    readfile($file_url);
+    unlink($file_url);
+    exit;
 }

@@ -29,7 +29,6 @@ $metacourses = $DB->get_records_sql("SELECT d.*, pr.provider FROM {meta_provider
 									(SELECT c.id, c.localname,c.localname_lang, c.name, c.provider as providerid, u.firstname, u.lastname, u.email 
 									FROM {meta_course} c join {user} u on c.coordinator = u.id order by c.provider asc) d 
 									on pr.id = d.providerid");
-
 $table = new html_table();
 $table->id = "meta_table";
 $table->width = "100%";
@@ -46,8 +45,25 @@ foreach ($metacourses as $key => $course) {
 
 	$deleteCourse = new single_button(new moodle_url("/blocks/metacourse/api.php", array("deleteMeta"=>$key)), "Delete course", 'post');
 	$editCourse = new single_button(new moodle_url("/blocks/metacourse/add_metacourse.php", array("id"=>$key)), "Edit course", 'post');
+	$exportExcel = new single_button(new moodle_url("/blocks/metacourse/api.php", array("exportExcel"=>$key)), "Export users", 'post');
 
-	$deleteCourse->add_confirm_action("Are you sure you want to delete this course?");
+	// count the number of users already enrolled in the course
+	$sql = "select count(distinct ue.userid) as nr_users 
+		from mdl_enrol e join mdl_user_enrolments ue 
+		on e.id = ue.enrolid where courseid in (";
+
+	foreach ($datecourses as $k => $dc) {
+		$sql .= $dc->courseid . ",";
+	}
+
+	$sql = substr($sql, 0, -1); // remove the last comma
+	$sql .= ") and e.roleid = 5";
+	$nr_enrolled = $DB->get_records_sql($sql);
+	$nr_enrolled = reset($nr_enrolled);
+	$nr_enrolled->nr_users--; // substract the coordinator of the course
+
+
+	$deleteCourse->add_confirm_action("Are you sure you want to delete it?  There are $nr_enrolled->nr_users students enrolled in this course.");
 	
 	if (!empty($course->localname) && (current_language() == $course->localname_lang)) {
 		$link = html_writer::link(new moodle_url('/blocks/metacourse/view_metacourse.php', array('id'=>$key)), html_entity_decode($course->localname));
@@ -64,7 +80,7 @@ foreach ($metacourses as $key => $course) {
 	$dates .= "</ul>";
 
 	if ($teacher) {
-		$table->data[] = array($link, $coordinator, $provider, $dates, $OUTPUT->render($deleteCourse) . $OUTPUT->render($editCourse));
+		$table->data[] = array($link, $coordinator, $provider, $dates, $OUTPUT->render($deleteCourse) . $OUTPUT->render($editCourse). $OUTPUT->render($exportExcel));
 	} else {
 		$table->data[] = array($link, $coordinator, $provider, $dates);
 	}

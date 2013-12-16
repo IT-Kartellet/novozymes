@@ -18,6 +18,7 @@ $_SESSION['meta_purpose'] = optional_param_array('purpose',"",PARAM_RAW);
 $_SESSION['meta_target'] = optional_param('target',"",PARAM_TEXT);
 $_SESSION['meta_content'] = optional_param_array('content',"",PARAM_RAW);
 $_SESSION['meta_cancellation'] = optional_param_array('cancellation',"",PARAM_RAW);
+$_SESSION['meta_contact'] = optional_param_array('contact',"",PARAM_RAW);
 $_SESSION['meta_instructors'] = optional_param('instructors',"",PARAM_TEXT);
 $_SESSION['meta_comment'] = optional_param('comment',"",PARAM_TEXT);
 $_SESSION['meta_duration'] = optional_param_array('duration',"",PARAM_TEXT);

@@ -69,6 +69,7 @@ if ($id == 0) {
 	$meta->purpose = array("text"=>$meta->purpose);
 	$meta->content = array("text"=>$meta->content);
 	$meta->cancellation = array("text"=>$meta->cancellation);
+	$meta->contact = array("text"=>$meta->contact);
 	$duration_time = $meta->duration;
 	$meta->duration = array();
 	$meta->duration['number'] = $duration_time;

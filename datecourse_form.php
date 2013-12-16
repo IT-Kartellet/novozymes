@@ -6,7 +6,7 @@ class datecourse_form extends moodleform {
     public $number = 0;
 
     public function definition() {
-        global $CFG, $DB, $PAGE;
+        global $CFG, $DB, $PAGE, $USER;
         $PAGE->requires->js(new moodle_url('/lib/jquery/jquery-1.9.1.min.js'));
         $PAGE->requires->js(new moodle_url('js/core.js'));
  
@@ -36,6 +36,14 @@ class datecourse_form extends moodleform {
             return $cat->name;
         }, $categories); 
 
+        $coordinators = $DB->get_records_sql("
+            select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u join 
+                {role_assignments} ra on u.id = ra.userid and ra.roleid in (1,2,3,4) and u.id <> 1
+         ");     
+        $coordinators = array_map(function ($arg){
+                return " (" .$arg->firstname . " " . $arg->lastname . ") " .$arg->email;
+            }, $coordinators);
+
         $mform->addElement('header', 'header_courses', 'COURSES');
         $mform->addElement('html',"<div id='wrapper'>");
 
@@ -53,6 +61,8 @@ class datecourse_form extends moodleform {
             $mform->addElement('text', 'datecourse['. $key .'][price]', 'Price');
             $mform->addElement('select', 'datecourse['. $key .'][currency]', 'Currency', $currencies, null);
             $mform->addElement('text', 'datecourse['. $key .'][places]', 'Nr. of places');
+            $mform->addElement('select', 'datecourse['. $key .'][coordinator]', 'Coordinator', $coordinators, null);
+            $mform->setDefault('coordinator', $USER->id);
             $mform->addElement('html',"</div>");
 
             $mform->setType('datecourse['. $key .'][id]', PARAM_INT);
@@ -90,6 +100,7 @@ class datecourse_form extends moodleform {
                 $awesomeData->{'datecourse['. $horribleCounter .'][price]'} = $dc->price;
                 $awesomeData->{'datecourse['. $horribleCounter .'][currency]'} = $dc->currencyid;
                 $awesomeData->{'datecourse['. $horribleCounter .'][places]'} = $dc->total_places;
+                $awesomeData->{'datecourse['. $horribleCounter .'][coordinator]'} = $dc->coordinator;
 
                 $horribleCounter++;
             }

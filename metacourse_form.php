@@ -12,14 +12,13 @@ class metacourse_form extends moodleform {
         $mform = $this->_form;
         $data = $this->_customdata['data'];
 
-        // get coordinator from the database - takes only users that already have a teacher role
-        // $coordinators = $DB->get_records_sql("select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from mdl_user u join {role_assignments} ra on u.id = ra.userid and ra.roleid = 3 or ra.roleid = 1"); //skip the guest      
-        
-        //this one takes all the users;
-        $coordinators = $DB->get_records_sql("SELECT distinct u.id, u.firstname, u.lastname, u.email from {user} u where u.id not in (1)"); //skip the guest		
+        $coordinators = $DB->get_records_sql("
+            select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u join 
+                {role_assignments} ra on u.id = ra.userid and ra.roleid in (1,2,3,4) and u.id <> 1
+         ");     
         $coordinators = array_map(function ($arg){
-    			return " (" .$arg->firstname . " " . $arg->lastname . ") " .$arg->email;
-    		}, $coordinators);
+                return " (" .$arg->firstname . " " . $arg->lastname . ") " .$arg->email;
+            }, $coordinators);
         //get the locations from the database
         $locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");		
         $locations = array_map(function ($arg){
@@ -58,6 +57,7 @@ class metacourse_form extends moodleform {
         // $mform->addElement('text', 'duration', 'Duration (days)');
         $mform->addElement('duration', 'duration', "Duration");
         $mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addElement('editor', 'contact', 'Contact person',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('select', 'coordinator', 'Coordinator', $coordinators, null);
         $mform->setDefault('coordinator', $USER->id);
         $mform->addElement('select', 'provider', 'Provider', $providers, null);
@@ -72,7 +72,8 @@ class metacourse_form extends moodleform {
         $mform->setType('target', PARAM_NOTAGS);
 		$mform->setType('purpose', PARAM_RAW); // no vulnerability prevention here, users must be trusted! :)
         $mform->setType('content', PARAM_RAW);
-		$mform->setType('cancellation', PARAM_RAW);
+        $mform->setType('cancellation', PARAM_RAW);
+		$mform->setType('contact', PARAM_RAW);
 		$mform->setType('instructors', PARAM_NOTAGS);
         $mform->setType('comment', PARAM_NOTAGS);
 		$mform->setType('duration', PARAM_NOTAGS);

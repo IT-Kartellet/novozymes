@@ -39,6 +39,7 @@
         <FIELD NAME="duration" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="duration_unit" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="cancellation" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="contact" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="coordinator" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user in user table"/>
         <FIELD NAME="provider" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -116,6 +117,7 @@
         <FIELD NAME="currencyid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="total_places" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="free_places" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="coordinator" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user in user table"/>
         <FIELD NAME="open" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="0 = open for registration, 1 = registration closed"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
@@ -126,6 +128,7 @@
         <KEY NAME="lang" TYPE="foreign" FIELDS="lang" REFTABLE="meta_languages" REFFIELDS="id"/>
         <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
         <KEY NAME="currencyid" TYPE="foreign" FIELDS="currencyid" REFTABLE="meta_currencies" REFFIELDS="id"/>
+        <KEY NAME="coordinator" TYPE="foreign" FIELDS="coordinator" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="meta_tos" COMMENT="Defines terms of service for courses. Will only have one row.">

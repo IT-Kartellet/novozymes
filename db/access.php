@@ -32,6 +32,13 @@ $capabilities = array(
             'student' => CAP_ALLOW
         )
     ),
+    'block/metacourse:iamstudent' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'student' => CAP_ALLOW
+        )
+    ),
     'block/metacourse:myaddinstance' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,

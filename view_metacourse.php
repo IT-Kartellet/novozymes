@@ -26,7 +26,7 @@ $isTeacher = has_capability("moodle/course:create", get_system_context());
 echo $OUTPUT->header();
 global $DB, $USER;
 $metacourse = $DB->get_records_sql("
-	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.coordinator, p.provider, c.timemodified 
+	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.coordinator, p.provider, c.contact, c.timemodified 
 	FROM {meta_course} c join {meta_providers} p on c.provider = p.id where c.id = :id", array("id"=>$id));
 $metacourse = reset($metacourse);
 
@@ -110,6 +110,21 @@ if ($metacourse) {
 
 		$table->data[] = array(ucfirst($key), $course);
 	}
+	// get only teachers' views
+	// $nr_of_views = $DB->get_records_sql("SELECT * FROM {log} l where module = :module and url like :url and l.userid not in (SELECT u.id
+	// 		FROM {role_assignments} ra, {user} u, {course} c, {context} cxt
+	// 		WHERE ra.userid = u.id
+	// 		AND ra.contextid = cxt.id
+	// 		AND cxt.contextlevel =50
+	// 		AND cxt.instanceid = c.id
+	// 		AND (roleid = 3))", array("module"=>"metacourse","url"=>"%$id")); 
+
+	// gets all the views
+	$nr_of_views = $DB->get_records_sql("SELECT * FROM {log} l where module = :module and url like :url", array("module"=>"metacourse","url"=>"%$id")); 
+	$nr_of_views = count($nr_of_views);
+	if ($isTeacher) {
+		$table->data[] = array("Views", $nr_of_views);
+	}
 
 	if (!empty($localTitle) && (current_language() == $localLang)) {
 		echo html_writer::tag('h1', $localTitle, array('id' => 'course_header', 'class' => 'main'));
@@ -154,14 +169,12 @@ if ($metacourse) {
 		$busy_places = reset($busy_places);
 		$busy_places = $busy_places->busy_places;
 
-		$free_places = $total_places - $busy_places;
-
+ 
 		//TODO:send also the dates maybe? for the enrolments?
 		$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "Enrol me");
 		
 		//if no more places, disable the button
-		if ($free_places <= 0) {
-			$free_places = 0;
+		if ($busy_places == $total_places) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "Add me to waiting list");
 			if ($DB->record_exists('meta_waitlist',array('userid'=>$USER->id, 'courseid'=>$datecourse->courseid))) {
 				$enrolMe->disabled = true;
@@ -170,16 +183,16 @@ if ($metacourse) {
 
 		/// if the user is already enrolled disable the button
 		$coursecontext = context_course::instance($datecourse->courseid);
-		if (is_enrolled($coursecontext, $USER->id)) {
+		if (is_enrolled($coursecontext, $USER->id,"block/metacourse:iamstudent")) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "You are enrolled");
 			$enrolMe->disabled = true;
 		}
 
 		$action = $OUTPUT->render($enrolMe);
 		if ($isTeacher) {
-			$date_table->data[] = array($start, $end,$location,$language,$price,$total_places, $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$free_places), $action);
+			$date_table->data[] = array($start, $end,$location,$language,$price,$total_places, $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$busy_places), $action);
 		} else {
-			$date_table->data[] = array($start, $end,$location,$language,$price,$total_places, $free_places, $action);
+			$date_table->data[] = array($start, $end,$location,$language,$price,$total_places, $busy_places, $action);
 		}
 	}
 	echo html_writer::table($date_table);
@@ -204,4 +217,23 @@ if ($metacourse) {
         </div></div>";
 
 }
+
+$log_record = new stdClass();
+$log_record->time = time();
+$log_record->userid = $USER->id;
+$log_record->ip = "0:0:0:0:0:0:0:1";
+$log_record->course = 0;
+$log_record->module = 'metacourse';
+$log_record->cmid = 0;
+$log_record->action = 'view';
+$log_record->url = "view_metacourse.php?id=$id";
+$log_record->info = 1;
+
+try {
+	$DB->insert_record('log',$log_record);
+} catch (Exception $e) {
+	
+}
+
+
 echo $OUTPUT->footer();

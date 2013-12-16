@@ -2,6 +2,7 @@
 require_once('../../config.php');
 require_once("$CFG->libdir/formslib.php");
 require_once("$CFG->libdir/adminlib.php");
+require_once("$CFG->libdir/modinfolib.php");
 require_once('datecourse_form.php');
 require_once('lib.php');
 
@@ -22,6 +23,7 @@ $instructors = $_SESSION['meta_instructors'];
 $comment = $_SESSION['meta_comment'];
 $duration = $_SESSION['meta_duration'];
 $cancellation = $_SESSION['meta_cancellation'];
+$contact = $_SESSION['meta_contact'];
 $coordinator = $_SESSION['meta_coordinator'];
 $provider = $_SESSION['meta_provider'];
 
@@ -43,6 +45,7 @@ $meta->comment = $comment;
 $meta->duration = $duration['number'];
 $meta->duration_unit = $duration['timeunit'];
 $meta->cancellation = $cancellation['text'];
+$meta->contact = $contact['text'];
 $meta->coordinator = $coordinator;
 $meta->provider = $provider;
 $meta->timemodified = time();
@@ -107,6 +110,7 @@ foreach ($datecourses as $key => $course) {
 		$dc->free_places = ($dc->total_places - $places->total_places) + $places->free_places;
 	}
 	$dc->open = 1;
+	$dc->coordinator = $course['coordinator'];
 	$dc->timemodified = time();
 
 	//if we have id we update on old one
@@ -118,6 +122,7 @@ foreach ($datecourses as $key => $course) {
 		update_meta_course($metaid,$dc, $course['category']);
 		$updatedCourseId = $DB->get_record('meta_datecourse', array('id'=>$dc->id));
 		add_coordinator($meta->coordinator, $updatedCourseId->courseid);
+		add_coordinator($dc->coordinator, $updatedCourseId->courseid);
 
 		//go and add people from the waiting list
 	} else {
@@ -127,7 +132,7 @@ foreach ($datecourses as $key => $course) {
 		//create the course
 		$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
 
-		$created_courseid = create_new_course($courseName,$courseName, $course['category'], $dc->startdate);
+		$created_courseid = create_new_course($courseName,$courseName, $course['category'], $dc->startdate, $meta->content);
 
 		// add the manual enrolment
 		$DB->insert_record("enrol",array("enrol"=>"manual","status"=>0, "roleid"=>5,"courseid"=>$created_courseid));
@@ -135,6 +140,11 @@ foreach ($datecourses as $key => $course) {
 		// update the datecourse with the course id
 		$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
 		add_coordinator($meta->coordinator, $created_courseid);
+		add_coordinator($dc->coordinator, $created_courseid);
+
+		//add the label with the description
+		add_label($created_courseid, $meta);
+
 	}
 
 
