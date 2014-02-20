@@ -22,7 +22,6 @@ $capabilities = array(
 
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
-
     'block/metacourse:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,

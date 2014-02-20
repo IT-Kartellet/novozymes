@@ -2,7 +2,7 @@
 
 class block_metacourse extends block_list {
 	function init() {
-        $this->title = "";
+        $this->title = "Grow courses";
     }
 
     function get_content(){

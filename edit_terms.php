@@ -15,7 +15,7 @@ $PAGE->set_pagelayout('admin');
 $PAGE->navbar->ignore_active();
 $PAGE->navbar->add("List courses", new moodle_url('/blocks/metacourse/list_metacourses.php'));
 $PAGE->navbar->add("Settings", new moodle_url('/blocks/metacourse/edit_terms.php'));
-$URL = '/moodle/blocks/metacourse/list_metacourses.php';
+$URL = '/blocks/metacourse/list_metacourses.php';
 
 
 $PAGE->set_title("List of current courses");
