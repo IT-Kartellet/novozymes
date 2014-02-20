@@ -31,7 +31,7 @@ if ($id) {
 	if ($datecourse) {
 		$enrolled_users = $DB->get_records_sql("
 			SELECT u.username, u.firstname, u.lastname, u.email, u.city, u.country, u.lastaccess
-			FROM mdl_role_assignments ra, mdl_user u, mdl_course c, mdl_context cxt
+			FROM {role_assignments} ra, {user} u, {course} c, {context} cxt
 			WHERE ra.userid = u.id
 			AND ra.contextid = cxt.id
 			AND cxt.contextlevel =50

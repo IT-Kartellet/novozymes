@@ -13,8 +13,8 @@ class metacourse_form extends moodleform {
         $data = $this->_customdata['data'];
 
         $coordinators = $DB->get_records_sql("
-            select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u join 
-                {role_assignments} ra on u.id = ra.userid and ra.roleid in (1,2,3,4) and u.id <> 1
+            select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u where u.id <> 1 and u.deleted <> 1 and u.suspended <> 1
+                
          ");     
         $coordinators = array_map(function ($arg){
                 return " (" .$arg->firstname . " " . $arg->lastname . ") " .$arg->email;

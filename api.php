@@ -96,6 +96,8 @@ if ($deleteMeta) {
 
 		//delete metacourses
 		$DB->delete_records("meta_course",array("id"=>$deleteMeta));
+		//delete logs
+		$DB->delete_records("log",array("module"=>"metacourse", "url"=>"view_metacourse.php?id=$deleteMeta"));
 	} catch(Exception $e){
 		//courses have already been deleted by the delete_course hook.
 	}

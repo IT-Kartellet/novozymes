@@ -41,7 +41,7 @@ datalist {
   margin: auto;
   position: absolute;
   top: 0; left: 0; bottom: 0; right: 0;
-  z-index:102;
+  z-index:4032;
   height:50%;
   width:80%;
   background: white;
@@ -53,7 +53,7 @@ datalist {
   margin: auto;
   position: fixed;
   top: 0; left: 0; bottom: 0; right: 0;
-  z-index:101;
+  z-index:4031;
   height:100%;
   width:100%;
   background-color: rgba(33,33,33,0.7);
@@ -169,4 +169,323 @@ datalist {
 #region-center-post .region-content .content > ul > li div p:first-of-type,
 #region-center-pre .region-content .content > ul > li div p:first-of-type{
   padding-top:10px;
+}
+
+div.edit_course_btn input[type='submit']:hover,
+div.delete_course_btn input[type='submit']:hover,
+div.export_course_btn input[type='submit']:hover,
+div.edit_course_btn input[type='submit']:active,
+div.delete_course_btn input[type='submit']:active,
+div.export_course_btn input[type='submit']:active,
+div.edit_course_btn input[type='submit']:focus,
+div.delete_course_btn input[type='submit']:focus,
+div.export_course_btn input[type='submit']:focus
+{
+  background-position: 0px;
+  /*padding:2px;*/
+  outline: 1px solid #ccc;
+}
+
+div.edit_course_btn input[type='submit'],
+div.delete_course_btn input[type='submit'],
+div.export_course_btn input[type='submit']{
+  padding: 2px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 24px;
+  height: 24px;
+}
+
+div.export_course_btn input[type='submit']{
+  background-image: url(http://novozymes.it-kartellet.dk/blocks/metacourse/pix/excel.svg);
+}
+
+div.delete_course_btn input[type='submit']{
+  background-image: url(http://novozymes.it-kartellet.dk/blocks/metacourse/pix/delete.svg);
+}
+
+div.edit_course_btn input[type='submit']{
+  background-image: url(http://novozymes.it-kartellet.dk/blocks/metacourse/pix/edit.svg);
+}
+
+
+div.edit_course_btn,
+div.delete_course_btn,
+div.export_course_btn {
+  display: inline-block;
+  width: 30%;
+}
+
+div.edit_course_btn form > div,
+div.delete_course_btn form > div,
+div.export_course_btn form > div {
+  margin:2px;
+  padding:0px;
+}
+
+
+div.settings_btn,
+div.new_course_btn {
+  display: inline-block;
+  width: auto;
+  margin-right: 10px;
+}
+
+input.form-submit:hover,
+input#id_submitbutton:hover,
+input#id_submitbutton2:hover,
+.path-admin .buttons input[type="submit"]:hover,
+td.submit input:hover,
+input.form-submit:focus,
+input#id_submitbutton:focus,
+input#id_submitbutton2:focus,
+.path-admin .buttons input[type="submit"]:focus,
+td.submit input:focus,
+input.form-submit:active,
+input#id_submitbutton:active,
+input#id_submitbutton2:active,
+.path-admin .buttons input[type="submit"]:active,
+td.submit input:active,
+input.form-submit.active,
+input#id_submitbutton.active,
+input#id_submitbutton2.active,
+.path-admin .buttons input[type="submit"].active,
+td.submit input.active,
+input.form-submit.disabled,
+input#id_submitbutton.disabled,
+input#id_submitbutton2.disabled,
+.path-admin .buttons input[type="submit"].disabled,
+td.submit input.disabled,
+input.form-submit[disabled],
+input#id_submitbutton[disabled],
+input#id_submitbutton2[disabled],
+.path-admin .buttons input[type="submit"][disabled],
+td.submit input[disabled] 
+{
+  color: #fff !important;
+  background-color: #ccc !important;
+}
+/*DATATABLES*/
+
+div.dataTables_length label {
+  font-weight: normal;
+  float: left;
+  text-align: left;
+}
+
+div.dataTables_length select {
+  width: 75px;
+}
+
+div.dataTables_filter label {
+  font-weight: normal;
+  float: right;
+}
+
+div.dataTables_filter input {
+  width: 16em;
+}
+
+div.dataTables_info {
+  padding-top: 8px;
+}
+
+div.dataTables_paginate {
+  float: right;
+  margin: 0;
+}
+
+div.dataTables_paginate ul.pagination {
+  margin: 2px 0;
+  white-space: nowrap;
+}
+
+table.dataTable,
+table.dataTable td,
+table.dataTable th {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+
+table.dataTable {
+  clear: both;
+  margin-top: 6px !important;
+  margin-bottom: 6px !important;
+  max-width: none !important;
+}
+
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled {
+  cursor: pointer;
+}
+
+table.dataTable thead .sorting { background: url('../images/sort_both.png') no-repeat center right; }
+table.dataTable thead .sorting_asc { background: url('../images/sort_asc.png') no-repeat center right; }
+table.dataTable thead .sorting_desc { background: url('../images/sort_desc.png') no-repeat center right; }
+
+table.dataTable thead .sorting_asc_disabled { background: url('../images/sort_asc_disabled.png') no-repeat center right; }
+table.dataTable thead .sorting_desc_disabled { background: url('../images/sort_desc_disabled.png') no-repeat center right; }
+
+table.dataTable th:active {
+  outline: none;
+}
+
+/* Scrolling */
+div.dataTables_scrollHead table {
+  margin-bottom: 0 !important;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+div.dataTables_scrollHead table thead tr:last-child th:first-child,
+div.dataTables_scrollHead table thead tr:last-child td:first-child {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+div.dataTables_scrollBody table {
+  border-top: none;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+div.dataTables_scrollBody tbody tr:first-child th,
+div.dataTables_scrollBody tbody tr:first-child td {
+  border-top: none;
+}
+
+div.dataTables_scrollFoot table {
+  margin-top: 0 !important;
+  border-top: none;
+}
+
+
+
+
+/*
+ * TableTools styles
+ */
+.table tbody tr.active td,
+.table tbody tr.active th {
+  background-color: #08C;
+  color: white;
+}
+
+.table tbody tr.active:hover td,
+.table tbody tr.active:hover th {
+  background-color: #0075b0 !important;
+}
+
+.table tbody tr.active a {
+  color: white;
+}
+
+.table-striped tbody tr.active:nth-child(odd) td,
+.table-striped tbody tr.active:nth-child(odd) th {
+  background-color: #017ebc;
+}
+
+table.DTTT_selectable tbody tr {
+  cursor: pointer;
+}
+
+div.DTTT .btn {
+  color: #333 !important;
+  font-size: 12px;
+}
+
+div.DTTT .btn:hover {
+  text-decoration: none !important;
+}
+
+ul.DTTT_dropdown.dropdown-menu {
+  z-index: 2003;
+}
+
+ul.DTTT_dropdown.dropdown-menu a {
+  color: #333 !important; /* needed only when demo_page.css is included */
+}
+
+ul.DTTT_dropdown.dropdown-menu li {
+  position: relative;
+}
+
+ul.DTTT_dropdown.dropdown-menu li:hover a {
+  background-color: #0088cc;
+  color: white !important;
+}
+
+div.DTTT_collection_background {
+  z-index: 2002;  
+}
+
+/* TableTools information display */
+div.DTTT_print_info.modal {
+  height: 150px;
+  margin-top: -75px;
+  text-align: center;
+}
+
+div.DTTT_print_info h6 {
+  font-weight: normal;
+  font-size: 28px;
+  line-height: 28px;
+  margin: 1em;
+}
+
+div.DTTT_print_info p {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+
+
+/*
+ * FixedColumns styles
+ */
+div.DTFC_LeftHeadWrapper table,
+div.DTFC_LeftFootWrapper table,
+div.DTFC_RightHeadWrapper table,
+div.DTFC_RightFootWrapper table,
+table.DTFC_Cloned tr.even {
+    background-color: white;
+}
+ 
+div.DTFC_RightHeadWrapper table ,
+div.DTFC_LeftHeadWrapper table {
+    margin-bottom: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+ 
+div.DTFC_RightHeadWrapper table thead tr:last-child th:first-child,
+div.DTFC_RightHeadWrapper table thead tr:last-child td:first-child,
+div.DTFC_LeftHeadWrapper table thead tr:last-child th:first-child,
+div.DTFC_LeftHeadWrapper table thead tr:last-child td:first-child {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+ 
+div.DTFC_RightBodyWrapper table,
+div.DTFC_LeftBodyWrapper table {
+    border-top: none;
+    margin-bottom: 0 !important;
+}
+ 
+div.DTFC_RightBodyWrapper tbody tr:first-child th,
+div.DTFC_RightBodyWrapper tbody tr:first-child td,
+div.DTFC_LeftBodyWrapper tbody tr:first-child th,
+div.DTFC_LeftBodyWrapper tbody tr:first-child td {
+    border-top: none;
+}
+ 
+div.DTFC_RightFootWrapper table,
+div.DTFC_LeftFootWrapper table {
+    border-top: none;
 }

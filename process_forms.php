@@ -30,6 +30,8 @@ $provider = $_SESSION['meta_provider'];
 $datecourses = $_POST['datecourse'];
 $timestarts = $_POST['timestart'];
 $timeends = $_POST['timeend'];
+$publishdate = $_POST['publishdate'];
+
 
 $meta = new stdClass();
 $meta->id = $metaid;
@@ -50,12 +52,6 @@ $meta->coordinator = $coordinator;
 $meta->provider = $provider;
 $meta->timemodified = time();
 
-// echo $metaid;
-// echo "<hr />";
-// print_r($meta);
-// echo "<hr />";
-// print_r($datecourses);
-// exit();
 //if we are editing
 if ($metaid) {
 	$DB->update_record('meta_course',$meta);
@@ -78,6 +74,7 @@ foreach ($datecourses as $key => $course) {
 						"hour"=>$timestarts[$key]['hour'],
 						"minute"=>$timestarts[$key]['minute']
 	 );
+
 	$endtime = array(	"day"=>$timeends[$key]['day'],
 						"month"=>$timeends[$key]['month'],
 						"year"=>$timeends[$key]['year'],
@@ -85,15 +82,25 @@ foreach ($datecourses as $key => $course) {
 						"minute"=>$timeends[$key]['minute']
 	 );
 
+	$publishtime = array(	"day"=>$publishdate[$key]['day'],
+						"month"=>$publishdate[$key]['month'],
+						"year"=>$publishdate[$key]['year'],
+						"hour"=>$publishdate[$key]['hour'],
+						"minute"=>$publishdate[$key]['minute']
+	 );
+	
 	//format the times
 	$ts = implode("-",array($starttime['year'], $starttime['month'], $starttime['day']));
 	$ts .= " " . $starttime['hour'] . ":" . $starttime['minute'] . ":00";
 	$te = implode("-",array($endtime['year'], $endtime['month'], $endtime['day']));
 	$te .= " " . $endtime['hour'] . ":" . $endtime['minute'] . ":00";
+	$pd = implode("-",array($publishtime['year'], $publishtime['month'], $publishtime['day']));
+	$pd .= " " . $publishtime['hour'] . ":" . $publishtime['minute'] . ":00";
 
-	$dc->startdate = strtotime($ts);
-	$dc->enddate = strtotime($te);
 
+	$dc->startdate = date_timestamp_get(date_create($ts));
+	$dc->enddate = date_timestamp_get(date_create($te));
+	$dc->publishdate = date_timestamp_get(date_create($pd));
 	$dc->location = $course['location'];
 
 	$dc->lang = $course['language'];
@@ -101,7 +108,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->currencyid = $course['currency'];
 	$dc->total_places = $course['places'];
 	// only if have a new course we add the free seats
-	if (!$dc->id) {
+	if (@!$dc->id) {
 		$dc->free_places = $course['places'];
 	} else {
 		// update the nr of free places
@@ -114,7 +121,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->timemodified = time();
 
 	//if we have id we update on old one
-	if ($dc->id) {
+	if (@$dc->id) {
 		$DB->update_record('meta_datecourse', $dc);
 		$dc = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id",array("id"=>$dc->id));
 		$dc = reset($dc);

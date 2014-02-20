@@ -1,5 +1,8 @@
 <?php
 
+require_once($CFG->dirroot.'/calendar/lib.php');
+require_once($CFG->libdir.'/bennu/bennu.inc.php');
+
 
 class enrol_manual_pluginITK extends enrol_plugin{
 
@@ -20,28 +23,70 @@ class enrol_manual_pluginITK extends enrol_plugin{
     $username = urlencode($user->username);
     $username = str_replace('.', '%2E', $username); // prevent problems with trailing dots
     $data->link  = $CFG->wwwroot;
-    $message     = "
-      Hi $username,
-      We hearby confirm that you have been enrolled into $course->fullname.
-      Custom email message will be added here.
-    ";
+
+    $a = new stdClass();
+    $a->username = $username;
+    $a->course = $course->fullname;
+
+    $message     = get_string("emailconf", 'block_metacourse', $a);
     $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
 
     $user->mailformat = 0;  // Always send HTML version as well
 
+    // $teacherCC = $DB->get_records_sql("
+    //   SELECT u.id, u.firstname, u.lastname, u.email, u.city, u.country, u.lastaccess
+    //     FROM {role_assignments} ra, {user} u, {course} c, {context} cxt
+    //     WHERE ra.userid = u.id
+    //     AND ra.contextid = cxt.id
+    //     AND cxt.contextlevel =50
+    //     AND cxt.instanceid = c.id
+    //     AND c.id = :courseid
+    //     AND (roleid = 3)", array("courseid"=>$courseid));
     $teacherCC = $DB->get_records_sql("
-      SELECT u.id, u.firstname, u.lastname, u.email, u.city, u.country, u.lastaccess
-        FROM {role_assignments} ra, {user} u, {course} c, {context} cxt
-        WHERE ra.userid = u.id
-        AND ra.contextid = cxt.id
-        AND cxt.contextlevel =50
-        AND cxt.instanceid = c.id
-        AND c.id = :courseid
-        AND (roleid = 3)", array("courseid"=>$courseid));
+      SELECT u.email from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
+      ", array("cid"=>$courseid));
     $teacherCC = reset($teacherCC);
 
-    return $this->send_enrolment_email($user, $supportuser, $subject, $message, $messagehtml, $teacherCC->email);
+    //iCal
+    
+    $datecourse = $DB->get_record("meta_datecourse", array("courseid"=>$course->id));
 
+    $ical = new iCalendar;
+    $ical->add_property('method', 'PUBLISH');
+
+    $ev = new iCalendar_event;
+    $ev->add_property('uid', $course->id.'@'.'novozymes.it-kartellet.dk');
+    $ev->add_property('summary', $course->fullname);
+    $ev->add_property('description', clean_param($course->summary, PARAM_NOTAGS));
+    $ev->add_property('class', 'PUBLIC'); 
+    $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
+    $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
+    $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
+    $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
+    
+    // if ($course->id != 0) {
+    //     $coursecontext = context_course::instance($course->id);
+    //     $ev->add_property('categories', format_string($courses[$course->id]->shortname, true, array('context' => $coursecontext)));
+    // }
+    $ical->add_component($ev);
+    
+    $serialized = $ical->serialize();
+
+    $file = $CFG->dataroot . "/" . time() . ".ics";
+
+    $fh = fopen($file, "w+");
+    fwrite($fh, $serialized);
+    fclose($fh);
+
+    if(empty($serialized)) {
+        // TODO
+        die('bad serialization');
+    }
+    // calendar_add_icalendar_event($ev, $course->id);
+    //end iCal
+    $result =  $this->send_enrolment_email($user, $supportuser, $subject, $message, $messagehtml, $teacherCC->email, $file, "event.ics");
+    unlink($file);
+    return $result;
   }
 
   private function send_enrolment_email($user, $from, $subject, $messagetext, $messagehtml='', $teacherCC ,$attachment='', $attachname='', $usetrueaddress=true, $replyto='', $replytoname='', $wordwrapwidth=79) {
@@ -199,7 +244,7 @@ class enrol_manual_pluginITK extends enrol_plugin{
         } else {
             require_once($CFG->libdir.'/filelib.php');
             $mimetype = mimeinfo('type', $attachname);
-            $mail->AddAttachment($CFG->dataroot .'/'. $attachment, $attachname, 'base64', $mimetype);
+            $mail->AddAttachment($attachment, $attachname, 'base64', $mimetype);
         }
     }
 
@@ -317,7 +362,7 @@ function update_meta_course($metaid, $datecourse, $category = 1){
     $DB->set_field('course_categories', 'coursecount', $newCategory->coursecount + 1, array('id'=>$newCategory->id));
   }
   //enrol users from the waiting list if we find available seats
-  for ($i=0; $i < $datecourse->free_places; $i++) { 
+  for ($i=0; $i < $datecourse->free_places; $i++) {
     enrol_waiting_user($datecourse);
   }
 
@@ -343,16 +388,16 @@ function add_coordinator($user_id, $course_id) {
         $roles = array(
             'roleid' => 3,
             'contextid' => $coursecontext->id,
-            'userid' => $user_id    
+            'userid' => $user_id
         );
 
         if (!$DB->record_exists('user_enrolments', $conds) || !$DB->record_exists('role_assignments', $roles)) {
             // $DB->delete_records('user_enrolments', array('enrolid'=>$enrol->id));
             // $DB->delete_records('role_assignments', array('roleid'=>3, "contextid"=>$coursecontext->id));
-            
+
             $DB->insert_record('user_enrolments', $conds);
             $DB->insert_record('role_assignments', $roles);
-        } else { 
+        } else {
             $ueID = $DB->get_record('user_enrolments',$conds);
             $conds['id'] = $ueID->id;
             $DB->update_record('user_enrolments', $conds);
@@ -361,7 +406,7 @@ function add_coordinator($user_id, $course_id) {
             $roles['id'] = $raID->id;
             $DB->update_record('role_assignments', $roles);
         }
-    }  
+    }
   }
 
 function enrol_waiting_user($eventData){
@@ -457,7 +502,7 @@ function add_label($courseid, $meta) {
   $course_section->showavailability = 0;
   $course_section->groupingid = 0;
 
-  $DB->insert_record("course_sections",$course_section); 
+  $DB->insert_record("course_sections",$course_section);
 
   rebuild_course_cache($courseid);
 }

@@ -30,6 +30,12 @@
 		victim.find("select[name='timeend[" + (index-2) + "][hour]']").attr("name", "timeend[" + (index-1) + "][hour]");
 		victim.find("select[name='timeend[" + (index-2) + "][minute]']").attr("name", "timeend[" + (index-1) + "][minute]");
 
+		victim.find("select[name='publishdate[" + (index-2) + "][day]']").attr("name", "publishdate[" + (index-1) + "][day]");
+		victim.find("select[name='publishdate[" + (index-2) + "][month]']").attr("name", "publishdate[" + (index-1) + "][month]");
+		victim.find("select[name='publishdate[" + (index-2) + "][year]']").attr("name", "publishdate[" + (index-1) + "][year]");
+		victim.find("select[name='publishdate[" + (index-2) + "][hour]']").attr("name", "publishdate[" + (index-1) + "][hour]");
+		victim.find("select[name='publishdate[" + (index-2) + "][minute]']").attr("name", "publishdate[" + (index-1) + "][minute]");
+
 		victim.find("select[name='datecourse[" + (index-2) + "][location]']").attr("name", "datecourse[" + (index-1) + "][location]");
 		victim.find("select[name='datecourse[" + (index-2) + "][language]']").attr("name", "datecourse[" + (index-1) + "][language]");
 		victim.find("select[name='datecourse[" + (index-2) + "][coordinator]']").attr("name", "datecourse[" + (index-1) + "][coordinator]");
@@ -59,7 +65,7 @@
 		};
 	});
 
-	$(document.body).on('click','input[value="Enrol me"]',function(e){
+	$(document.body).on('click','div.enrolMeButton input',function(e){
 		e.preventDefault();
 
 		enrolledCourse = $(this);

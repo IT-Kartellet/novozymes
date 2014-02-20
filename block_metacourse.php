@@ -2,7 +2,7 @@
 
 class block_metacourse extends block_list {
 	function init() {
-        $this->title = get_string('modulenameplural', 'block_metacourse');
+        $this->title = "";
     }
 
     function get_content(){
@@ -21,28 +21,8 @@ class block_metacourse extends block_list {
 	    $this->content         =  new stdClass;
 	 	$this->content->items  = array();
 	 	$this->content->icons  = array();
-
-        //take this from the database and add them;
-        //ia categoriile
-        //ia subcategoriille din fiecare categorie
-        //ia cursurile din fiecare categorie
-
-        $userid = $USER->id;
-        $cat_list = $DB->get_records_sql("SELECT * FROM {course_categories}");
-        $courses = $DB->get_records_sql("SELECT * FROM {course}");
-        $datecourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse}");
-        $meta_courses = $DB->get_records_sql("SELECT * FROM {meta_course}");
-
-
-        $this->content->items[] = "<div class='meta_category'><h1>View Courses</h1> <a href='/moodle/blocks/metacourse/list_metacourses.php'><img src='http://fakeimg.pl/150x150' alt='fake' /></a><p>Some lorem ipsum description text goes in here</p></div>";
-        $this->content->items[] = "<div class='meta_category'><h1>Category title</h1> <img src='http://fakeimg.pl/150x150' alt='fake' /><p>Some lorem ipsum description text goes in here</p></div>";
-        $this->content->items[] = "<div class='meta_category'><h1>Category title</h1> <img src='http://fakeimg.pl/150x150' alt='fake' /><p>Some lorem ipsum description text goes in here</p></div>";
-        $this->content->items[] = "<div class='meta_category'><h1>Category title</h1> <img src='http://fakeimg.pl/150x150' alt='fake' /><p>Some lorem ipsum description text goes in here</p></div>";
-        $this->content->items[] = "<div class='meta_category'><h1>Category title</h1> <img src='http://fakeimg.pl/150x150' alt='fake' /><p>Some lorem ipsum description text goes in here</p></div>";
-        $this->content->items[] = "<div class='meta_category'><h1>Category title</h1> <img src='http://fakeimg.pl/150x150' alt='fake' /><p>Some lorem ipsum description text goes in here</p></div>";
-        $this->content->items[] = "<div class='meta_category'><h1>Category title</h1> <img src='http://fakeimg.pl/150x150' alt='fake' /><p>Some lorem ipsum description text goes in here</p></div>";
-        $this->content->items[] = "<div class='meta_category'><h1>Category title</h1> <img src='http://fakeimg.pl/150x150' alt='fake' /><p>Some lorem ipsum description text goes in here</p></div>";
     
+        $this->content->items[] = html_writer::tag('a',"GROW", array('href'=>'/blocks/metacourse/list_metacourses.php'));
 
         
 
