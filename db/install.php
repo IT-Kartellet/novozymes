@@ -11,11 +11,11 @@ function xmldb_block_metacourse_install() {
     $records[] = array("language"=>'Bulgarian');
     $records[] = array("language"=>'Catalan');
     $records[] = array("language"=>'Czech');
-    $records[] = array("language"=>'Chinese');
+    $records[] = array("language"=>'Chinese', "iso"=>'zh_cn');
     $records[] = array("language"=>'Croatian');
-    $records[] = array("language"=>'Danish',"active"=>1);
+    $records[] = array("language"=>'Danish',"active"=>1,"iso"=>'da');
     $records[] = array("language"=>'Dutch');
-    $records[] = array("language"=>'English',"active"=>1);
+    $records[] = array("language"=>'English',"active"=>1,"iso"=>'en');
     $records[] = array("language"=>'Estonian');
     $records[] = array("language"=>'Faroese');
     $records[] = array("language"=>'Finnish');
@@ -39,7 +39,7 @@ function xmldb_block_metacourse_install() {
     $records[] = array("language"=>'Nepali');
     $records[] = array("language"=>'Norwegian');
     $records[] = array("language"=>'Polish');
-    $records[] = array("language"=>'Portuguese');
+    $records[] = array("language"=>'Portuguese', "iso"=>'pt');
     $records[] = array("language"=>'Romanian');
     $records[] = array("language"=>'Russian');
     $records[] = array("language"=>'Serbian');

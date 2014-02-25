@@ -21,7 +21,8 @@ $string['enrolme'] = 'Enrol me';
 // need translation
 
 $string['purpose'] = 'Purpose';
-$string['target'] = 'Target'; 
+$string['target'] = 'Target';
+$string['target_description'] = "Target description";
 $string['content'] = 'Content'; 
 $string['comment'] = 'Comment'; 
 $string['duration'] = 'Duration'; 

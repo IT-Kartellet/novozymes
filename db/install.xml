@@ -33,6 +33,7 @@
         <FIELD NAME="localname_lang" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="purpose" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="target" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="target_description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="instructors" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="comment" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
@@ -57,7 +58,7 @@
         <FIELD NAME="localname" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="localname_lang" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="purpose" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="target" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="target" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="instructors" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="comment" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
@@ -72,6 +73,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="coordinator" TYPE="foreign" FIELDS="coordinator" REFTABLE="user" REFFIELDS="id"/>
         <KEY NAME="provider" TYPE="foreign" FIELDS="provider" REFTABLE="meta_providers" REFFIELDS="id"/>
+        <KEY NAME="target" TYPE="foreign" FIELDS="target" REFTABLE="meta_category" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="meta_locations" COMMENT="Locations for the metacourses">
@@ -119,6 +121,7 @@
         <FIELD NAME="total_places" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="free_places" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="coordinator" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user in user table"/>
+        <FIELD NAME="category" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the category in the course_categories table"/>
         <FIELD NAME="open" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="0 = open for registration, 1 = registration closed"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
@@ -130,6 +133,7 @@
         <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
         <KEY NAME="currencyid" TYPE="foreign" FIELDS="currencyid" REFTABLE="meta_currencies" REFFIELDS="id"/>
         <KEY NAME="coordinator" TYPE="foreign" FIELDS="coordinator" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="category" TYPE="foreign" FIELDS="category" REFTABLE="course_categories" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="meta_tos" COMMENT="Defines terms of service for courses. Will only have one row.">
@@ -166,7 +170,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="meta_category_translation" COMMENT="Translations for the category names">
+    <TABLE NAME="meta_category_translation" COMMENT="Translations for the custom category names">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="meta_category_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -177,6 +181,19 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="lang" TYPE="foreign" FIELDS="lang" REFTABLE="meta_languages" REFFIELDS="id"/>
         <KEY NAME="meta_category_id" TYPE="foreign" FIELDS="meta_category_id" REFTABLE="meta_category" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="meta_competence_translation" COMMENT="Translations for the moodle category names/competences">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="meta_competence_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="translation" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="lang" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="lang" TYPE="foreign" FIELDS="lang" REFTABLE="meta_languages" REFFIELDS="id"/>
+        <KEY NAME="meta_competence_id" TYPE="foreign" FIELDS="meta_competence_id" REFTABLE="course_categories" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>

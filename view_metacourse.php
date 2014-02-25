@@ -30,7 +30,7 @@ $titles = [];
 $titles['purpose'] = get_string('purpose', 'block_metacourse'); 
 
 $metacourse = $DB->get_records_sql("
-	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.coordinator, p.provider, c.contact, c.timemodified
+	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.coordinator, p.provider, c.contact, c.timemodified
 	FROM {meta_course} c join {meta_providers} p on c.provider = p.id where c.id = :id", array("id"=>$id));
 $metacourse = reset($metacourse);
 
@@ -105,7 +105,7 @@ if ($metacourse) {
 		if ($key == 'coordinator') {
 			$course = $DB->get_records_sql("SELECT firstname, lastname, email from {user} where id = :id", array("id"=>$course));
 			$course = reset($course);
-			$course = $course->firstname." ".$course->lastname." &lt;".$course->email."&gt;";
+			$course = substr($course->firstname, 0, 1) .".".substr($course->lastname, 0, 1). ". &lt;<a href='mailto:".$course->email."'>".$course->email."</a>&gt;";
 		}
 
 		//format from unix timestamp to human readable
@@ -119,6 +119,10 @@ if ($metacourse) {
 				break;
 			case 'target':
 				$key = get_string('target','block_metacourse');
+				$course = $DB->get_record("meta_category", array("id"=>$course))->name;
+				break;
+			case 'target_description':
+				$key = get_string("target_description", "block_metacourse");
 				break;
 			case 'content':
 				$key = get_string('content','block_metacourse');
@@ -258,7 +262,7 @@ if ($metacourse) {
         <div id='tos_content'><? echo get_string('toscontent','block_metacourse') ?></div>
         <div id='cmd'>
         	<input type='checkbox' name='accept'> <? echo get_string('tosaccept','block_metacourse') ?> <span id='waitingSpan' style='display:none'><? echo get_string('tosacceptwait','block_metacourse') ?></span>
-        	<input id='accept_enrol' type='button' name='submit' value='<? echo get_string('enrolme','block_metacourse') ?>' >
+        	<input id='accept_enrol' type='button' name='submit' value='<? echo get_string('enrolme','enrol_self') ?>' >
         	<input type='button' name='cancel' value='<? echo get_string('cancel') ?>' >
         </div>
 		<div id='lean_close'></div>

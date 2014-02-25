@@ -30,6 +30,14 @@ class metacourse_form extends moodleform {
         $providers = array_map(function ($arg){
                 return $arg->provider;
             }, $providers);
+
+        // Get the Target groups
+
+        $meta_cat = $DB->get_records_sql("SELECT * FROM {meta_category}");      
+        $meta_cat = array_map(function ($arg){
+                return $arg->name;
+            }, $meta_cat);
+
         $languages = $DB->get_records_sql("SELECT * FROM {meta_languages} where active = :active",array("active"=>1));
         $languages = array_map(function($lang){
             return $lang->language;
@@ -50,10 +58,12 @@ class metacourse_form extends moodleform {
         $mform->addElement('text', 'localname', 'Local name');
         $mform->addElement('select', 'localname_lang', 'Local language', $languages, null);
 		$mform->addElement('editor', 'purpose', 'Purpose', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
-        $mform->addElement('text', 'target', 'Target group');
+        $mform->addElement('select', 'target', 'Target group', $meta_cat, null);
+        $mform->addElement('editor', 'target_description', 'Target description', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
 		$mform->addElement('editor', 'content', 'Content', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('text', 'instructors', 'Instructors');
-        $mform->addElement('text', 'comment', 'Comment');
+        // $mform->addElement('text', 'comment', 'Comment');
+        $mform->addElement('editor', 'comment', 'Comment', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         // $mform->addElement('text', 'duration', 'Duration (days)');
         $mform->addElement('duration', 'duration', "Duration");
         $mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));

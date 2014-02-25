@@ -18,6 +18,7 @@ $localname = $_SESSION['meta_localname'];
 $localname_lang = $_SESSION['meta_localname_lang'];
 $purpose = $_SESSION['meta_purpose'];
 $target = $_SESSION['meta_target'];
+$target_description = $_SESSION['meta_target_description'];
 $content = $_SESSION['meta_content'];
 $instructors = $_SESSION['meta_instructors'];
 $comment = $_SESSION['meta_comment'];
@@ -33,6 +34,7 @@ $timeends = $_POST['timeend'];
 $publishdate = $_POST['publishdate'];
 
 
+
 $meta = new stdClass();
 $meta->id = $metaid;
 $meta->name = $name;
@@ -41,9 +43,10 @@ $iso_lang = $DB->get_record("meta_languages",array('id'=>$localname_lang));
 $meta->localname_lang = $iso_lang->iso;
 $meta->purpose = $purpose['text'];
 $meta->target = $target;
+$meta->target_description = $target_description['text'];
 $meta->content = $content['text'];
 $meta->instructors = $instructors;
-$meta->comment = $comment;
+$meta->comment = $comment['text'];
 $meta->duration = $duration['number'];
 $meta->duration_unit = $duration['timeunit'];
 $meta->cancellation = $cancellation['text'];
@@ -104,6 +107,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->location = $course['location'];
 
 	$dc->lang = $course['language'];
+	$dc->category = $course['category'];
 	$dc->price = $course['price'];
 	$dc->currencyid = $course['currency'];
 	$dc->total_places = $course['places'];
