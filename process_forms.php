@@ -9,7 +9,7 @@ require_once('lib.php');
 require_login();
 require_capability('moodle/course:create', context_system::instance());
 
-
+ 
 $PAGE->set_context(get_system_context());
 
 $metaid = $_SESSION['meta_id'];
@@ -24,6 +24,7 @@ $instructors = $_SESSION['meta_instructors'];
 $comment = $_SESSION['meta_comment'];
 $duration = $_SESSION['meta_duration'];
 $cancellation = $_SESSION['meta_cancellation'];
+$lodging = $_SESSION['meta_lodging'];
 $contact = $_SESSION['meta_contact'];
 $coordinator = $_SESSION['meta_coordinator'];
 $provider = $_SESSION['meta_provider'];
@@ -32,7 +33,7 @@ $datecourses = $_POST['datecourse'];
 $timestarts = $_POST['timestart'];
 $timeends = $_POST['timeend'];
 $publishdate = $_POST['publishdate'];
-
+$unpublishdate = $_POST['unpublishdate'];
 
 
 $meta = new stdClass();
@@ -42,7 +43,7 @@ $meta->localname = $localname;
 $iso_lang = $DB->get_record("meta_languages",array('id'=>$localname_lang));
 $meta->localname_lang = $iso_lang->iso;
 $meta->purpose = $purpose['text'];
-$meta->target = $target;
+$meta->target = json_encode($target);
 $meta->target_description = $target_description['text'];
 $meta->content = $content['text'];
 $meta->instructors = $instructors;
@@ -50,6 +51,7 @@ $meta->comment = $comment['text'];
 $meta->duration = $duration['number'];
 $meta->duration_unit = $duration['timeunit'];
 $meta->cancellation = $cancellation['text'];
+$meta->lodging = $lodging['text'];
 $meta->contact = $contact['text'];
 $meta->coordinator = $coordinator;
 $meta->provider = $provider;
@@ -91,6 +93,12 @@ foreach ($datecourses as $key => $course) {
 						"hour"=>$publishdate[$key]['hour'],
 						"minute"=>$publishdate[$key]['minute']
 	 );
+	$unpublishtime = array(	"day"=>$unpublishdate[$key]['day'],
+						"month"=>$unpublishdate[$key]['month'],
+						"year"=>$unpublishdate[$key]['year'],
+						"hour"=>$unpublishdate[$key]['hour'],
+						"minute"=>$unpublishdate[$key]['minute']
+	 );
 	
 	//format the times
 	$ts = implode("-",array($starttime['year'], $starttime['month'], $starttime['day']));
@@ -100,10 +108,13 @@ foreach ($datecourses as $key => $course) {
 	$pd = implode("-",array($publishtime['year'], $publishtime['month'], $publishtime['day']));
 	$pd .= " " . $publishtime['hour'] . ":" . $publishtime['minute'] . ":00";
 
+	$upd = implode("-",array($unpublishtime['year'], $unpublishtime['month'], $unpublishtime['day']));
+	$upd .= " " . $unpublishtime['hour'] . ":" . $unpublishtime['minute'] . ":00";
 
 	$dc->startdate = date_timestamp_get(date_create($ts));
 	$dc->enddate = date_timestamp_get(date_create($te));
 	$dc->publishdate = date_timestamp_get(date_create($pd));
+	$dc->unpublishdate = date_timestamp_get(date_create($upd));
 	$dc->location = $course['location'];
 
 	$dc->lang = $course['language'];
@@ -157,6 +168,23 @@ foreach ($datecourses as $key => $course) {
 		add_label($created_courseid, $meta);
 
 	}
+	//remove them from the session
+ 	unset($_SESSION['meta_id']);
+	unset($_SESSION['meta_name']);
+	unset($_SESSION['meta_localname']);
+	unset($_SESSION['meta_localname_lang']);
+	unset($_SESSION['meta_purpose']);
+	unset($_SESSION['meta_target']);
+	unset($_SESSION['meta_content']);
+	unset($_SESSION['meta_target_description']);
+	unset($_SESSION['meta_cancellation']);
+	unset($_SESSION['meta_lodging']);
+	unset($_SESSION['meta_contact']);
+	unset($_SESSION['meta_instructors']);
+	unset($_SESSION['meta_comment']);
+	unset($_SESSION['meta_duration']);
+	unset($_SESSION['meta_coordinator']);
+	unset($_SESSION['meta_provider']);
 
 
 	purge_all_caches();

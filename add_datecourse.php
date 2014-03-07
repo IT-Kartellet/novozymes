@@ -3,7 +3,7 @@ require_once('../../config.php');
 require_once("$CFG->libdir/formslib.php");
 require_once('datecourse_form.php');
 require_once('lib.php');
-
+ 
 require_login();
 require_capability('moodle/course:create', context_system::instance());
 
@@ -15,10 +15,11 @@ $_SESSION['meta_name'] = optional_param('name',"",PARAM_TEXT);
 $_SESSION['meta_localname'] = optional_param('localname',"",PARAM_TEXT);
 $_SESSION['meta_localname_lang'] = optional_param('localname_lang',"",PARAM_TEXT);
 $_SESSION['meta_purpose'] = optional_param_array('purpose',"",PARAM_RAW);
-$_SESSION['meta_target'] = optional_param('target',"",PARAM_TEXT);
+$_SESSION['meta_target'] = optional_param_array('target',"",PARAM_INT);
 $_SESSION['meta_content'] = optional_param_array('content',"",PARAM_RAW);
-$_SESSION['meta_target_description'] = optional_param_array('content',"",PARAM_RAW);
+$_SESSION['meta_target_description'] = optional_param_array('target_description',"",PARAM_RAW);
 $_SESSION['meta_cancellation'] = optional_param_array('cancellation',"",PARAM_RAW);
+$_SESSION['meta_lodging'] = optional_param_array('lodging',"",PARAM_RAW);
 $_SESSION['meta_contact'] = optional_param_array('contact',"",PARAM_RAW);
 $_SESSION['meta_instructors'] = optional_param('instructors',"",PARAM_TEXT);
 $_SESSION['meta_comment'] = optional_param_array('comment',"",PARAM_RAW);
@@ -26,9 +27,10 @@ $_SESSION['meta_duration'] = optional_param_array('duration',"",PARAM_TEXT);
 $_SESSION['meta_coordinator'] = optional_param('coordinator',"",PARAM_INT);
 $_SESSION['meta_provider'] = optional_param('provider',"",PARAM_TEXT);
 
+
 $PAGE->set_context(get_system_context());
 $PAGE->set_pagelayout('admin');
-$URL = '/moodle/blocks/metacourse/list_metacourses.php';
+$URL = '/moodle/blocks/metacourse/list_metacourses.php'; 
 
 if ($id == 0) {
 	$PAGE->set_title("Add course");
@@ -49,7 +51,23 @@ if ($id == 0) {
 	$mform->set_data($data);
 
 	if ($mform->is_cancelled()) {
-	 	//nothing to do here.
+	 	//nothing to do here. Remove variables from session
+	 	unset($_SESSION['meta_id']);
+		unset($_SESSION['meta_name']);
+		unset($_SESSION['meta_localname']);
+		unset($_SESSION['meta_localname_lang']);
+		unset($_SESSION['meta_purpose']);
+		unset($_SESSION['meta_target']);
+		unset($_SESSION['meta_content']);
+		unset($_SESSION['meta_target_description']);
+		unset($_SESSION['meta_cancellation']);
+		unset($_SESSION['meta_lodging']);
+		unset($_SESSION['meta_contact']);
+		unset($_SESSION['meta_instructors']);
+		unset($_SESSION['meta_comment']);
+		unset($_SESSION['meta_duration']);
+		unset($_SESSION['meta_coordinator']);
+		unset($_SESSION['meta_provider']);
 	  	redirect($URL, 'Your action was canceled!');
 
 	} else if ($fromform = $mform->get_data()) {

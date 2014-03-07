@@ -21,7 +21,6 @@ $PAGE->requires->js(new moodle_url('js/dataTables.js'));
 $PAGE->requires->js(new moodle_url('js/dataTables_start.js'));
 
 echo $OUTPUT->header();
-
 //used to hide the buttons for adding new courses;
 $teacher = has_capability("moodle/course:create", get_system_context());
 
@@ -71,6 +70,7 @@ foreach ($metacourses as $key => $course) {
 
 	$sql = substr($sql, 0, -1); // remove the last comma
 	$sql .= ") and e.roleid = 5";
+	
 	$nr_enrolled = $DB->get_records_sql($sql);
 	$nr_enrolled = reset($nr_enrolled);
 	$nr_enrolled->nr_users--; // substract the coordinator of the course

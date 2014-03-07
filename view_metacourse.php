@@ -30,7 +30,7 @@ $titles = [];
 $titles['purpose'] = get_string('purpose', 'block_metacourse'); 
 
 $metacourse = $DB->get_records_sql("
-	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.coordinator, p.provider, c.contact, c.timemodified
+	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.lodging, c.coordinator, p.provider, c.contact, c.timemodified
 	FROM {meta_course} c join {meta_providers} p on c.provider = p.id where c.id = :id", array("id"=>$id));
 $metacourse = reset($metacourse);
 
@@ -119,7 +119,13 @@ if ($metacourse) {
 				break;
 			case 'target':
 				$key = get_string('target','block_metacourse');
-				$course = $DB->get_record("meta_category", array("id"=>$course))->name;
+				$custom_categories = json_decode($course);
+				$targets = "";
+				foreach ($custom_categories as $t_key => $t_val) {
+					$meta_cat= $DB->get_record("meta_category", array("id"=>$t_val))->name . "<br>";
+					$targets .= $meta_cat;
+				}
+				$course = $targets;
 				break;
 			case 'target_description':
 				$key = get_string("target_description", "block_metacourse");
@@ -138,6 +144,9 @@ if ($metacourse) {
 				break;
 			case 'cancellation':
 				$key = get_string('cancellation','block_metacourse');
+				break;
+			case 'lodging':
+				$key = get_string('lodging','block_metacourse');
 				break;
 			case 'coordinator':
 				$key = get_string('coordinator','block_metacourse');
@@ -182,6 +191,7 @@ if ($metacourse) {
 								get_string('courseend','block_metacourse'), 
 								get_string('location'), get_string('language'), 
 								get_string("price", "block_metacourse"), 
+								get_string("coordinator", "block_metacourse"), 
 								get_string("availableseats", "block_metacourse"), 
 								get_string("nrparticipants", "block_metacourse"), 
 								get_string('action')
@@ -193,6 +203,9 @@ if ($metacourse) {
 				continue;
 			}
 		}
+		// get coordinator
+		$cor = $DB->get_records_sql("SELECT firstname, lastname FROM {user} where id = :id", array("id"=>$datecourse->coordinator));
+		$cor = reset($cor);
 
 		$start = date("j/m/Y - h:i A",$datecourse->startdate);
 		$end = date("j/m/Y - h:i A",$datecourse->enddate);
@@ -207,6 +220,7 @@ if ($metacourse) {
 		$price = str_replace(array(".",","), '', $datecourse->price);
 		$price = number_format($price);
 		$price .= " " . $datecourse->currency;
+		$coordinator = $cor->firstname . " " . $cor->lastname;
 		$total_places =$datecourse->total_places;
 		$busy_places = $DB->get_records_sql("
 			select count(ra.id) as busy_places from {role_assignments} ra
@@ -241,11 +255,17 @@ if ($metacourse) {
 		}
 		$enrolMe->class = 'enrolMeButton';
 
+		// check if the enrolment is expired
+		if ($datecourse->unpublishdate < time()) {
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), get_string("expiredenrolment",'block_metacourse'));
+			$enrolMe->disabled = true;
+		}
+
 		$action = $OUTPUT->render($enrolMe);
 		if ($isTeacher) {
-			$date_table->data[] = array($start, $end,$location,$language,$price,$total_places, $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$busy_places), $action);
+			$date_table->data[] = array($start, $end,$location,$language,$price,$coordinator,$total_places, $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$busy_places), $action);
 		} else {
-			$date_table->data[] = array($start, $end,$location,$language,$price,$total_places, $busy_places, $action);
+			$date_table->data[] = array($start, $end,$location,$language,$price,$coordinator,$total_places, $busy_places, $action);
 		}
 	}
 	echo html_writer::table($date_table);

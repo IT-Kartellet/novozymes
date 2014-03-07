@@ -64,6 +64,7 @@ class datecourse_form extends moodleform {
             $mform->addElement('select', 'datecourse['. $key .'][coordinator]', 'Coordinator', $coordinators, null);
             $mform->setDefault('coordinator', $USER->id);
             $mform->addElement('date_time_selector', 'publishdate['. $key .']', "Publish date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
+            $mform->addElement('date_time_selector', 'unpublishdate['. $key .']', "End enrolment date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
 
             $mform->addElement('html',"</div>");
 
@@ -85,6 +86,7 @@ class datecourse_form extends moodleform {
 
         $mform->addElement('html',"</div>");
         $mform->addElement('html',"<input type='button' id='addDateCourse' value='Add another date'>");
+        $mform->addElement('html',"<input type='button' id='removeDateCourse' value='Remove date'>");
 
         $this->add_action_buttons(true, "FINISH");
 

@@ -1,9 +1,18 @@
 (function(){
 
 	var enrolledCourse;
+	var calendarInput = $('input[name*=calendar]');
+	calendarInput.removeClass('visibleifjs');
+	calendarInput.addClass('ninja');
+	
+	$("select[name*=target]").select2({
+		placeholder: "Select target",
+		allowClear: true,
+	});
 
-	$('input[name*=calendar]').removeClass('visibleifjs');
-	$('input[name*=calendar]').addClass('ninja');
+	$("select[name*=target]").on('change', function(e){
+		console.log(e);
+	});
 
 
 	$(document.body).on("click","#addDateCourse",function(){
@@ -50,6 +59,13 @@
 		victim.find("input[name='timestart[" + (index-2) + "][calendar]']").attr("name", "timestart[" + (index-1) + "][calendar]");
 		victim.find("input[name='timend[" + (index-2) + "][calendar]']").attr("name", "timeend[" + (index-1) + "][calendar]");
 	});
+
+	$(document.body).on("click","#removeDateCourse",function(){
+
+		$("div.template").last().remove();
+		
+	});
+
 
 	// modal window for the TOS dialog
 	$(document.body).on('click','input[value="Add me to waiting list"]',function(e){

@@ -40,6 +40,7 @@
         <FIELD NAME="duration" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="duration_unit" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="cancellation" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="lodging" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="contact" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="coordinator" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user in user table"/>
         <FIELD NAME="provider" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -114,6 +115,7 @@
         <FIELD NAME="startdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="enddate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="publishdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="unpublishdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="location" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="lang" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="price" TYPE="text" NOTNULL="true" SEQUENCE="false"/>

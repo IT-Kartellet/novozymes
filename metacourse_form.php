@@ -7,7 +7,26 @@ class metacourse_form extends moodleform {
     public function definition() {
         global $CFG, $DB, $USER, $PAGE;
         $PAGE->requires->js(new moodle_url('/lib/jquery/jquery-1.9.1.min.js'));
+        $PAGE->requires->js(new moodle_url('js/select2/select2.min.js'));
         $PAGE->requires->js(new moodle_url('js/core.js'));
+
+        $current_language = current_language();
+        if ($current_language!='en') {
+            switch ($current_language) {
+                case 'pt':
+                    $PAGE->requires->js(new moodle_url('js/select2/select2_locale_pt-PT.js'));
+                    break;
+                case 'zh_cn':
+                    $PAGE->requires->js(new moodle_url('js/select2/select2_locale_zh-CN.js'));
+                    break;
+                default:
+                    $PAGE->requires->js(new moodle_url('js/select2/select2_locale_'.$current_language.".js"));
+                    break;
+            }
+            
+        }
+
+
 
         $mform = $this->_form;
         $data = $this->_customdata['data'];
@@ -58,7 +77,7 @@ class metacourse_form extends moodleform {
         $mform->addElement('text', 'localname', 'Local name');
         $mform->addElement('select', 'localname_lang', 'Local language', $languages, null);
 		$mform->addElement('editor', 'purpose', 'Purpose', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
-        $mform->addElement('select', 'target', 'Target group', $meta_cat, null);
+        $mform->addElement('select', 'target', 'Target group', $meta_cat, "multiple");
         $mform->addElement('editor', 'target_description', 'Target description', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
 		$mform->addElement('editor', 'content', 'Content', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('text', 'instructors', 'Instructors');
@@ -67,6 +86,7 @@ class metacourse_form extends moodleform {
         // $mform->addElement('text', 'duration', 'Duration (days)');
         $mform->addElement('duration', 'duration', "Duration");
         $mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addElement('editor', 'lodging', 'Course Location & Lodging',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('editor', 'contact', 'Contact person',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('select', 'coordinator', 'Coordinator', $coordinators, null);
         $mform->setDefault('coordinator', $USER->id);
@@ -101,7 +121,8 @@ class metacourse_form extends moodleform {
 		$mform->addRule('target', get_string('required'), 'required', null, 'client');
         $mform->addRule('content', get_string('required'), 'required', null, 'client');
 		$mform->addRule('duration', get_string('required'), 'required', null, 'client');
-		$mform->addRule('instructors', get_string('required'), 'required', null, 'client');
+        $mform->addRule('instructors', get_string('required'), 'required', null, 'client');
+		$mform->addRule('cancellation', get_string('required'), 'required', null, 'client');
 
 		//BUTTONS
       	$this->add_action_buttons(true, "Next");
