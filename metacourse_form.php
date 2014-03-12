@@ -76,6 +76,7 @@ class metacourse_form extends moodleform {
         $mform->addElement('text', 'name', get_string('name')); 
         $mform->addElement('text', 'localname', 'Local name');
         $mform->addElement('select', 'localname_lang', 'Local language', $languages, null);
+
 		$mform->addElement('editor', 'purpose', 'Purpose', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('select', 'target', 'Target group', $meta_cat, "multiple");
         $mform->addElement('editor', 'target_description', 'Target description', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));

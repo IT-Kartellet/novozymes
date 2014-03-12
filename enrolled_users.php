@@ -59,10 +59,6 @@ if ($id) {
 
 	// waiting users
 
-
-	echo html_writer::tag('h1', 'Waiting list', array('id' => 'course_header', 'class' => 'main'));
-
-	echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 	
 	if ($datecourse) {
 		$waiting_users = $DB->get_records_sql("
@@ -71,23 +67,28 @@ if ($id) {
 			join {user} u 
 			on mw.userid = u.id
 			where mw.courseid = :courseid", array("courseid"=>$datecourse->courseid));
+		if (count($waiting_users) > 0) {
+			echo html_writer::tag('h1', 'Waiting list', array('id' => 'course_header', 'class' => 'main'));
 
-		$table = new html_table();
-		$table->id = "meta_table";
-		$table->width = "100%";
-		$table->tablealign = "center";
-		$table->head = array('Fullname', 'Username', 'Email', 'City', 'Country', 'Last access');
+			echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
+			$table = new html_table();
+			$table->id = "meta_table";
+			$table->width = "100%";
+			$table->tablealign = "center";
+			$table->head = array('Fullname', 'Username', 'Email', 'City', 'Country', 'Last access');
 
-		foreach ($waiting_users as $key => $user) {
+			foreach ($waiting_users as $key => $user) {
 
-			$table->data[] = array($user->firstname ." ". $user->lastname, $user->username, $user->email, $user->city, $user->country, date("j/m/Y - h:i A",$user->lastaccess));
+				$table->data[] = array($user->firstname ." ". $user->lastname, $user->username, $user->email, $user->city, $user->country, date("j/m/Y - h:i A",$user->lastaccess));
 
+			}
+
+			echo html_writer::table($table);
+			echo html_writer::end_tag('div');
 		}
-
-		echo html_writer::table($table);
-
+		
 	}
-	echo html_writer::end_tag('div');
+	
 }
 
 

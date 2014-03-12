@@ -449,7 +449,7 @@ function delete_metacourse($eventData){
     $DB->delete_records("meta_waitlist",array("courseid"=>$courseid));
     $DB->delete_records("meta_tos_accept",array("courseid"=>$courseid));
   } catch(Exception $e){
-    //the records no longer exist
+        add_to_log(1, 'metacourse_err', 'course_deleted_error', "", json_encode($e), 0, $USER->id);
   }
 }
 
@@ -506,3 +506,59 @@ function add_label($courseid, $meta) {
 
   rebuild_course_cache($courseid);
 }
+
+
+function create_role_and_provider($provider){
+    global $DB, $USER;
+
+    $role = new stdClass();
+    $role->shortname = str_replace(" ", "", strtolower($provider));
+    $role->name = $provider;
+    $role->description = $provider;
+    $role->sortorder = $DB->get_records_sql("SELECT max(sortorder) as sortorder from {role}");
+    $role->sortorder = reset($role->sortorder);
+    $role->sortorder = $role->sortorder->sortorder;
+    ++$role->sortorder;
+    try {
+        $transaction = $DB->start_delegated_transaction();
+
+        $role_id = $DB->insert_record('role',$role);
+        
+        $role_context = new stdClass();
+        $role_context->roleid = $role_id;
+        $role_context->contextlevel = 10;
+
+        $DB->insert_record('role_context_levels',$role_context);
+
+        $providerRec = new stdClass();
+        $providerRec->provider = $provider;
+        $providerRec->role = $role_id;
+        $DB->insert_record('meta_providers', $providerRec);
+
+
+        $transaction->allow_commit();
+    } catch (Exception $e) {
+        $transaction->rollback($e);
+    }
+
+}
+
+
+function check_provider_role($course){
+    global $USER, $DB;
+    $context = get_context_instance(CONTEXT_SYSTEM);
+    $roles = get_user_roles($context, $USER->id, true);
+
+    $provider_id = $course->providerid;
+    $provider = $DB->get_record("meta_providers", array("id"=>$provider_id));
+    $course_role = $provider->role;
+
+    foreach ($roles as $key => $role) {
+        if ($role->roleid == $course_role) {
+            return true;
+        }
+    }
+
+    return false;
+}
+

@@ -4,17 +4,22 @@
 	var calendarInput = $('input[name*=calendar]');
 	calendarInput.removeClass('visibleifjs');
 	calendarInput.addClass('ninja');
+
+	try {
+		$("select[name*=target]").select2({
+			placeholder: "Select target",
+
+		});
+
+		$("select[name*=target]").on('change', function(e){
+			console.log(e);
+		});
+	} catch (err){
+		console.log("No select2");
+	}
 	
-	$("select[name*=target]").select2({
-		placeholder: "Select target",
-		allowClear: true,
-	});
-
-	$("select[name*=target]").on('change', function(e){
-		console.log(e);
-	});
-
-
+	
+	
 	$(document.body).on("click","#addDateCourse",function(){
 
 		//used to duplicate the datecourses;
@@ -169,12 +174,12 @@
 		   
 	});
 
-
 	// on the datecourse form
 	$(document.body).on('click','.anotherLocation' ,function(e){
+		console.log("asdas");
 		e.preventDefault();
 		window.scrollTo(0, 0);
-
+		console.log("ni");
 		$("#lean_background").show();
 
 		$('input[name="addL"]').on('click',function(e){
@@ -265,12 +270,15 @@
 		var courseLocalNameLang  = $("#id_localname_lang").find(":selected").val();
 		var coursePurpose        = tinyMCE.get('id_purpose').getContent();
 		var courseTarget         = $("#id_target").val();
+		var courseTargetDesc     = tinyMCE.get('id_target_description').getContent();
 		var courseContent        = tinyMCE.get('id_content').getContent();
 		var courseInstructors    = $("#id_instructors").val();
-		var courseComment        = $("#id_comment").val();
+		var courseComment        = tinyMCE.get('id_comment').getContent();
 		var courseDurationNumber = $("#id_duration_number").val();
 		var courseDurationUnit   = $("#id_duration_timeunit").find(":selected").val();
 		var courseCancellation   = tinyMCE.get('id_cancellation').getContent();
+		var courseLodging   	 = tinyMCE.get('id_lodging').getContent();
+		var courseContact   	 = tinyMCE.get('id_contact').getContent();
 		var courseCoordinator    = $("#id_coordinator").find(":selected").val();
 		var courseProvider       = $("#id_provider").find(":selected").val();
 
@@ -283,13 +291,16 @@
 		  	courseLocalName : courseLocalName,
 		  	courseLocalNameLang : courseLocalNameLang,
 		  	coursePurpose : coursePurpose,
-		  	courseTarget : courseTarget,
+		  	courseTarget : JSON.stringify(courseTarget),
+		  	courseTargetDesc : courseTargetDesc,
 		  	courseContent : courseContent,
 		  	courseInstructors : courseInstructors,
 		  	courseComment : courseComment,
 		  	courseDurationNumber : courseDurationNumber,
 		  	courseDurationUnit : courseDurationUnit,
 		  	courseCancellation : courseCancellation,
+		  	courseLodging : courseLodging,
+		  	courseContact : courseContact,
 		  	courseCoordinator : courseCoordinator,
 		  	courseProvider : courseProvider
 
@@ -325,13 +336,16 @@
 					$('#id_localname').val("");
 					$('#id_localname_lang').val("");
 					tinyMCE.get('id_purpose').setContent("");
+					tinyMCE.get('id_target_description').setContent("");
 					$('#id_target').val("");
 					tinyMCE.get('id_content').setContent("");
 					$('#id_instructors').val("");
-					$('#id_comment').val("");
 					$('#id_duration_number').val("");
 					$('#id_duration_timeunit').val("");
 					tinyMCE.get('id_cancellation').setContent("");
+					tinyMCE.get('id_comment').setContent("");
+					tinyMCE.get('id_lodging').setContent("");
+					tinyMCE.get('id_contact').setContent("");
 					$('#id_coordinator').val("");
 					$('#id_provider').val("");
 				}else {
@@ -342,11 +356,15 @@
 					tinyMCE.get('id_purpose').setContent(metacourse.purpose);
 					$('#id_target').val(metacourse.target);
 					tinyMCE.get('id_content').setContent(metacourse.content);
+					tinyMCE.get('id_target_description').setContent(metacourse.target_description);
 					$('#id_instructors').val(metacourse.instructors);
 					$('#id_comment').val(metacourse.comment);
 					$('#id_duration_number').val(metacourse.duration);
 					$('#id_duration_timeunit').val(metacourse.duration_unit);
 					tinyMCE.get('id_cancellation').setContent(metacourse.cancellation);
+					tinyMCE.get('id_comment').setContent(metacourse.comment);
+					tinyMCE.get('id_lodging').setContent(metacourse.lodging);
+					tinyMCE.get('id_contact').setContent(metacourse.contact);
 					$('#id_coordinator').val(metacourse.coordinator);
 					$('#id_provider').val(metacourse.provider);
 					$('#id_purpose').trigger('change');

@@ -1,12 +1,14 @@
 <?php
 require_once('../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
+require_once('lib.php');
 
 
 require_login();
 require_capability('moodle/course:create', context_system::instance());
 
 $newLocation    = optional_param("newLocation", "",PARAM_TEXT);
+$newTarget    = optional_param("newTarget", "",PARAM_TEXT);
 $getLocations   = optional_param("getLocations",0, PARAM_INT);
 $getProviders   = optional_param("getProviders",0, PARAM_INT);
 $deleteLocation = optional_param("deleteLocation", 0, PARAM_INT);
@@ -22,14 +24,20 @@ $courseLocalName      = optional_param("courseLocalName", "", PARAM_TEXT);
 $courseLocalNameLang  = optional_param("courseLocalNameLang","", PARAM_TEXT);
 $coursePurpose        = optional_param("coursePurpose","",PARAM_RAW);
 $courseTarget         = optional_param("courseTarget","",PARAM_TEXT);
+$courseTargetDesc     = optional_param("courseTargetDesc","",PARAM_RAW);
 $courseContent        = optional_param("courseContent","",PARAM_RAW);
 $courseInstructors    = optional_param("courseInstructors","",PARAM_TEXT);
-$courseComment        = optional_param("courseComment","",PARAM_TEXT);
+$courseComment        = optional_param("courseComment","",PARAM_RAW);
 $courseDurationNumber = optional_param("courseDurationNumber",0,PARAM_INT);
 $courseDurationUnit   = optional_param("courseDurationUnit",0,PARAM_INT);
 $courseCancellation   = optional_param("courseCancellation","",PARAM_RAW);
+$courseLodging   	  = optional_param("courseLodging","",PARAM_RAW);
+$courseContact   	  = optional_param("courseContact","",PARAM_RAW);
 $courseCoordinator    = optional_param("courseCoordinator",0,PARAM_INT);
 $courseProvider       = optional_param("courseProvider",0,PARAM_INT);
+
+
+
 
 $getTemplate = optional_param("getTemplate", 0, PARAM_INT);
 
@@ -46,15 +54,20 @@ if ($newLocation) {
 
 }
 
+if ($newTarget) {
+	$target = new stdClass();
+	$target->name = $newTarget;
+
+	$tar_id = $DB->insert_record("meta_locations", $target);
+
+	$new_t = $DB->get_records_sql("SELECT * FROM {meta_category} where id = :id", array("id"=>$tar_id));
+
+	echo json_encode($new_t);
+
+}
+
 if ($newProvider) {
-	$pro = new stdClass();	
-	$pro->provider = $newProvider;
-	$pro->active = 1;
-
-	$pro_id = $DB->insert_record("meta_providers", $pro);
-
-	$provider = $DB->get_records_sql("SELECT * FROM {meta_providers} where id = :id", array("id"=>$pro_id));
-
+	create_role_and_provider($newProvider);
 	echo json_encode($provider);
 
 }
@@ -107,7 +120,10 @@ if ($deleteMeta) {
 
 if ($deleteProvider != 0) {
 	try{
+		$roleToBeDeleted = $DB->get_record("meta_providers", array("id"=>$deleteProvider));
+		$roleToBeDeleted = $roleToBeDeleted->role;
 		$DB->delete_records("meta_providers", array("id"=>$deleteProvider));
+		$DB->delete_records("role",array("id"=>$roleToBeDeleted));
 	} catch(Exception $e){
 		echo "Could not delete provider!";
 	}
@@ -129,9 +145,12 @@ if ($saveTemplate && $coursePurpose &&
 		$template->localname_lang = $courseLocalNameLang;
 		$template->purpose        = $coursePurpose;
 		$template->target         = $courseTarget;
+		$template->target_description         = $courseTargetDesc;
 		$template->content        = $courseContent;
 		$template->instructors    = $courseInstructors;
 		$template->comment        = $courseComment;
+		$template->lodging        = $courseLodging;
+		$template->contact        = $courseContact;
 		$template->duration       = $courseDurationNumber;
 		//TODO:
 		$template->duration_unit  = $courseDurationUnit;

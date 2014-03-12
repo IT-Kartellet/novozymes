@@ -45,6 +45,8 @@ if ($teacher) {
 }
 
 foreach ($metacourses as $key => $course) {
+	$isProvider = check_provider_role($course);
+
 	$datecourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id", array("id"=>$course->id));
 
 	$deleteCourse = new single_button(new moodle_url("/blocks/metacourse/api.php", array("deleteMeta"=>$key)), "", 'post');
@@ -58,6 +60,12 @@ foreach ($metacourses as $key => $course) {
 	$exportExcel = new single_button(new moodle_url("/blocks/metacourse/api.php", array("exportExcel"=>$key)), "", 'post');
 	$exportExcel->tooltip = "Export .xls";
 	$exportExcel->class = "export_course_btn";
+
+	if (!$isProvider) {
+		$deleteCourse->disabled = true;
+		$editCourse->disabled = true;
+		$exportExcel->disabled = true;
+	}
 
 	// count the number of users already enrolled in the course
 	$sql = "select count(distinct ue.userid) as nr_users 
@@ -77,7 +85,7 @@ foreach ($metacourses as $key => $course) {
 
 
 	$deleteCourse->add_confirm_action("Are you sure you want to delete it?  There are $nr_enrolled->nr_users students enrolled in this course.");
-	
+
 	if (!empty($course->localname) && (current_language() == $course->localname_lang)) {
 		$link = html_writer::link(new moodle_url('/blocks/metacourse/view_metacourse.php', array('id'=>$key)), html_entity_decode($course->localname));
 	} else {

@@ -2,6 +2,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(dirname(dirname(__FILE__)) . "/lib.php");
+
+
 function xmldb_block_metacourse_install() {
     global $CFG, $DB;
 
@@ -80,6 +83,42 @@ function xmldb_block_metacourse_install() {
 
     foreach ($currencies as $cur) {
         $DB->insert_record("meta_currencies", $cur);
+    }
+
+    $providers = array();
+    $providers[] = array("provider"=>"P&O Development & Performance");
+    $providers[] = array("provider"=>"P&O Asia Pacific");
+    $providers[] = array("provider"=>"P&O Latin America");
+    $providers[] = array("provider"=>"P&O North America");
+    $providers[] = array("provider"=>"P&O India");
+    $providers[] = array("provider"=>"P&O Europe");
+    $providers[] = array("provider"=>"P&O Denmark");
+    $providers[] = array("provider"=>"Global P&O");
+    $providers[] = array("provider"=>"BO/BD");
+    $providers[] = array("provider"=>"QES (PI)");
+    $providers[] = array("provider"=>"ProMan");
+    $providers[] = array("provider"=>"Patents, Licensing & Strategy (L&S), Legal Affairs");
+    $providers[] = array("provider"=>"Sales Management");
+    $providers[] = array("provider"=>"Finance");
+    $providers[] = array("provider"=>"Sales & Marketing");
+    $providers[] = array("provider"=>"Global Marketing");
+    $providers[] = array("provider"=>"Global OHS");
+    $providers[] = array("provider"=>"Corporate Communications & Branding");
+    $providers[] = array("provider"=>"Sourcing");
+    $providers[] = array("provider"=>"QM");
+    $providers[] = array("provider"=>"Sund i NZ (Only DK)");
+    $providers[] = array("provider"=>"Medical Centre");
+    $providers[] = array("provider"=>"NZIT Development Services");
+    $providers[] = array("provider"=>"R&D");
+    $providers[] = array("provider"=>"PI-Project");
+    $providers[] = array("provider"=>"Bioinformatics");
+    $providers[] = array("provider"=>"Organizational Business Support");
+    $providers[] = array("provider"=>"SCS");
+    $providers[] = array("provider"=>"Maintenance");
+    $providers[] = array("provider"=>"Treasury");
+
+    foreach ($providers as $pro) {
+        create_role_and_provider($pro['provider']);
     }
 
 }
