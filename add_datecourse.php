@@ -90,6 +90,10 @@ if ($id == 0) {
 	$PAGE->navbar->add("List courses", new moodle_url('/blocks/metacourse/list_metacourses.php'));
 	$PAGE->navbar->add("Edit course", new moodle_url('/blocks/metacourse/add_metacourse.php'));
 	$PAGE->navbar->add("Edit course dates", new moodle_url('/blocks/metacourse/add_datecourse.php'));
+	
+	if (!check_provider_role($id)) {
+		die("Access denied!");
+	}
 
 	echo $OUTPUT->header();
 

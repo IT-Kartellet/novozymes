@@ -544,12 +544,14 @@ function create_role_and_provider($provider){
 }
 
 
-function check_provider_role($course){
+function check_provider_role($courseid){
     global $USER, $DB;
     $context = get_context_instance(CONTEXT_SYSTEM);
     $roles = get_user_roles($context, $USER->id, true);
 
-    $provider_id = $course->providerid;
+    $metacourse = $DB->get_record("meta_course",array("id"=>$courseid));
+
+    $provider_id = $metacourse->provider;
     $provider = $DB->get_record("meta_providers", array("id"=>$provider_id));
     $course_role = $provider->role;
 

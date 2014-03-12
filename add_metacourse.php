@@ -84,6 +84,12 @@ if ($id == 0) {
 	}
 } else {
 	// EDIT
+
+	// check if he has the role needed to edit the course
+	if (!check_provider_role($id)) {
+		die("Access denied!");
+	}
+
 	$mform = new metacourse_form("add_datecourse.php");
 	
 	$meta = $DB->get_record("meta_course" ,array("id"=>$id));

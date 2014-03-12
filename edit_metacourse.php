@@ -98,6 +98,13 @@ if ($id == -1) {
 
 //edit a course
 } else {
+	if (!check_provider_role($id)) {
+		print_r("SSSSSS");
+		die("Access denied!");
+	} else {
+		print_r("expression");
+	}
+
 	$PAGE->set_title("Edit course");
 	$PAGE->set_heading("Edit course");
 	$PAGE->set_url($CFG->wwwroot."/blocks/metacourse/edit_metacourse.php?id=$id");
@@ -106,6 +113,8 @@ if ($id == -1) {
 	$mform = new metacourse_form();
 	$data = $DB->get_records_sql("SELECT * FROM {meta_course} WHERE id = :id", array("id"=>$id));
 	
+
+
 	$data[$id]->purpose = array('text'=>$data[$id]->purpose);
 	$data[$id]->content = array('text'=>$data[$id]->content);
 	$mform->set_data($data[$id]);

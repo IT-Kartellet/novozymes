@@ -45,7 +45,7 @@ if ($teacher) {
 }
 
 foreach ($metacourses as $key => $course) {
-	$isProvider = check_provider_role($course);
+	$isProvider = check_provider_role($course->id);
 
 	$datecourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id", array("id"=>$course->id));
 
