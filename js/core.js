@@ -4,7 +4,6 @@
 	var calendarInput = $('input[name*=calendar]');
 	calendarInput.removeClass('visibleifjs');
 	calendarInput.addClass('ninja');
-
 	try {
 		$("select[name*=target]").select2({
 			placeholder: "Select target",
@@ -12,12 +11,16 @@
 		});
 
 		$("select[name*=target]").on('change', function(e){
-			console.log(e);
+			
 		});
 	} catch (err){
-		console.log("No select2");
 	}
 	
+	if ($('#id_multipledates').is(":checked")) {
+		$("#fitem_id_multiple_dates").show();
+	} else {
+		$("#fitem_id_multiple_dates").hide();
+	}
 	
 	
 	$(document.body).on("click","#addDateCourse",function(){
@@ -86,6 +89,7 @@
 		};
 	});
 
+	//enrol me
 	$(document.body).on('click','div.enrolMeButton input',function(e){
 		e.preventDefault();
 
@@ -103,7 +107,6 @@
 		enrolledCourse.closest('form').submit();
 	});
 
-
 	$(document.body).on('click','#lean_background input[name="accept"]', function(){
 
 		if ($('#lean_background input[name="submit"]').is(":disabled")) {
@@ -118,6 +121,49 @@
 		$('#lean_background').hide();
 		$('#lean_background input[name="accept"]').prop('checked',false);
 		$('#lean_background input[name="submit"]').prop('disabled',true);
+	});
+
+
+	//unenrol me
+	$(document.body).on('click','div.unEnrolMeButton input',function(e){
+		e.preventDefault();
+
+		enrolledCourse = $(this);
+		window.scrollTo(0, 0);
+
+		$("#lean_background_unenrol").show();
+		$("#waitingSpan").hide();
+		if (!$('#lean_background_unenrol input[name="accept_unenrol"]').is(":checked")) {
+			$('#lean_background_unenrol input[name="submit"]').prop('disabled',true);
+		}
+	});
+
+	$(document.body).on('click','#lean_background_unenrol input[name="accept_unenrol"]', function(){
+		if ($('#lean_background_unenrol input[name="submit"]').is(":disabled")) {
+			$('#lean_background_unenrol input[name="submit"]').prop('disabled',false);
+		} else {
+			$('#lean_background_unenrol input[name="submit"]').prop('disabled',true);
+		}
+		
+	});
+
+	$(document.body).on('click','#accept_unenrol', function(e){
+		enrolledCourse.closest('form').submit();
+	});
+
+
+	$(document.body).on('click','#lean_background_unenrol input[name="cancel"]', function(){
+		$('#lean_background_unenrol').hide();
+		$('#lean_background_unenrol input[name="accept_unenrol"]').prop('checked',false);
+		$('#lean_background_unenrol input[name="submit"]').prop('disabled',true);
+	});
+
+	$(document.body).on('click','#id_multipledates', function(){
+		if ($('#id_multipledates').is(":checked")) {
+			$("#fitem_id_multiple_dates").show();
+		} else {
+			$("#fitem_id_multiple_dates").hide();
+		}
 	});
 
 	//location handling
@@ -151,6 +197,66 @@
 					});
 		    };
 		  });
+	});
+
+	$('#allowHim').on('click',function(e){
+		e.preventDefault();
+		var newGuy = $("#cantenroll").find(":selected");
+		var newGuyValue = newGuy.val();
+		newGuy.appendTo("#canenroll");
+		
+		$.ajax({
+		  type: "POST", 
+		  url: "./api.php",
+		  data: { newAllow: newGuyValue },
+		  success: function(e){
+		  	console.log(e);
+		  },
+		  error: function(e){
+		  	console.log(e);
+		  }
+		})
+	});
+
+	$('#removeHim').on('click',function(e){
+		e.preventDefault();
+		var newGuy = $("#canenroll").find(":selected");
+		var newGuyValue = newGuy.val();
+		newGuy.remove();
+		newGuy.appendTo("#cantenroll");
+		
+		$.ajax({
+		  type: "POST", 
+		  url: "./api.php",
+		  data: { removeAllow: newGuyValue },
+		  success: function(e){
+		  	console.log(e);
+		  },
+		  error: function(e){
+		  	console.log(e);
+		  }
+		})
+	});
+
+	$('#enrolHim').on('click',function(e){
+		e.preventDefault();
+		var newGuy = $("#icanenrol").find(":selected");
+		var courseID = $("#courseID").val();
+		var newGuyValue = newGuy.val();
+		
+		$.ajax({
+		  type: "POST", 
+		  url: "./api.php",
+		  data: { enrolGuy: newGuyValue,
+		  		enrolCourse: courseID },
+		  success: function(e){
+		  	newGuy.remove();
+		  	console.log(e);
+		  },
+		  error: function(e){
+		  	console.log(e);
+		  }
+		})
 	});
 
 	$('input[name="deleteLoc"]').on('click',function(e){

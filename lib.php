@@ -521,15 +521,19 @@ function create_role_and_provider($provider){
     ++$role->sortorder;
     try {
         $transaction = $DB->start_delegated_transaction();
-
-        $role_id = $DB->insert_record('role',$role);
+        $existing_role = $DB->get_record("role",array("shortname"=>$role->shortname));
         
-        $role_context = new stdClass();
-        $role_context->roleid = $role_id;
-        $role_context->contextlevel = 10;
+        if (isset($existing_role)) {
+            $role_id = $existing_role->id;
+        } else {
+            $role_id = $DB->insert_record('role',$role);
+            $role_context = new stdClass();
+            $role_context->roleid = $role_id;
+            $role_context->contextlevel = 10;
 
-        $DB->insert_record('role_context_levels',$role_context);
-
+            $DB->insert_record('role_context_levels',$role_context);
+        }
+        
         $providerRec = new stdClass();
         $providerRec->provider = $provider;
         $providerRec->role = $role_id;
@@ -564,3 +568,16 @@ function check_provider_role($courseid){
     return false;
 }
 
+function check_if_not_enrolled($userid, $courseid) {
+    global $DB;
+    $context = get_context_instance(CONTEXT_COURSE, $courseid);
+    $students = $DB->get_records_sql("select u.id as id, firstname, lastname, picture, imagealt, email from role_assignments as a, user as u where contextid= :cid and roleid=5 and a.userid=u.id", array("cid"=>$context->id));
+    $user = $DB->get_record("user",array("id"=>$userid));
+
+    foreach ($students as $st) {
+        if ($st->id == $user->id) {
+            return false;
+        }
+    }
+    return true;
+}

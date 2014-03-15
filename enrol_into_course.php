@@ -18,11 +18,6 @@ if ($courseid != 0 && $userid != 0) {
 	$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$courseid));
 	$instance = reset($instance);
 	$user = $DB->get_record("user", array("id"=>$userid));
-	
-
-	// $enrol = new enrol_manual_pluginITK();
-	// print_r(array("courseid"=>$courseid,"userid"=>$userid));
-	// exit();
 
 	//check if we still have places
 	$busy_places = $DB->get_records_sql("
@@ -48,19 +43,36 @@ if ($courseid != 0 && $userid != 0) {
 		$waitRecord->timecreated = time();
 		$DB->insert_record('meta_waitlist', $waitRecord);
 	} elseif ($total_places - $busy_places > 0) {
-		$enrol = new enrol_manual_pluginITK();
 
-		//TODO: check if we need the dates also
-		$enrol->enrol_user($instance, $userid, 5);
-		$enrol->send_confirmation_email($user, $courseid);
+		$current_enrolment = $DB->get_records_sql("
+			SELECT u.id as userid, e.id as enrolid FROM {user} u 
+			JOIN {user_enrolments} ue ON ue.userid = u.`id`
+			JOIN {enrol} e ON ue.enrolid = e.id 
+			AND e.courseid = :courseid 
+			AND ue.status = 1 
+			AND u.id <> 1 
+			AND u.deleted = 0 
+			AND u.suspended = 0
+			AND u.id = :userid", array("courseid"=>$courseid, "userid"=>$userid));
 
-		$accept = new stdClass();
-		$accept->userid = $userid;
-		$accept->courseid = $courseid;
-		$accept->accepted = 1;
-		$accept->timeaccepted = time();
+		$current_enrolment = reset($current_enrolment);
 
-		$DB->insert_record("meta_tos_accept", $accept);
+		if (!empty($current_enrolment)) {
+			$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$current_enrolment->enrolid, "userid"=>$current_enrolment->userid));
+		} else {
+			$enrol = new enrol_manual_pluginITK();
+
+			$enrol->enrol_user($instance, $userid, 5);
+			$enrol->send_confirmation_email($user, $courseid);
+
+			$accept = new stdClass();
+			$accept->userid = $userid;
+			$accept->courseid = $courseid;
+			$accept->accepted = 1;
+			$accept->timeaccepted = time();
+
+			$DB->insert_record("meta_tos_accept", $accept);
+		}
 	}
 	
 }

@@ -16,6 +16,18 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="meta_allow_enrol" COMMENT="Who can enrol who">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
+        <FIELD NAME="canenrol" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="id" NEXT="canbeenrolled"/>
+        <FIELD NAME="canbeenrolled" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="canenrol" />
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="canenrol" TYPE="foreign" FIELDS="canenrol" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="canbeenrolled" TYPE="foreign" FIELDS="canenrol" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
     <TABLE NAME="meta_providers" COMMENT="Providers for the metacourses">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -44,6 +56,7 @@
         <FIELD NAME="cancellation" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="lodging" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="contact" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="multiple_dates" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="coordinator" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user in user table"/>
         <FIELD NAME="provider" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>

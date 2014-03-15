@@ -15,6 +15,8 @@ $string['coursedates'] = 'Course dates';
 $string['location'] = 'Location'; 
 $string['action'] = 'Action'; 
 $string['enrolme'] = 'Enrol me'; 
+$string['enrolOthers'] = 'Enrol others'; 
+$string['unenrolme'] = 'Unenrol me'; 
 
 
  
@@ -31,6 +33,7 @@ $string['coordinator'] = 'Coordinator';
 $string['lodging'] = 'Course Location & Lodging'; 
 $string['provider'] = 'Provider'; 
 $string['contact'] = 'Contact'; 
+$string['multipledates'] = 'Multiple dates'; 
 $string['nrviews'] = 'Views'; 
 $string['viewcourse'] = 'View course'; 
 $string['courseend'] = 'End date'; 
@@ -43,6 +46,7 @@ $string['expiredenrolment'] = 'Enrolment ended';
 $string['addtowaitinglist'] = 'Add me to waiting list'; 
 $string['tostitle'] = 'Terms of agreement'; 
 $string['tosaccept'] = 'I accept the terms of agreement'; 
+$string['cancellationaccept'] = 'I accept the cancellation policy'; 
 $string['tosacceptwait'] = 'and I have acknowledged that I will be enrolled as soon as there is an available seat'; 
 $string['toscontent'] = 'Terms of service example. Some text here that the users will agree with, in order to get enrolled.'; 
 $string['emailconf'] = '

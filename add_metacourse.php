@@ -54,6 +54,7 @@ if ($id == 0) {
 		$meta->instructors = $_SESSION['meta_instructors'];
 		$meta->target_description = array("text"=>$_SESSION['meta_target_description']['text']);
 		$meta->comment = array("text"=>$_SESSION['meta_comment']['text']);
+		$meta->multiple_dates = array("text"=>$_SESSION['meta_multiple_dates']['text']);
 		$meta->duration = array();
 		$meta->duration['number'] = $_SESSION['meta_duration']['number'];
 		$meta->duration['timeunit'] = $_SESSION['meta_duration']['timeunit'];
@@ -93,19 +94,27 @@ if ($id == 0) {
 	$mform = new metacourse_form("add_datecourse.php");
 	
 	$meta = $DB->get_record("meta_course" ,array("id"=>$id));
-	$meta->id = $id;
-	$meta->purpose = array("text"=>$meta->purpose);
-	$meta->content = array("text"=>$meta->content);
-	$meta->cancellation = array("text"=>$meta->cancellation);
-	$meta->lodging = array("text"=>$meta->lodging);
-	$meta->contact = array("text"=>$meta->contact);
-	$meta->target_description = array("text"=>$meta->target_description);
-	$meta->target = json_decode($meta->target);
-	$meta->comment = array("text"=>$meta->comment);
-	$meta->duration = array();
-	$meta->duration['number'] = $meta->duration;
-	$meta->duration['timeunit'] = $meta->duration_unit;
-	$mform->set_data($meta);
+
+	$data = new stdClass();
+	$data->id = $id;
+	$data->name = $meta->name;
+	$data->localname = $meta->localname;
+	$data->localname_lang = $meta->localname_lang;
+	$data->instructors = $meta->instructors;
+	$data->purpose = array("text"=>$meta->purpose);
+	$data->content = array("text"=>$meta->content);
+	$data->cancellation = array("text"=>$meta->cancellation);
+	$data->lodging = array("text"=>$meta->lodging);
+	$data->contact = array("text"=>$meta->contact);
+	$data->target_description = array("text"=>$meta->target_description);
+	$data->target = json_decode($meta->target);
+	$data->comment = array("text"=>$meta->comment);
+	$data->multiple_dates = array("text"=>$meta->multiple_dates);
+	$data->multipledates = 1;
+
+	$data->duration['number'] = $meta->duration;
+	$data->duration['timeunit'] = $meta->duration_unit;
+	$mform->set_data($data);
 
 	if ($mform->is_cancelled()) {
 	 	//nothing to do here.

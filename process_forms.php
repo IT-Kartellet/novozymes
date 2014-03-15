@@ -26,6 +26,7 @@ $duration = $_SESSION['meta_duration'];
 $cancellation = $_SESSION['meta_cancellation'];
 $lodging = $_SESSION['meta_lodging'];
 $contact = $_SESSION['meta_contact'];
+$multiple_dates = $_SESSION['meta_multiple_dates'];
 $coordinator = $_SESSION['meta_coordinator'];
 $provider = $_SESSION['meta_provider'];
 
@@ -53,6 +54,7 @@ $meta->duration_unit = $duration['timeunit'];
 $meta->cancellation = $cancellation['text'];
 $meta->lodging = $lodging['text'];
 $meta->contact = $contact['text'];
+$meta->multiple_dates = $multiple_dates['text'];
 $meta->coordinator = $coordinator;
 $meta->provider = $provider;
 $meta->timemodified = time();
@@ -182,6 +184,7 @@ foreach ($datecourses as $key => $course) {
 	unset($_SESSION['meta_contact']);
 	unset($_SESSION['meta_instructors']);
 	unset($_SESSION['meta_comment']);
+	unset($_SESSION['meta_multiple_dates']);
 	unset($_SESSION['meta_duration']);
 	unset($_SESSION['meta_coordinator']);
 	unset($_SESSION['meta_provider']);

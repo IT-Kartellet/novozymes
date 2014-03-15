@@ -30,9 +30,11 @@ $titles = [];
 $titles['purpose'] = get_string('purpose', 'block_metacourse'); 
 
 $metacourse = $DB->get_records_sql("
-	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.lodging, c.coordinator, p.provider, c.contact, c.timemodified
+	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.lodging, c.coordinator, c.multiple_dates, p.provider, c.contact, c.timemodified
 	FROM {meta_course} c join {meta_providers} p on c.provider = p.id where c.id = :id", array("id"=>$id));
 $metacourse = reset($metacourse);
+
+$cancellation = "";
 
 // default id, just see the list of courses
 if ($metacourse) {
@@ -100,7 +102,10 @@ if ($metacourse) {
 			continue;
 		}
 		if ($key == 'id') continue; //we don't want to display the id
-
+		if ($key == "cancellation") {
+			$cancellation = $course;
+			continue;
+		}
 		// get the name and the email instead of his id
 		if ($key == 'coordinator') {
 			$course = $DB->get_records_sql("SELECT firstname, lastname, email from {user} where id = :id", array("id"=>$course));
@@ -144,6 +149,7 @@ if ($metacourse) {
 				break;
 			case 'cancellation':
 				$key = get_string('cancellation','block_metacourse');
+				$cancellation = $course;
 				break;
 			case 'lodging':
 				$key = get_string('lodging','block_metacourse');
@@ -156,6 +162,9 @@ if ($metacourse) {
 				break;
 			case 'contact':
 				$key = get_string('contact','block_metacourse');
+				break;
+			case 'multiple_dates':
+				$key = get_string('multipledates','block_metacourse');
 				break;
 			default:
 				break;
@@ -233,36 +242,50 @@ if ($metacourse) {
 		$busy_places = $busy_places->busy_places;
 
  		$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), get_string('enrolme','enrol_self'));
-
+ 		$enrolOthers = new single_button(new moodle_url('/blocks/metacourse/enrol_others_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), get_string('enrolOthers','block_metacourse'));
+ 		$enrolOthers->class="enrolOthers";
 		//if no more places, disable the button
 		if ($busy_places == $total_places) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), get_string('addtowaitinglist','block_metacourse'));
 			if ($DB->record_exists('meta_waitlist',array('userid'=>$USER->id, 'courseid'=>$datecourse->courseid))) {
 				$enrolMe->disabled = true;
+				$enrolOthers->disabled = true;
 			}
 		}
 
-		/// if the user is already enrolled disable the button
+		/// if the user is already enrolled add the unenrol button
 		$coursecontext = context_course::instance($datecourse->courseid);
-		$course_students = get_role_users(5, $coursecontext);
+		$course_students = $DB->get_records_sql("
+			SELECT u.id FROM {user} u 
+			JOIN {user_enrolments} ue ON ue.userid = u.`id`
+			JOIN {enrol} e ON ue.enrolid = e.id 
+			AND e.courseid = :courseid 
+			AND ue.status = 0 
+			AND u.id <> 1 
+			AND u.deleted = 0 
+			AND u.suspended = 0", array("courseid"=>$datecourse->courseid));
+
 		$course_students = array_map(function($arg){
-			return $arg->username;
+			return $arg->id;
 		}, $course_students);
 
-		if (in_array($USER->username, $course_students)) {
-			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), get_string("youareenrolled",'block_metacourse'));
-			$enrolMe->disabled = true;
+		if (in_array($USER->id, $course_students)) {
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), get_string("unenrolme",'block_metacourse'));
+			$enrolMe->class = 'unEnrolMeButton';
+		} else {
+			$enrolMe->class = 'enrolMeButton';
 		}
-		$enrolMe->class = 'enrolMeButton';
 
 		// check if the enrolment is expired
 		if ($datecourse->unpublishdate < time()) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), get_string("expiredenrolment",'block_metacourse'));
 			$enrolMe->disabled = true;
+			$enrolOthers->disabled = true;
 		}
 
 		$action = $OUTPUT->render($enrolMe);
-		if ($isTeacher) {
+		$action .= $OUTPUT->render($enrolOthers);
+		if ($isTeacher && ($busy_places > 0)) {
 			$date_table->data[] = array($start, $end,$location,$language,$price,$coordinator,$total_places, $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$busy_places), $action);
 		} else {
 			$date_table->data[] = array($start, $end,$location,$language,$price,$coordinator,$total_places, $busy_places, $action);
@@ -283,6 +306,19 @@ if ($metacourse) {
         <div id='cmd'>
         	<input type='checkbox' name='accept'> <? echo get_string('tosaccept','block_metacourse') ?> <span id='waitingSpan' style='display:none'><? echo get_string('tosacceptwait','block_metacourse') ?></span>
         	<input id='accept_enrol' type='button' name='submit' value='<? echo get_string('enrolme','enrol_self') ?>' >
+        	<input type='button' name='cancel' value='<? echo get_string('cancel') ?>' >
+        </div>
+		<div id='lean_close'></div>
+    </div>
+</div>
+
+<div id='lean_background_unenrol'>
+	<div id='lean_overlay'>
+		<h1><? echo get_string('cancellation','block_metacourse') ?></h1>
+        <div id='tos_content'><? echo $cancellation; ?></div>
+        <div id='cmd'>
+        	<input type='checkbox' name='accept_unenrol'> <? echo get_string('cancellationaccept','block_metacourse') ?>
+        	<input id='accept_unenrol' type='button' name='submit' value='<? echo get_string('unenrolme','block_metacourse') ?>' >
         	<input type='button' name='cancel' value='<? echo get_string('cancel') ?>' >
         </div>
 		<div id='lean_close'></div>

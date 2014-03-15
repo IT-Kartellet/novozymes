@@ -89,6 +89,9 @@ class metacourse_form extends moodleform {
         $mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('editor', 'lodging', 'Course Location & Lodging',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('editor', 'contact', 'Contact person',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addElement('checkbox', 'multipledates', get_string('multipledates', 'block_metacourse'));
+        $mform->addElement('editor', 'multiple_dates', 'Multiple Dates',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+
         $mform->addElement('select', 'coordinator', 'Coordinator', $coordinators, null);
         $mform->setDefault('coordinator', $USER->id);
         $mform->addElement('select', 'provider', 'Provider', $providers, null);

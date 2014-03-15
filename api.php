@@ -5,7 +5,7 @@ require_once('lib.php');
 
 
 require_login();
-require_capability('moodle/course:create', context_system::instance());
+// require_capability('moodle/course:create', context_system::instance());
 
 $newLocation    = optional_param("newLocation", "",PARAM_TEXT);
 $newTarget    = optional_param("newTarget", "",PARAM_TEXT);
@@ -36,10 +36,48 @@ $courseContact   	  = optional_param("courseContact","",PARAM_RAW);
 $courseCoordinator    = optional_param("courseCoordinator",0,PARAM_INT);
 $courseProvider       = optional_param("courseProvider",0,PARAM_INT);
 
-
+/// allow others to enroll you
+$newAllow = optional_param("newAllow",0, PARAM_INT);
+$removeAllow = optional_param("removeAllow",0, PARAM_INT);
+$enrolGuy = optional_param("enrolGuy",0,PARAM_INT);
+$enrolCourse = optional_param("enrolCourse",0,PARAM_INT);
 
 
 $getTemplate = optional_param("getTemplate", 0, PARAM_INT);
+
+if ($enrolGuy && $enrolCourse) {
+	try {
+		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
+		$instance = reset($instance);
+		$enrol = new enrol_manual_pluginITK();
+		$enrol->enrol_user($instance, $enrolGuy, 5);
+		$enrolUser = $DB->get_record("user", array("id"=>$enrolGuy));
+		$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+		echo json_encode("done");
+	} catch (Exception $e) {
+		echo json_encode($e);
+	}
+}
+
+if ($newAllow != 0) {
+	try {
+		$allow = new stdClass();
+		$allow->canenrol = $newAllow;
+		$allow->canbeenrolled = $USER->id;
+		$DB->insert_record("meta_allow_enrol", $allow);
+		
+	} catch (Exception $e){
+		
+	}
+}
+
+if ($removeAllow != 0) {
+	try {
+		$DB->delete_records("meta_allow_enrol",array("canenrol"=>$removeAllow, "canbeenrolled"=>$USER->id));
+	} catch (Exception $e){
+		
+	}
+}
 
 if ($newLocation) {
 	$loc = new stdClass();

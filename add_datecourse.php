@@ -23,6 +23,7 @@ $_SESSION['meta_lodging'] = optional_param_array('lodging',"",PARAM_RAW);
 $_SESSION['meta_contact'] = optional_param_array('contact',"",PARAM_RAW);
 $_SESSION['meta_instructors'] = optional_param('instructors',"",PARAM_TEXT);
 $_SESSION['meta_comment'] = optional_param_array('comment',"",PARAM_RAW);
+$_SESSION['meta_multiple_dates'] = optional_param_array('multiple_dates',"",PARAM_RAW);
 $_SESSION['meta_duration'] = optional_param_array('duration',"",PARAM_TEXT);
 $_SESSION['meta_coordinator'] = optional_param('coordinator',"",PARAM_INT);
 $_SESSION['meta_provider'] = optional_param('provider',"",PARAM_TEXT);
@@ -65,6 +66,7 @@ if ($id == 0) {
 		unset($_SESSION['meta_contact']);
 		unset($_SESSION['meta_instructors']);
 		unset($_SESSION['meta_comment']);
+		unset($_SESSION['meta_multiple_dates']);
 		unset($_SESSION['meta_duration']);
 		unset($_SESSION['meta_coordinator']);
 		unset($_SESSION['meta_provider']);

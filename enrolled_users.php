@@ -30,6 +30,7 @@ if ($id) {
 	$datecourse = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id",array("id"=>$id));
 	$datecourse = reset($datecourse);
 	if ($datecourse) {
+		//TODO
 		$enrolled_users = $DB->get_records_sql("
 			SELECT u.username, u.firstname, u.lastname, u.email, u.city, u.country, u.lastaccess
 			FROM {role_assignments} ra, {user} u, {course} c, {context} cxt

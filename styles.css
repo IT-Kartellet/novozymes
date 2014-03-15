@@ -1,8 +1,72 @@
+/*fontello*/
+
+@font-face {
+  font-family: 'fontello';
+  src: url('../blocks/metacourse/font/fontello.eot?37385177');
+  src: url('../blocks/metacourse/font/fontello.eot?37385177#iefix') format('embedded-opentype'),
+       url('../blocks/metacourse/font/fontello.woff?37385177') format('woff'),
+       url('../blocks/metacourse/font/fontello.ttf?37385177') format('truetype'),
+       url('../blocks/metacourse/font/fontello.svg?37385177#fontello') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'fontello';
+    src: url('../font/fontello.svg?37385177#fontello') format('svg');
+  }
+}
+*/
+ 
+ [class^="icon-"]:before, [class*=" icon-"]:before {
+  font-family: "fontello";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+ 
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+ 
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+     
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+ 
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+ 
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+ 
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+ 
+.icon-export-alt:before { content: '\e801'; } /* '' */
+.icon-cog:before { content: '\e800'; } /* '' */
+.icon-trash:before { content: '\e802'; } /* '' */
+
+[class^="icon-"], [class*=" icon-"] {
+  background-image: none !important;
+}
 div.template {
   border-bottom:1px solid #aaa;
   padding-bottom:20px;
 }
 
+#canenroll, #cantenroll {
+  min-width: 200px;
+}
 datalist {
   height:400px;
   overflow: scroll;
@@ -32,6 +96,10 @@ datalist {
   margin-top:1px;
 }
 
+div.who_enrol {
+  display: inline-block;
+}
+
 #view_meta_table tr td:first-child {
   font-weight: bold;
   font-size: 1.12em;
@@ -49,7 +117,19 @@ datalist {
   padding-top:20px;
 }
 
+
 #lean_background {
+  margin: auto;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  z-index:4031;
+  height:100%;
+  width:100%;
+  background-color: rgba(33,33,33,0.7);
+  display: none;
+}
+
+#lean_background_unenrol {
   margin: auto;
   position: fixed;
   top: 0; left: 0; bottom: 0; right: 0;
@@ -143,6 +223,10 @@ datalist {
   padding-right: 1em;
 }
 
+#fitem_id_multiple_dates {
+  display:none;
+}
+
 #region-center-post .region-content .content > ul > li,
 #region-center-pre .region-content .content > ul > li {
   display:inline-block;
@@ -200,18 +284,16 @@ div.export_course_btn input[type='submit']{
   height: 24px;
 }
 
-div.export_course_btn input[type='submit']{
-  background-image: url(http://novozymes.it-kartellet.dk/blocks/metacourse/pix/excel.svg);
+div.export_course_btn input[type='submit'], div.delete_course_btn input[type='submit'], div.edit_course_btn input[type='submit']{
+  position:absolute;
+  top-left:0;
+  width:100%;
+  height:100%;
 }
 
-div.delete_course_btn input[type='submit']{
-  background-image: url(http://novozymes.it-kartellet.dk/blocks/metacourse/pix/delete.svg);
+div.delete_course_btn, div.edit_course_btn,div.export_course_btn {
+  position:relative;
 }
-
-div.edit_course_btn input[type='submit']{
-  background-image: url(http://novozymes.it-kartellet.dk/blocks/metacourse/pix/edit.svg);
-}
-
 
 div.edit_course_btn,
 div.delete_course_btn,

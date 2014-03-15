@@ -51,15 +51,15 @@ foreach ($metacourses as $key => $course) {
 
 	$deleteCourse = new single_button(new moodle_url("/blocks/metacourse/api.php", array("deleteMeta"=>$key)), "", 'post');
 	$deleteCourse->tooltip = "Delete course";
-	$deleteCourse->class = "delete_course_btn";
+	$deleteCourse->class = "delete_course_btn icon-trash";
 
 	$editCourse = new single_button(new moodle_url("/blocks/metacourse/add_metacourse.php", array("id"=>$key)), "", 'post');
 	$editCourse->tooltip = "Edit course";
-	$editCourse->class = "edit_course_btn";
+	$editCourse->class = "edit_course_btn icon-cog";
 
 	$exportExcel = new single_button(new moodle_url("/blocks/metacourse/api.php", array("exportExcel"=>$key)), "", 'post');
 	$exportExcel->tooltip = "Export .xls";
-	$exportExcel->class = "export_course_btn";
+	$exportExcel->class = "export_course_btn icon-export-alt";
 
 	if (!$isProvider) {
 		$deleteCourse->disabled = true;
@@ -128,10 +128,17 @@ $editTerms = new single_button(new moodle_url('/blocks/metacourse/edit_terms.php
 $editTerms->class = "settings_btn";
 $editTerms->tooltip = "Settings";
 
+$allowEnrol = new single_button(new moodle_url('/blocks/metacourse/allow_enrol.php', array()), "Enrolment access");
+$allowEnrol->class = "who_enrol";
+$allowEnrol->tooltip = "Enrolment access";
+
+
 if ($teacher) {
 	echo $OUTPUT->render($newCourse);
 	echo $OUTPUT->render($editTerms);
 }
+echo $OUTPUT->render($allowEnrol);
+
 echo html_writer::table($table);
 
 echo html_writer::end_tag('div');
