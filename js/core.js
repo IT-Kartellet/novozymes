@@ -21,6 +21,12 @@
 	} else {
 		$("#fitem_id_multiple_dates").hide();
 	}
+
+	if ($('#id_customemail').is(":checked")) {
+		$("#[id^='fitem_id_custom_email']").show();
+	} else {
+		$("[id^='fitem_id_custom_email']").hide();
+	}
 	
 	
 	$(document.body).on("click","#addDateCourse",function(){
@@ -163,6 +169,14 @@
 			$("#fitem_id_multiple_dates").show();
 		} else {
 			$("#fitem_id_multiple_dates").hide();
+		}
+	});
+
+	$(document.body).on('click','#id_customemail', function(){
+		if ($('#id_customemail').is(":checked")) {
+			$("[id^='fitem_id_custom_email']").show();
+		} else {
+			$("[id^='fitem_id_custom_email']").hide();
 		}
 	});
 
@@ -483,7 +497,5 @@
 
 // remove the seconds from the duration dropdown
 	$('#id_duration_timeunit option[value="1"]').remove();
-
-
 
 })();

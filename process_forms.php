@@ -35,6 +35,7 @@ $timestarts = $_POST['timestart'];
 $timeends = $_POST['timeend'];
 $publishdate = $_POST['publishdate'];
 $unpublishdate = $_POST['unpublishdate'];
+$custom_emails = $_SESSION['custom_email'];
 
 
 $meta = new stdClass();
@@ -59,12 +60,30 @@ $meta->coordinator = $coordinator;
 $meta->provider = $provider;
 $meta->timemodified = time();
 
+
 //if we are editing
 if ($metaid) {
 	$DB->update_record('meta_course',$meta);
+	// foreach ($custom_emails as $lang => $email) {
+	// 	$em = new stdClass();
+	// 	$em->id = $metaid;
+	// 	$em->lang = $lang;
+	// 	$em->text = $email['text'];
+	// 	$DB->update_record("meta_custom_emails", $em);
+	// }
 } else {
 	$metaid = $DB->insert_record('meta_course', $meta);
+	// add the custom emails
+	foreach ($custom_emails as $lang => $email) {
+		$em = new stdClass();
+		$em->metaid = $metaid;
+		$em->lang = $lang;
+		$em->text = $email['text'];
+		$DB->insert_record("meta_custom_emails", $em);
+	}
 }
+
+
 
 foreach ($datecourses as $key => $course) {
 	$dc = new stdClass();

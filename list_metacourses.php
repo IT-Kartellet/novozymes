@@ -6,6 +6,8 @@ require_once("$CFG->libdir/moodlelib.php");
 
 require_login();
 
+$category = optional_param("category",0,PARAM_INT);
+
 $PAGE->set_context(get_system_context());
 $PAGE->set_pagelayout('admin');
 $URL = '/moodle/blocks/metacourse/list_metacourses.php';
@@ -28,11 +30,15 @@ global $DB, $USER, $PAGE, $CFG;
 
 echo html_writer::tag('h1', get_string('frontpagecourselist'), array('id' => 'course_header', 'class' => 'main'));
 echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
-// $metacourses = $DB->get_records_sql("SELECT c.id, c.name, c.provider, u.firstname, u.lastname, u.email FROM {meta_course} c join {user} u on c.coordinator = u.id order by c.provider asc");
-$metacourses = $DB->get_records_sql("SELECT d.*, pr.provider FROM {meta_providers} pr join 
+
+if ($category != 0) {
+	$metacourses = get_courses_in_category($category);
+} else {
+	$metacourses = $DB->get_records_sql("SELECT d.*, pr.provider FROM {meta_providers} pr join 
 									(SELECT c.id, c.localname,c.localname_lang, c.name, c.provider as providerid, u.firstname, u.lastname, u.email 
 									FROM {meta_course} c join {user} u on c.coordinator = u.id order by c.provider asc) d 
-									on pr.id = d.providerid");
+									on pr.id = d.providerid");	
+}
 $table = new html_table();
 $table->id = "meta_table";
 $table->width = "100%";
@@ -139,6 +145,25 @@ if ($teacher) {
 }
 echo $OUTPUT->render($allowEnrol);
 
+$meta_categories = $DB->get_records("meta_category");
+
+?>
+
+<form id="filters_form" action="/blocks/metacourse/list_metacourses.php">
+	<h2>Category</h2>
+	<select name="category" id="filters" onchange="this.form.submit()">
+		<option value="0">All</option>
+		<?php foreach ($meta_categories as $key => $cat) { 
+			if ($key == $category) { ?>
+			<option selected value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
+		<?php } else { ?>
+			<option value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
+		<?php } 
+		}?>
+	</select>
+</form>
+
+<?php
 echo html_writer::table($table);
 
 echo html_writer::end_tag('div');

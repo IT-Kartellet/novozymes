@@ -27,7 +27,7 @@ $_SESSION['meta_multiple_dates'] = optional_param_array('multiple_dates',"",PARA
 $_SESSION['meta_duration'] = optional_param_array('duration',"",PARAM_TEXT);
 $_SESSION['meta_coordinator'] = optional_param('coordinator',"",PARAM_INT);
 $_SESSION['meta_provider'] = optional_param('provider',"",PARAM_TEXT);
-
+$_SESSION['custom_email'] = $_POST['custom_email'];
 
 $PAGE->set_context(get_system_context());
 $PAGE->set_pagelayout('admin');

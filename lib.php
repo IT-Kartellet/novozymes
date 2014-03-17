@@ -581,3 +581,26 @@ function check_if_not_enrolled($userid, $courseid) {
     }
     return true;
 }
+
+
+function get_courses_in_category($category_id){
+    global $DB;
+    $courses = $DB->get_records_sql("
+        SELECT d.*, pr.provider 
+                FROM {meta_providers} pr JOIN (
+                    SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.firstname, u.lastname, u.email 
+                    FROM {meta_course} c 
+                    JOIN {user} u on c.coordinator = u.id 
+                    ORDER BY c.provider asc) d 
+                ON pr.id = d.providerid");
+
+    $result = array();
+    foreach ($courses as $i => $course) {
+        $targets = json_decode($course->target);
+        if (in_array($category_id, $targets)) {
+            $result[$i] = $course; 
+        }
+    }
+
+    return $result;
+}

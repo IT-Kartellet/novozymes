@@ -17,6 +17,7 @@ $string['action'] = 'Action';
 $string['enrolme'] = 'Enrol me'; 
 $string['enrolOthers'] = 'Enrol others'; 
 $string['unenrolme'] = 'Unenrol me'; 
+$string['customemail'] = 'Custom email'; 
 
 
  
