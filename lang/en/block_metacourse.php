@@ -49,7 +49,7 @@ $string['tostitle'] = 'Terms of agreement';
 $string['tosaccept'] = 'I accept the terms of agreement'; 
 $string['cancellationaccept'] = 'I accept the cancellation policy'; 
 $string['tosacceptwait'] = 'and I have acknowledged that I will be enrolled as soon as there is an available seat'; 
-$string['toscontent'] = 'Terms of service example. Some text here that the users will agree with, in order to get enrolled.'; 
+$string['toscontent'] = 'Registration requires an accept from you manager. Please tick the box below to confirm that you have this accept.'; 
 $string['emailconf'] = '
       Hi {$a->username},
       We hearby confirm that you have been enrolled into {$a->course}.

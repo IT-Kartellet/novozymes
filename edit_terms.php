@@ -55,7 +55,6 @@ if ($mform->is_cancelled()) {
 		$DB->set_field('meta_languages', 'active', $active, array("id"=>$key));
 	}
 
-	$DB->set_field('meta_tos', 'tos', $fromform->tos['text'], array("id"=>1));
 	redirect($URL, "The settings have been saved!");
 } else {
 

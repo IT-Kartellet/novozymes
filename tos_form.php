@@ -13,10 +13,10 @@ class tos_form extends moodleform {
         $data = $this->_customdata['data'];
         
         //TERMS
-        $mform->addElement('header', 'header_terms', 'Terms');
-		$mform->addElement('editor', 'tos', 'Terms of service', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
-		$mform->setType('tos', PARAM_RAW);
-		$mform->addRule('tos', get_string('required'), 'required', null, 'client');
+  //       $mform->addElement('header', 'header_terms', 'Terms');
+		// $mform->addElement('editor', 'tos', 'Terms of service', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+		// $mform->setType('tos', PARAM_RAW);
+		// $mform->addRule('tos', get_string('required'), 'required', null, 'client');
 
 
 
