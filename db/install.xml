@@ -49,7 +49,7 @@
         <FIELD NAME="target" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="target_description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="instructors" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="instructors" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="comment" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="duration" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="duration_unit" TYPE="text" NOTNULL="true" SEQUENCE="false"/>

@@ -28,7 +28,6 @@
 		$("[id^='fitem_id_custom_email']").hide();
 	}
 	
-	
 	$(document.body).on("click","#addDateCourse",function(){
 
 		//used to duplicate the datecourses;

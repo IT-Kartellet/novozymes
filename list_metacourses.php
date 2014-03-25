@@ -21,6 +21,7 @@ $PAGE->navbar->add(get_string('frontpagecourselist'), new moodle_url('/blocks/me
 $PAGE->requires->js(new moodle_url('/lib/jquery/jquery-1.9.1.min.js'));
 $PAGE->requires->js(new moodle_url('js/dataTables.js'));
 $PAGE->requires->js(new moodle_url('js/dataTables_start.js'));
+$PAGE->requires->js(new moodle_url('js/core.js'));
 
 echo $OUTPUT->header();
 //used to hide the buttons for adding new courses;
@@ -44,15 +45,20 @@ $table->id = "meta_table";
 $table->width = "100%";
 $table->tablealign = "center";
 if ($teacher) {
-	$table->head = array(get_string('course'), get_string('administrator'), get_string('provider','block_metacourse'), get_string('coursestart'), get_string('action'));
+	$table->head = array(get_string('course'), get_string('administrator'), get_string('provider','block_metacourse'), get_string("languages","block_metacourse"), get_string('action'));
 
 } else {
-	$table->head = array(get_string('course'), get_string('provider','block_metacourse'), get_string('coursestart'));
+	$table->head = array(get_string('course'), get_string('provider','block_metacourse'),get_string("languages","block_metacourse"));
 }
 
 foreach ($metacourses as $key => $course) {
 	$isProvider = check_provider_role($course->id);
-
+	if (!$isProvider) {
+		// we don't want to display courses in which he is not provider;
+		continue;
+	}
+	$languages = $DB->get_records_sql("SELECT DISTINCT ml.id, ml.language from {meta_datecourse} md JOIN {meta_languages} ml on md.lang = ml.id where metaid = :metaid",
+		array("metaid"=>$key));
 	$datecourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id", array("id"=>$course->id));
 
 	$deleteCourse = new single_button(new moodle_url("/blocks/metacourse/api.php", array("deleteMeta"=>$key)), "", 'post');
@@ -104,6 +110,7 @@ foreach ($metacourses as $key => $course) {
 
 	$count_datecourses = 0;
 	foreach ($datecourses as $key => $datecourse) {
+		$languages[] = $datecourse->lang;
 		if (!$teacher) {
 			if ($datecourse->publishdate < time()) {
 				$dates .= "<li>" . date("j/m/Y",$datecourse->startdate) . "</li>";
@@ -117,11 +124,20 @@ foreach ($metacourses as $key => $course) {
 	}
 	$dates .= "</ul>";
 
+	$languages = array_map(function($l){
+		return @$l->language;
+	}, $languages);
+
+
 	if ($teacher && $count_datecourses) {
-		$table->data[] = array($link, $coordinator, $provider, $dates, $OUTPUT->render($editCourse). $OUTPUT->render($exportExcel) . $OUTPUT->render($deleteCourse));
+		if (!$isProvider) {
+			$table->data[] = array($link, $coordinator, $provider, rtrim(join("<br>",$languages),',') ,"No access");
+		} else {
+			$table->data[] = array($link, $coordinator, $provider, rtrim(join("<br>",$languages),',') ,$OUTPUT->render($editCourse). $OUTPUT->render($exportExcel) . $OUTPUT->render($deleteCourse));
+		}
 	} else {
 		if ($count_datecourses) {
-			$table->data[] = array($link, $provider, $dates);
+			$table->data[] = array($link, $provider);
 		}
 	}
 }
@@ -150,7 +166,7 @@ $meta_categories = $DB->get_records("meta_category");
 ?>
 
 <form id="filters_form" action="/blocks/metacourse/list_metacourses.php">
-	<h2>Category</h2>
+	<h2>Competences</h2>
 	<select name="category" id="filters" onchange="this.form.submit()">
 		<option value="0">All</option>
 		<?php foreach ($meta_categories as $key => $cat) { 

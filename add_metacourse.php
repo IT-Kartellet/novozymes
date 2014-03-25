@@ -67,6 +67,7 @@ if ($id == 0) {
 		//the id of the metacourse
 		$data = new stdClass();
 		$data->id = $id;
+		$data->cancellation = array("text"=>"I accept the cancellation policy");
 		$mform->set_data($data);
 	}
 	if ($mform->is_cancelled()) {

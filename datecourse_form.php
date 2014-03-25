@@ -88,7 +88,7 @@ class datecourse_form extends moodleform {
         $mform->addElement('html',"<input type='button' id='addDateCourse' value='Add another date'>");
         $mform->addElement('html',"<input type='button' id='removeDateCourse' value='Remove date'>");
 
-        $this->add_action_buttons(true, "FINISH");
+        $this->add_action_buttons(true, "Save");
 
         if ($data = $this->_customdata['data']) {
             $awesomeData = new stdClass();

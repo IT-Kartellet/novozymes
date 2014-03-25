@@ -24,6 +24,7 @@ $string['customemail'] = 'Custom email';
 // need translation
 
 $string['purpose'] = 'Purpose';
+$string['languages'] = 'Languages';
 $string['target'] = 'Target';
 $string['target_description'] = "Target description";
 $string['content'] = 'Content'; 
@@ -33,14 +34,14 @@ $string['cancellation'] = 'Cancellation';
 $string['coordinator'] = 'Coordinator'; 
 $string['lodging'] = 'Course Location & Lodging'; 
 $string['provider'] = 'Provider'; 
-$string['contact'] = 'Contact'; 
+$string['contact'] = 'Course Owner'; 
 $string['multipledates'] = 'Multiple dates'; 
 $string['nrviews'] = 'Views'; 
 $string['viewcourse'] = 'View course'; 
 $string['courseend'] = 'End date'; 
 $string['price'] = 'Price'; 
-$string['availableseats'] = 'Nr. of seats / Attendees available'; 
-$string['nrparticipants'] = 'Nr. of participants'; 
+$string['availableseats'] = 'No. of seats'; 
+$string['nrparticipants'] = 'No. of participants'; 
 $string['coursedates'] = 'Course dates';
 $string['youareenrolled'] = 'You are enrolled'; 
 $string['expiredenrolment'] = 'Enrolment ended'; 

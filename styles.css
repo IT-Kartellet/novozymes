@@ -291,6 +291,9 @@ div.export_course_btn input[type='submit'], div.delete_course_btn input[type='su
   height:100%;
 }
 
+div.export_course_btn input[disabled='disabled'], div.delete_course_btn input[disabled='disabled'], div.edit_course_btn input[disabled='disabled']{
+}
+
 div.delete_course_btn, div.edit_course_btn,div.export_course_btn {
   position:relative;
 }
