@@ -415,6 +415,8 @@ function enrol_waiting_user($eventData){
   $user = $DB->get_records_sql("SELECT * FROM {meta_waitlist} order by timecreated asc");
   $user = reset($user);
 
+  $enrolmentEnd = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where courseid = :courseid and unpublishdate > :time", array("courseid" => $eventData->courseid, "time"=>time()));
+
   //if there is anyone on the waiting list...
   if ($user) {
     $instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$eventData->courseid));

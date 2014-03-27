@@ -29,6 +29,7 @@ $contact = $_SESSION['meta_contact'];
 $multiple_dates = $_SESSION['meta_multiple_dates'];
 $coordinator = $_SESSION['meta_coordinator'];
 $provider = $_SESSION['meta_provider'];
+$competence = $_SESSION["meta_competence"];
 
 //TODO: find a smarter and sober method to transform these dates into unix timestamp
 $unpublish_meta = $_SESSION['meta_unpublishdate'];
@@ -165,7 +166,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->location = $course['location'];
 
 	$dc->lang = $course['language'];
-	$dc->category = $course['category'];
+	$dc->category = $competence;
 	$dc->price = $course['price'];
 	$dc->currencyid = $course['currency'];
 	$dc->total_places = $course['places'];
@@ -188,7 +189,7 @@ foreach ($datecourses as $key => $course) {
 		$dc = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id",array("id"=>$dc->id));
 		$dc = reset($dc);
 		
-		update_meta_course($metaid,$dc, $course['category']);
+		update_meta_course($metaid,$dc, $competence);
 		$updatedCourseId = $DB->get_record('meta_datecourse', array('id'=>$dc->id));
 		add_coordinator($meta->coordinator, $updatedCourseId->courseid);
 		add_coordinator($dc->coordinator, $updatedCourseId->courseid);
@@ -201,7 +202,7 @@ foreach ($datecourses as $key => $course) {
 		//create the course
 		$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
 
-		$created_courseid = create_new_course($courseName,$courseName, $course['category'], $dc->startdate, $meta->content);
+		$created_courseid = create_new_course($courseName,$courseName, $competence, $dc->startdate, $meta->content);
 
 		// add the manual enrolment
 		$DB->insert_record("enrol",array("enrol"=>"manual","status"=>0, "roleid"=>5,"courseid"=>$created_courseid));

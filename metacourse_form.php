@@ -61,6 +61,12 @@ class metacourse_form extends moodleform {
         $languages = array_map(function($lang){
             return $lang->language;
         }, $languages);
+
+        $categories = $DB->get_records_sql("SELECT id, name FROM {course_categories}");
+        $categories = array_map(function($cat){
+            return $cat->name;
+        }, $categories); 
+
         $templates = $DB->get_records_sql("SELECT * from {meta_template}");
         $templates = array_map(function($template){
             return $template->name;
@@ -106,6 +112,7 @@ class metacourse_form extends moodleform {
         $mform->setDefault('coordinator', $USER->id);
         $mform->addElement('select', 'provider', 'Provider', $providers, null);
         $mform->addElement('date_time_selector', 'unpublishdate', "Unpublish date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
+        $mform->addElement('select', 'competence', 'Competence', $categories, null);
 
         $mform->addElement('html',"<input type='button' id='saveTemplate' value='Add to templates'>");
 

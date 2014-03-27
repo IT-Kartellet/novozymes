@@ -48,9 +48,16 @@ $string['expiredenrolment'] = 'Enrolment ended';
 $string['addtowaitinglist'] = 'Add me to waiting list'; 
 $string['tostitle'] = 'Terms of agreement'; 
 $string['tosaccept'] = 'I accept the terms of agreement'; 
-$string['cancellationaccept'] = 'I accept the cancellation policy'; 
+$string['cancellationaccept'] = 'If cancelling later than 5 weeks prior to the course your department will be charged the full amount.'; 
 $string['tosacceptwait'] = 'and I have acknowledged that I will be enrolled as soon as there is an available seat'; 
-$string['toscontent'] = 'Registration requires an accept from you manager. Please tick the box below to confirm that you have this accept.'; 
+$string['toscontent'] = 'Registration requires an accept from you manager. Please tick the box below to confirm that you have this accept. 
+
+Cancellation
+Please read the terms of cancellation for the specific course before signing up.
+
+Payments
+Course fees will be charged you department immediately after the course.
+'; 
 $string['emailconf'] = '
       Hi {$a->username},
       We hearby confirm that you have been enrolled into {$a->course}.

@@ -28,6 +28,7 @@ $_SESSION['meta_duration'] = optional_param_array('duration',"",PARAM_TEXT);
 $_SESSION['meta_coordinator'] = optional_param('coordinator',"",PARAM_INT);
 $_SESSION['meta_provider'] = optional_param('provider',"",PARAM_TEXT);
 $_SESSION['meta_unpublishdate'] = $_POST['unpublishdate']; //TODO: fix these posts to be secure. It's 3 am. and I don't want to fuck with moodle now.
+$_SESSION['meta_competence'] = $_POST['competence']; //TODO: fix these posts to be secure. It's 3 am. and I don't want to fuck with moodle now.
 $_SESSION['custom_email'] = $_POST['custom_email'];
 
 $PAGE->set_context(get_system_context());
@@ -72,6 +73,7 @@ if ($id == 0) {
 		unset($_SESSION['meta_coordinator']);
 		unset($_SESSION['meta_provider']);
 		unset($_SESSION['meta_unpublishdate']);
+		unset($_SESSION['meta_competence']);
 	  	redirect($URL, 'Your action was canceled!');
 
 	} else if ($fromform = $mform->get_data()) {

@@ -31,10 +31,10 @@ class datecourse_form extends moodleform {
         }, $currencies);
 
         //create the categories select
-        $categories = $DB->get_records_sql("SELECT id, name FROM {course_categories}");
-        $categories = array_map(function($cat){
-            return $cat->name;
-        }, $categories); 
+        // $categories = $DB->get_records_sql("SELECT id, name FROM {course_categories}");
+        // $categories = array_map(function($cat){
+        //     return $cat->name;
+        // }, $categories); 
 
         $coordinators = $DB->get_records_sql("
             select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u join 
@@ -51,7 +51,7 @@ class datecourse_form extends moodleform {
         while($key <= $numberOfDates-1) {
             $mform->addElement('html',"<div class='template'>");
             $mform->addElement('hidden','datecourse['. $key .'][id]', '0');
-            $mform->addElement('select', 'datecourse['. $key .'][category]', 'Category', $categories, null);
+            // $mform->addElement('select', 'datecourse['. $key .'][category]', 'Category', $categories, null);
             $mform->addElement('date_time_selector', 'timestart['. $key .']', get_string("from"), array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
             $mform->addElement('date_time_selector', 'timeend['. $key .']', get_string("to"), array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
             $mform->addElement('select', 'datecourse['. $key .'][location]', 'Location', $locations, null);
@@ -97,7 +97,7 @@ class datecourse_form extends moodleform {
             $horribleCounter = 0; // he doesn't eat his vegetables
             foreach ($data as $key => $dc) {
                 $awesomeData->{'datecourse['. $horribleCounter .'][id]'} = $dc->id;
-                $awesomeData->{'datecourse['. $horribleCounter .'][category]'} = $dc->category;
+                // $awesomeData->{'datecourse['. $horribleCounter .'][category]'} = $dc->category;
                 $awesomeData->{'timestart['. $horribleCounter .']'} = $dc->startdate;
                 $awesomeData->{'timeend['. $horribleCounter .']'} = $dc->enddate;
                 $awesomeData->{'datecourse['. $horribleCounter .'][location]'} = $dc->location;
