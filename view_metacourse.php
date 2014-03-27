@@ -208,7 +208,12 @@ if ($metacourse) {
 
 	foreach ($datecourses as $key => $datecourse) {
 		if (!$isTeacher) {
+			// if not published skip it.
 			if ($datecourse->publishdate > time()) {
+				continue;
+			}
+			// you can't be added anymore
+			if ($datecourse->startdate < time()) {
 				continue;
 			}
 		}
@@ -282,9 +287,13 @@ if ($metacourse) {
 			$enrolMe->disabled = true;
 			$enrolOthers->disabled = true;
 		}
-
-		$action = $OUTPUT->render($enrolMe);
-		$action .= $OUTPUT->render($enrolOthers);
+		if ($datecourse->startenrolment > time()) {
+			$action = "You can't enrol yet";
+		} else {
+			$action = $OUTPUT->render($enrolMe);
+			$action .= $OUTPUT->render($enrolOthers);
+		}
+		
 		if ($isTeacher && ($busy_places > 0)) {
 			$date_table->data[] = array($start, $end,$location,$language,$price,$coordinator,$total_places, $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$busy_places), $action);
 		} else {

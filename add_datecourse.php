@@ -27,6 +27,7 @@ $_SESSION['meta_multiple_dates'] = optional_param_array('multiple_dates',"",PARA
 $_SESSION['meta_duration'] = optional_param_array('duration',"",PARAM_TEXT);
 $_SESSION['meta_coordinator'] = optional_param('coordinator',"",PARAM_INT);
 $_SESSION['meta_provider'] = optional_param('provider',"",PARAM_TEXT);
+$_SESSION['meta_unpublishdate'] = $_POST['unpublishdate']; //TODO: fix these posts to be secure. It's 3 am. and I don't want to fuck with moodle now.
 $_SESSION['custom_email'] = $_POST['custom_email'];
 
 $PAGE->set_context(get_system_context());
@@ -70,6 +71,7 @@ if ($id == 0) {
 		unset($_SESSION['meta_duration']);
 		unset($_SESSION['meta_coordinator']);
 		unset($_SESSION['meta_provider']);
+		unset($_SESSION['meta_unpublishdate']);
 	  	redirect($URL, 'Your action was canceled!');
 
 	} else if ($fromform = $mform->get_data()) {

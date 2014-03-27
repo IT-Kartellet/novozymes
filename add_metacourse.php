@@ -38,8 +38,9 @@ if ($id == 0) {
 	$PAGE->navbar->add("Add course", new moodle_url('/blocks/metacourse/add_metacourse.php'));
 	$mform = new metacourse_form("add_datecourse.php");
 
-	if (isset($_SESSION['meta_name'])) {
+	if (isset($_SESSION['meta_name']) && $_SESSION['meta_name'] != "") {
 		// echo "string";
+		var_dump($_SESSION['meta_name']);
 		$meta = new stdClass();
 		$meta->id = $_SESSION['meta_id'];
 		$meta->name = $_SESSION['meta_name'];
@@ -72,6 +73,22 @@ if ($id == 0) {
 	}
 	if ($mform->is_cancelled()) {
 	 	//nothing to do here.
+	 	unset($_SESSION['meta_id']);
+		unset($_SESSION['meta_name']);
+		unset($_SESSION['meta_localname']);
+		unset($_SESSION['meta_localname_lang']);
+		unset($_SESSION['meta_purpose']);
+		unset($_SESSION['meta_target']);
+		unset($_SESSION['meta_content']);
+		unset($_SESSION['meta_target_description']);
+		unset($_SESSION['meta_cancellation']);
+		unset($_SESSION['meta_lodging']);
+		unset($_SESSION['meta_contact']);
+		unset($_SESSION['meta_instructors']);
+		unset($_SESSION['meta_comment']);
+		unset($_SESSION['meta_duration']);
+		unset($_SESSION['meta_coordinator']);
+		unset($_SESSION['meta_provider']);
 	  	redirect($URL, 'Your action was canceled!');
 
 	} else if ($fromform = $mform->get_data()) {

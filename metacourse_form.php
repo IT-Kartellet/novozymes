@@ -105,9 +105,10 @@ class metacourse_form extends moodleform {
         $mform->addElement('select', 'coordinator', 'Coordinator', $coordinators, null);
         $mform->setDefault('coordinator', $USER->id);
         $mform->addElement('select', 'provider', 'Provider', $providers, null);
+        $mform->addElement('date_time_selector', 'unpublishdate', "Unpublish date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
+
         $mform->addElement('html',"<input type='button' id='saveTemplate' value='Add to templates'>");
 
-        // $mform->addElement('text', 'provider', 'Provider');
 
         //ELEMENT TYPES
         $mform->setType('id', PARAM_INT);

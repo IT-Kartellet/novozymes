@@ -30,11 +30,25 @@ $multiple_dates = $_SESSION['meta_multiple_dates'];
 $coordinator = $_SESSION['meta_coordinator'];
 $provider = $_SESSION['meta_provider'];
 
+//TODO: find a smarter and sober method to transform these dates into unix timestamp
+$unpublish_meta = $_SESSION['meta_unpublishdate'];
+$unpublish_meta_time = array(	"day"=>$unpublish_meta['day'],
+								"month"=>$unpublish_meta['month'],
+								"year"=>$unpublish_meta['year'],
+								"hour"=>$unpublish_meta['hour'],
+								"minute"=>$unpublish_meta['minute']);
+$umt = implode("-",array($unpublish_meta_time['year'], $unpublish_meta_time['month'], $unpublish_meta_time['day']));
+$umt .= " " . $unpublish_meta_time['hour'] . ":" . $unpublish_meta_time['minute'] . ":00";
+
+
+
+//TODO: fix these posts. Moodle fucks with me now.
 $datecourses = $_POST['datecourse'];
 $timestarts = $_POST['timestart'];
 $timeends = $_POST['timeend'];
 $publishdate = $_POST['publishdate'];
 $unpublishdate = $_POST['unpublishdate'];
+$startenrolment = $_POST['startenrolment'];
 $custom_emails = $_SESSION['custom_email'];
 
 
@@ -58,6 +72,7 @@ $meta->contact = $contact['text'];
 $meta->multiple_dates = $multiple_dates['text'];
 $meta->coordinator = $coordinator;
 $meta->provider = $provider;
+$meta->unpublishdate = date_timestamp_get(date_create($umt));
 $meta->timemodified = time();
 
 
@@ -120,6 +135,13 @@ foreach ($datecourses as $key => $course) {
 						"hour"=>$unpublishdate[$key]['hour'],
 						"minute"=>$unpublishdate[$key]['minute']
 	 );
+
+	$startenrolmenttime = array("day"=>$startenrolment[$key]['day'],
+							"month"=>$startenrolment[$key]['month'],
+							"year"=>$startenrolment[$key]['year'],
+							"hour"=>$startenrolment[$key]['hour'],
+							"minute"=>$startenrolment[$key]['minute']
+	 );
 	
 	//format the times
 	$ts = implode("-",array($starttime['year'], $starttime['month'], $starttime['day']));
@@ -132,10 +154,14 @@ foreach ($datecourses as $key => $course) {
 	$upd = implode("-",array($unpublishtime['year'], $unpublishtime['month'], $unpublishtime['day']));
 	$upd .= " " . $unpublishtime['hour'] . ":" . $unpublishtime['minute'] . ":00";
 
+	$ste = implode("-",array($startenrolmenttime['year'], $startenrolmenttime['month'], $startenrolmenttime['day']));
+	$ste .= " " . $startenrolmenttime['hour'] . ":" . $startenrolmenttime['minute'] . ":00";
+
 	$dc->startdate = date_timestamp_get(date_create($ts));
 	$dc->enddate = date_timestamp_get(date_create($te));
 	$dc->publishdate = date_timestamp_get(date_create($pd));
 	$dc->unpublishdate = date_timestamp_get(date_create($upd));
+	$dc->startenrolment = date_timestamp_get(date_create($ste));
 	$dc->location = $course['location'];
 
 	$dc->lang = $course['language'];

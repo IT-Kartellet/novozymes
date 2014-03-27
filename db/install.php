@@ -59,13 +59,16 @@ function xmldb_block_metacourse_install() {
     $currencies = array();
     $currencies[] = array("currency"=>"EUR");
     $currencies[] = array("currency"=>"BGN");
+    $currencies[] = array("currency"=>"BRL");
     $currencies[] = array("currency"=>"GBP");
     $currencies[] = array("currency"=>"HRK");
     $currencies[] = array("currency"=>"CZK");
+    $currencies[] = array("currency"=>"CNY");
     $currencies[] = array("currency"=>"DKK");
     $currencies[] = array("currency"=>"HUF");
     $currencies[] = array("currency"=>"LVL");
     $currencies[] = array("currency"=>"LTL");
+    $currencies[] = array("currency"=>"INR");
     $currencies[] = array("currency"=>"PLN");
     $currencies[] = array("currency"=>"RON");
     $currencies[] = array("currency"=>"SEK");

@@ -36,7 +36,7 @@ if ($category != 0) {
 	$metacourses = get_courses_in_category($category);
 } else {
 	$metacourses = $DB->get_records_sql("SELECT d.*, pr.provider FROM {meta_providers} pr join 
-									(SELECT c.id, c.localname,c.localname_lang, c.name, c.provider as providerid, u.firstname, u.lastname, u.email 
+									(SELECT c.id, c.localname,c.localname_lang, c.name, c.provider as providerid, u.firstname, u.lastname, u.email, c.unpublishdate 
 									FROM {meta_course} c join {user} u on c.coordinator = u.id order by c.provider asc) d 
 									on pr.id = d.providerid");	
 }
@@ -45,7 +45,7 @@ $table->id = "meta_table";
 $table->width = "100%";
 $table->tablealign = "center";
 if ($teacher) {
-	$table->head = array(get_string('course'), get_string('administrator'), get_string('provider','block_metacourse'), get_string("languages","block_metacourse"), get_string('action'));
+	$table->head = array(get_string('course'), get_string('administrator'), get_string('provider','block_metacourse'), get_string("languages","block_metacourse"), "Status", get_string('action'));
 
 } else {
 	$table->head = array(get_string('course'), get_string('provider','block_metacourse'),get_string("languages","block_metacourse"));
@@ -53,10 +53,13 @@ if ($teacher) {
 
 foreach ($metacourses as $key => $course) {
 	$isProvider = check_provider_role($course->id);
-	if (!$isProvider) {
-		// we don't want to display courses in which he is not provider;
+	$isPublished = ($course->unpublishdate > time());
+	//don't display if they are overdue
+
+	if (!$isPublished && !$teacher) {
 		continue;
 	}
+
 	$languages = $DB->get_records_sql("SELECT DISTINCT ml.id, ml.language from {meta_datecourse} md JOIN {meta_languages} ml on md.lang = ml.id where metaid = :metaid",
 		array("metaid"=>$key));
 	$datecourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id", array("id"=>$course->id));
@@ -130,14 +133,15 @@ foreach ($metacourses as $key => $course) {
 
 
 	if ($teacher && $count_datecourses) {
+		$status = (($isPublished) ? "Published" : "Unpublished");
 		if (!$isProvider) {
-			$table->data[] = array($link, $coordinator, $provider, rtrim(join("<br>",$languages),',') ,"No access");
+			$table->data[] = array($link, $coordinator, $provider, rtrim(join("<br>",$languages),','), $status ,"");
 		} else {
-			$table->data[] = array($link, $coordinator, $provider, rtrim(join("<br>",$languages),',') ,$OUTPUT->render($editCourse). $OUTPUT->render($exportExcel) . $OUTPUT->render($deleteCourse));
+			$table->data[] = array($link, $coordinator, $provider, rtrim(join("<br>",$languages),',') , $status,$OUTPUT->render($editCourse). $OUTPUT->render($exportExcel) . $OUTPUT->render($deleteCourse));
 		}
 	} else {
 		if ($count_datecourses) {
-			$table->data[] = array($link, $provider);
+			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),','));
 		}
 	}
 }
@@ -159,14 +163,15 @@ if ($teacher) {
 	echo $OUTPUT->render($newCourse);
 	echo $OUTPUT->render($editTerms);
 }
-echo $OUTPUT->render($allowEnrol);
+//TODO: see what's up with this
+// echo $OUTPUT->render($allowEnrol);
 
 $meta_categories = $DB->get_records("meta_category");
 
 ?>
 
 <form id="filters_form" action="/blocks/metacourse/list_metacourses.php">
-	<h2>Competences</h2>
+	<h2>Employee group</h2>
 	<select name="category" id="filters" onchange="this.form.submit()">
 		<option value="0">All</option>
 		<?php foreach ($meta_categories as $key => $cat) { 

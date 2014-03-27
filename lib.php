@@ -588,7 +588,7 @@ function get_courses_in_category($category_id){
     $courses = $DB->get_records_sql("
         SELECT d.*, pr.provider 
                 FROM {meta_providers} pr JOIN (
-                    SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.firstname, u.lastname, u.email 
+                    SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.firstname, u.lastname, u.email, c.unpublishdate 
                     FROM {meta_course} c 
                     JOIN {user} u on c.coordinator = u.id 
                     ORDER BY c.provider asc) d 

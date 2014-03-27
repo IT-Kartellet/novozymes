@@ -58,6 +58,12 @@
 		victim.find("select[name='publishdate[" + (index-2) + "][hour]']").attr("name", "publishdate[" + (index-1) + "][hour]");
 		victim.find("select[name='publishdate[" + (index-2) + "][minute]']").attr("name", "publishdate[" + (index-1) + "][minute]");
 
+		victim.find("select[name='startenrolment[" + (index-2) + "][day]']").attr("name", "startenrolment[" + (index-1) + "][day]");
+		victim.find("select[name='startenrolment[" + (index-2) + "][month]']").attr("name", "startenrolment[" + (index-1) + "][month]");
+		victim.find("select[name='startenrolment[" + (index-2) + "][year]']").attr("name", "startenrolment[" + (index-1) + "][year]");
+		victim.find("select[name='startenrolment[" + (index-2) + "][hour]']").attr("name", "startenrolment[" + (index-1) + "][hour]");
+		victim.find("select[name='startenrolment[" + (index-2) + "][minute]']").attr("name", "startenrolment[" + (index-1) + "][minute]");
+
 		victim.find("select[name='unpublishdate[" + (index-2) + "][day]']").attr("name", "unpublishdate[" + (index-1) + "][day]");
 		victim.find("select[name='unpublishdate[" + (index-2) + "][month]']").attr("name", "unpublishdate[" + (index-1) + "][month]");
 		victim.find("select[name='unpublishdate[" + (index-2) + "][year]']").attr("name", "unpublishdate[" + (index-1) + "][year]");
@@ -77,6 +83,9 @@
 
 		victim.find("input[name='timestart[" + (index-2) + "][calendar]']").attr("name", "timestart[" + (index-1) + "][calendar]");
 		victim.find("input[name='timend[" + (index-2) + "][calendar]']").attr("name", "timeend[" + (index-1) + "][calendar]");
+		victim.find("input[name='publishdate[" + (index-2) + "][calendar]']").attr("name", "publishdate[" + (index-1) + "][calendar]");
+		victim.find("input[name='unpublishdate[" + (index-2) + "][calendar]']").attr("name", "unpublishdate[" + (index-1) + "][calendar]");
+		victim.find("input[name='startenrolment[" + (index-2) + "][calendar]']").attr("name", "startenrolment[" + (index-1) + "][calendar]");
 	});
 
 	$(document.body).on("click","#removeDateCourse",function(){
@@ -270,10 +279,10 @@
 		  		enrolCourse: courseID },
 		  success: function(e){
 		  	newGuy.remove();
-		  	console.log(e);
+		  	alert("Success!");
 		  },
 		  error: function(e){
-		  	console.log(e);
+		  	alert("Could not enrol him.");
 		  }
 		})
 	});

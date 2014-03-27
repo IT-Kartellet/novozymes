@@ -35,7 +35,9 @@ echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 
 echo html_writer::tag('h3', "Users you can enrol:");
 
-$users = $DB->get_records_sql("select e.id, a.canenrol, a.canbeenrolled, e.firstname, e.lastname from {meta_allow_enrol} a join {user} e on canbeenrolled = e.id where canenrol = :id", array("id"=>$USER->id));
+// select only the ones that allow you;
+// $users = $DB->get_records_sql("select e.id, a.canenrol, a.canbeenrolled, e.firstname, e.lastname from {meta_allow_enrol} a join {user} e on canbeenrolled = e.id where canenrol = :id", array("id"=>$USER->id));
+$users= $DB->get_records_sql("SELECT * from {user} where id NOT IN (:guest, :own)", array("guest"=>1, "own"=> $USER->id));
 $users = array_filter($users, function($user) use ($courseid){
 	return check_if_not_enrolled($user->id,$courseid);
 });
