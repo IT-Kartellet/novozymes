@@ -60,8 +60,22 @@
   background-image: none !important;
 }
 div.template {
-  border-bottom:1px solid #aaa;
-  padding-bottom:20px;
+  border-bottom: 1px solid #aaa;
+  padding-bottom: 20px;
+  padding-top: 15px;
+  position: relative;
+}
+
+#existingcell, #potentialcell {
+  width:300px;
+}
+
+#buttonscell {
+  width:100px;
+}
+
+.search_filter {
+  width:300px;
 }
 
 #canenroll, #cantenroll {
@@ -76,6 +90,10 @@ datalist {
   width:75%;
   margin:auto;
   height: 100%;
+}
+
+#meta_wrapper ul {
+  list-style-type: disc;
 }
 
 #meta_table, #view_meta_table {
@@ -208,10 +226,22 @@ div.who_enrol {
 
 #addDateCourse, #removeDateCourse{
   margin-top: 1em;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 
 #removeDateCourse {
   margin-left: 0.5em;
+  position: absolute;
+  right: 10px;
+  top:0;
+  background-color: #c0392b;
+  color: white;
+  padding: 4px;
+  height: 18px;
+  font-size: 9px;
+  line-height: 1em;
 }
 
 .meta_category{

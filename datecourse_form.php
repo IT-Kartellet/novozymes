@@ -30,12 +30,6 @@ class datecourse_form extends moodleform {
             return $curr->currency;
         }, $currencies);
 
-        //create the categories select
-        // $categories = $DB->get_records_sql("SELECT id, name FROM {course_categories}");
-        // $categories = array_map(function($cat){
-        //     return $cat->name;
-        // }, $categories); 
-
         $coordinators = $DB->get_records_sql("
             select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u join 
                 {role_assignments} ra on u.id = ra.userid and ra.roleid in (1,2,3,4) and u.id <> 1
@@ -51,21 +45,20 @@ class datecourse_form extends moodleform {
         while($key <= $numberOfDates-1) {
             $mform->addElement('html',"<div class='template'>");
             $mform->addElement('hidden','datecourse['. $key .'][id]', '0');
-            // $mform->addElement('select', 'datecourse['. $key .'][category]', 'Category', $categories, null);
-            $mform->addElement('date_time_selector', 'timestart['. $key .']', get_string("from"), array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
-            $mform->addElement('date_time_selector', 'timeend['. $key .']', get_string("to"), array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
-            $mform->addElement('select', 'datecourse['. $key .'][location]', 'Location', $locations, null);
+            $mform->addElement('html',"<input type='button' id='removeDateCourse' title='Remove date' value='X'>");
+            $mform->addElement('date_time_selector', 'timestart['. $key .']', get_string("from"), array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false, "id"=>"timestart"),array("class"=>"timestart"));
+            $mform->addElement('date_time_selector', 'timeend['. $key .']', get_string("to"), array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false),array("class"=>"timeend"));
+            $mform->addElement('select', 'datecourse['. $key .'][location]', 'Location', $locations, array("class"=>"location"));
             $mform->addElement('html', "<div class='fitem'><div class='felement'> <a href='#' class='anotherLocation' > + another location </a></div></div>");
-            $mform->addElement('select', 'datecourse['. $key .'][language]', 'Language', $languages, null);
-
-            $mform->addElement('text', 'datecourse['. $key .'][price]', 'Price');
-            $mform->addElement('select', 'datecourse['. $key .'][currency]', 'Currency', $currencies, null);
-            $mform->addElement('text', 'datecourse['. $key .'][places]', 'Nr. of places');
-            $mform->addElement('select', 'datecourse['. $key .'][coordinator]', 'Coordinator', $coordinators, null);
+            $mform->addElement('select', 'datecourse['. $key .'][language]', 'Language', $languages, array("class"=>"language"));
+            $mform->addElement('text', 'datecourse['. $key .'][price]', 'Price',array("class"=>"price"));
+            $mform->addElement('select', 'datecourse['. $key .'][currency]', 'Currency', $currencies, array("class"=>"currency"));
+            $mform->addElement('text', 'datecourse['. $key .'][places]', 'No. of places',array("class"=>"noPlaces"));
+            $mform->addElement('select', 'datecourse['. $key .'][coordinator]', 'Coordinator', $coordinators, array("class"=>"coordinator"));
             $mform->setDefault('coordinator', $USER->id);
-            $mform->addElement('date_time_selector', 'publishdate['. $key .']', "Publish date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
-            $mform->addElement('date_time_selector', 'startenrolment['. $key .']', "Start enrolment date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
-            $mform->addElement('date_time_selector', 'unpublishdate['. $key .']', "End enrolment date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
+            $mform->addElement('date_time_selector', 'publishdate['. $key .']', "Publish date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false), array("class"=>"publishdate"));
+            $mform->addElement('date_time_selector', 'startenrolment['. $key .']', "Start enrolment date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false), array("class"=>"startenrolment"));
+            $mform->addElement('date_time_selector', 'unpublishdate['. $key .']', "End enrolment date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false),array("class"=>"unpublishdate"));
 
             $mform->addElement('html',"</div>");
 
@@ -79,6 +72,7 @@ class datecourse_form extends moodleform {
             $mform->addRule('datecourse['. $key .'][price]', get_string('required'), 'required', null, 'client');
             $mform->addRule('timestart['. $key .']', get_string('required'), 'required', null, 'client');
             $mform->addRule('timeend['. $key .']', get_string('required'), 'required', null, 'client');
+
            
             $key++;
         }
@@ -87,7 +81,7 @@ class datecourse_form extends moodleform {
 
         $mform->addElement('html',"</div>");
         $mform->addElement('html',"<input type='button' id='addDateCourse' value='Add another date'>");
-        $mform->addElement('html',"<input type='button' id='removeDateCourse' value='Remove date'>");
+        // $mform->addElement('html',"<input type='button' id='removeDateCourse' value='Remove date'>");
 
         $this->add_action_buttons(true, "Save");
 
@@ -97,9 +91,11 @@ class datecourse_form extends moodleform {
             $horribleCounter = 0; // he doesn't eat his vegetables
             foreach ($data as $key => $dc) {
                 $awesomeData->{'datecourse['. $horribleCounter .'][id]'} = $dc->id;
-                // $awesomeData->{'datecourse['. $horribleCounter .'][category]'} = $dc->category;
                 $awesomeData->{'timestart['. $horribleCounter .']'} = $dc->startdate;
                 $awesomeData->{'timeend['. $horribleCounter .']'} = $dc->enddate;
+                $awesomeData->{'publishdate['. $horribleCounter .']'} = $dc->publishdate;
+                $awesomeData->{'unpublishdate['. $horribleCounter .']'} = $dc->unpublishdate;
+                $awesomeData->{'startenrolment['. $horribleCounter .']'} = $dc->startenrolment;
                 $awesomeData->{'datecourse['. $horribleCounter .'][location]'} = $dc->location;
                 $awesomeData->{'datecourse['. $horribleCounter .'][language]'} = $dc->lang;
                 $awesomeData->{'datecourse['. $horribleCounter .'][price]'} = $dc->price;

@@ -14,7 +14,7 @@ function xmldb_block_metacourse_install() {
     $records[] = array("language"=>'Bulgarian', "iso"=>'bg');
     $records[] = array("language"=>'Catalan', "iso"=>'ca');
     $records[] = array("language"=>'Czech', "iso"=>'cs');
-    $records[] = array("language"=>'Chinese', "iso"=>'zh_cn');
+    $records[] = array("language"=>'Chinese',"active"=>1, "iso"=>'zh_cn');
     $records[] = array("language"=>'Croatian', "iso"=>'hr');
     $records[] = array("language"=>'Danish',"active"=>1,"iso"=>'da');
     $records[] = array("language"=>'Dutch', "iso"=>'nl');
@@ -38,7 +38,7 @@ function xmldb_block_metacourse_install() {
     $records[] = array("language"=>'Macedonian', "iso"=>'mk');
     $records[] = array("language"=>'Norwegian', "iso"=>'no');
     $records[] = array("language"=>'Polish', "iso"=>'pl');
-    $records[] = array("language"=>'Portuguese', "iso"=>'pt');
+    $records[] = array("language"=>'Portuguese',"active"=>1, "iso"=>'pt');
     $records[] = array("language"=>'Romanian', "iso"=>'ro');
     $records[] = array("language"=>'Russian', "iso"=>'ru');
     $records[] = array("language"=>'Serbian', "iso"=>'sr_cr');
@@ -57,32 +57,14 @@ function xmldb_block_metacourse_install() {
     $DB->insert_record("meta_tos", $tos);
 
     $currencies = array();
-    $currencies[] = array("currency"=>"EUR");
-    $currencies[] = array("currency"=>"BGN");
-    $currencies[] = array("currency"=>"BRL");
-    $currencies[] = array("currency"=>"GBP");
-    $currencies[] = array("currency"=>"HRK");
-    $currencies[] = array("currency"=>"CZK");
-    $currencies[] = array("currency"=>"CNY");
-    $currencies[] = array("currency"=>"DKK");
-    $currencies[] = array("currency"=>"HUF");
-    $currencies[] = array("currency"=>"LVL");
-    $currencies[] = array("currency"=>"LTL");
-    $currencies[] = array("currency"=>"INR");
-    $currencies[] = array("currency"=>"PLN");
-    $currencies[] = array("currency"=>"RON");
-    $currencies[] = array("currency"=>"SEK");
-    $currencies[] = array("currency"=>"CHF");
-    $currencies[] = array("currency"=>"USD");
-    $currencies[] = array("currency"=>"RUB");
-    $currencies[] = array("currency"=>"NOK");
-    $currencies[] = array("currency"=>"TRY");
-    $currencies[] = array("currency"=>"UAH");
-    $currencies[] = array("currency"=>"MDL");
-    $currencies[] = array("currency"=>"JPY");
-    $currencies[] = array("currency"=>"AUD");
-    $currencies[] = array("currency"=>"CAD");
-    $currencies[] = array("currency"=>"HKD");
+    $currencies[] = array("currency"=>"EUR"); // euros
+    $currencies[] = array("currency"=>"BRL"); // brazilian
+    $currencies[] = array("currency"=>"GBP"); // british pounds
+    $currencies[] = array("currency"=>"CNY"); // chinese
+    $currencies[] = array("currency"=>"CHF"); // swiss franc
+    $currencies[] = array("currency"=>"DKK"); // danish
+    $currencies[] = array("currency"=>"INR"); // indian
+    $currencies[] = array("currency"=>"USD"); // us dollars
 
     foreach ($currencies as $cur) {
         $DB->insert_record("meta_currencies", $cur);

@@ -50,8 +50,32 @@ class metacourse_form extends moodleform {
                 return $arg->provider;
             }, $providers);
 
-        // Get the Target groups
+        
+        // Ugly code to take the roles and the providers with their id.
+        $context = get_context_instance (CONTEXT_SYSTEM);
+        $roles = get_user_roles($context, $USER->id, false);
+        $roles = array_map(function($role){
+            if ($role->roleid != 1) {
+                return $role->name;
+            }
+            return null;
+        }, $roles);
+        $roles = array_filter($roles);
+        foreach ($providers as $key => $name) {
+            $found = false;
+            foreach ($roles as $rid => $role) {
+                if ($name == $role) {
+                    $found = true;
+                }
+            }
+            if (!$found) {
+                unset($providers[$key]);
+            }
+        }
+        $providers = array_filter($providers);
 
+        
+        // Get the Target groups
         $meta_cat = $DB->get_records_sql("SELECT * FROM {meta_category}");      
         $meta_cat = array_map(function ($arg){
                 return $arg->name;
@@ -80,26 +104,36 @@ class metacourse_form extends moodleform {
             $mform->addElement('select', 'template', 'Choose a template', $templates, null);
         }
         $mform->addElement('text', 'name', get_string('name')); 
+        $mform->addHelpButton('name', 'meta_name', 'block_metacourse');
         $mform->addElement('text', 'localname', 'Local name');
+        $mform->addHelpButton('localname', 'localname', 'block_metacourse');
         $mform->addElement('select', 'localname_lang', 'Local language', $languages, null);
-
+        $mform->addHelpButton('localname_lang', 'localname_lang', 'block_metacourse');
 		$mform->addElement('editor', 'purpose', 'Purpose', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addHelpButton('purpose', 'purpose', 'block_metacourse');
         $mform->addElement('select', 'target', 'Target group', $meta_cat, "multiple");
+        $mform->addHelpButton('target', 'target', 'block_metacourse');
         $mform->addElement('editor', 'target_description', 'Target description', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addHelpButton('target_description', 'target_description', 'block_metacourse');
 		$mform->addElement('editor', 'content', 'Content', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addHelpButton('content', 'content', 'block_metacourse');
         $mform->addElement('text', 'instructors', 'Instructors');
+        $mform->addHelpButton('instructors', 'instructors', 'block_metacourse');
         // $mform->addElement('text', 'comment', 'Comment');
         $mform->addElement('editor', 'comment', 'Comment', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addHelpButton('comment', 'comment', 'block_metacourse');
         // $mform->addElement('text', 'duration', 'Duration (days)');
         $mform->addElement('duration', 'duration', "Duration");
         $mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addHelpButton('cancellation', 'cancellation', 'block_metacourse');
         $mform->addElement('editor', 'lodging', 'Course Location & Lodging',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('editor', 'contact', get_string("contact", "block_metacourse"),null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('checkbox', 'multipledates', get_string('multipledates', 'block_metacourse'));
+        $mform->addHelpButton('multipledates', 'multipledates', 'block_metacourse');
         $mform->addElement('editor', 'multiple_dates', 'Multiple Dates',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
 
         $mform->addElement('checkbox', 'customemail', get_string('customemail', 'block_metacourse'));
-
+        $mform->addHelpButton('customemail', 'customemail', 'block_metacourse');
         $active_languages = $DB->get_records_sql("SELECT * FROM {meta_languages} where active = 1");
 
         foreach ($active_languages as $lang) {
@@ -111,7 +145,8 @@ class metacourse_form extends moodleform {
         $mform->addElement('select', 'coordinator', 'Coordinator', $coordinators, null);
         $mform->setDefault('coordinator', $USER->id);
         $mform->addElement('select', 'provider', 'Provider', $providers, null);
-        $mform->addElement('date_time_selector', 'unpublishdate', "Unpublish date", array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
+        $mform->addElement('date_time_selector', 'unpublishdate', get_string("unpublishdate", "block_metacourse"), array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
+        $mform->addHelpButton('unpublishdate', 'unpublishdate', 'block_metacourse');
         $mform->addElement('select', 'competence', 'Competence', $categories, null);
 
         $mform->addElement('html',"<input type='button' id='saveTemplate' value='Add to templates'>");
@@ -143,7 +178,8 @@ class metacourse_form extends moodleform {
 		$mform->addRule('target', get_string('required'), 'required', null, 'client');
         $mform->addRule('content', get_string('required'), 'required', null, 'client');
 		$mform->addRule('duration', get_string('required'), 'required', null, 'client');
-		$mform->addRule('cancellation', get_string('required'), 'required', null, 'client');
+        $mform->addRule('cancellation', get_string('required'), 'required', null, 'client');
+		$mform->addRule('unpublishdate', get_string('required'), 'required', null, 'client');
 
 		//BUTTONS
       	$this->add_action_buttons(true, "Next");

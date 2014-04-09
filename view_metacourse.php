@@ -102,15 +102,16 @@ if ($metacourse) {
 			continue;
 		}
 		if ($key == 'id') continue; //we don't want to display the id
+		if ($key == 'target' && !$isTeacher) continue; //we don't want to display the target group to students
 		if ($key == "cancellation") {
 			$cancellation = $course;
 			continue;
 		}
 		// get the name and the email instead of his id
 		if ($key == 'coordinator') {
-			$course = $DB->get_records_sql("SELECT firstname, lastname, email from {user} where id = :id", array("id"=>$course));
+			$course = $DB->get_records_sql("SELECT firstname, lastname, email, username from {user} where id = :id", array("id"=>$course));
 			$course = reset($course);
-			$course = substr($course->firstname, 0, 1) .".".substr($course->lastname, 0, 1). ". &lt;<a href='mailto:".$course->email."'>".$course->email."</a>&gt;";
+			$course = $course->firstname . " " . $course->lastname. " (<a href='mailto:".$course->email."'>".$course->username."</a>)";
 		}
 
 		//format from unix timestamp to human readable
@@ -196,14 +197,14 @@ if ($metacourse) {
 	$date_table->width = "100%";
 	$date_table->tablealign = "center";
 
-	$date_table->head = array(	get_string('coursestart'), 
+	$date_table->head = array(	get_string('coursestart', "block_metacourse"), 
 								get_string('courseend','block_metacourse'), 
 								get_string('location'), get_string('language'), 
 								get_string("price", "block_metacourse"), 
 								get_string("coordinator", "block_metacourse"), 
 								get_string("availableseats", "block_metacourse"), 
 								get_string("nrparticipants", "block_metacourse"), 
-								get_string('action')
+								get_string('signup', 'block_metacourse')
 							);
 
 	foreach ($datecourses as $key => $datecourse) {
@@ -221,8 +222,8 @@ if ($metacourse) {
 		$cor = $DB->get_records_sql("SELECT firstname, lastname FROM {user} where id = :id", array("id"=>$datecourse->coordinator));
 		$cor = reset($cor);
 
-		$start = date("j/m/Y - h:i A",$datecourse->startdate);
-		$end = date("j/m/Y - h:i A",$datecourse->enddate);
+		$start = date("d M Y - h:i A",$datecourse->startdate);
+		$end = date("d M Y - h:i A",$datecourse->enddate);
 
 		//replace id with location
 		$loc = $DB->get_record('meta_locations', array ('id'=> $datecourse->location), 'location');
@@ -338,22 +339,24 @@ if ($metacourse) {
 
 }
 
-$log_record = new stdClass();
-$log_record->time = time();
-$log_record->userid = $USER->id;
-$log_record->ip = "0:0:0:0:0:0:0:1";
-$log_record->course = 0;
-$log_record->module = 'metacourse';
-$log_record->cmid = 0;
-$log_record->action = 'view';
-$log_record->url = "view_metacourse.php?id=$id";
-$log_record->info = 1;
+if (!$isTeacher) {
+	$log_record = new stdClass();
+	$log_record->time = time();
+	$log_record->userid = $USER->id;
+	$log_record->ip = "0:0:0:0:0:0:0:1";
+	$log_record->course = 0;
+	$log_record->module = 'metacourse';
+	$log_record->cmid = 0;
+	$log_record->action = 'view';
+	$log_record->url = "view_metacourse.php?id=$id";
+	$log_record->info = 1;
 
-try {
-	$DB->insert_record('log',$log_record);
-} catch (Exception $e) {
-
+	try {
+		$DB->insert_record('log',$log_record);
+	} catch (Exception $e) {
+	}
 }
+
 
 
 echo $OUTPUT->footer();

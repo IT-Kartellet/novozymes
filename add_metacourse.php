@@ -39,27 +39,26 @@ if ($id == 0) {
 	$mform = new metacourse_form("add_datecourse.php");
 
 	if (isset($_SESSION['meta_name']) && $_SESSION['meta_name'] != "") {
-		// echo "string";
-		var_dump($_SESSION['meta_name']);
-		$meta = new stdClass();
-		$meta->id = $_SESSION['meta_id'];
-		$meta->name = $_SESSION['meta_name'];
-		$meta->content = array("text"=>$_SESSION['meta_content']['text']);
-		$meta->localname = $_SESSION['meta_localname'];
-		$meta->localname_lang = $_SESSION['meta_localname_lang'];
-		$meta->purpose = array("text"=>$_SESSION['meta_purpose']['text']);
-		$meta->cancellation = array("text"=>$_SESSION['meta_cancellation']['text']);
-		$meta->lodging = array("text"=>$_SESSION['meta_lodging']['text']);
-		$meta->contact = array("text"=>$_SESSION['meta_contact']['text']);
-		$meta->target = $_SESSION['meta_target'];
-		$meta->instructors = $_SESSION['meta_instructors'];
-		$meta->target_description = array("text"=>$_SESSION['meta_target_description']['text']);
-		$meta->comment = array("text"=>$_SESSION['meta_comment']['text']);
-		$meta->multiple_dates = array("text"=>$_SESSION['meta_multiple_dates']['text']);
-		$meta->duration = array();
-		$meta->duration['number'] = $_SESSION['meta_duration']['number'];
-		$meta->duration['timeunit'] = $_SESSION['meta_duration']['timeunit'];
-		$mform->set_data($meta);
+
+		// $meta = new stdClass();
+		// $meta->id = $_SESSION['meta_id'];
+		// $meta->name = $_SESSION['meta_name'];
+		// $meta->content = array("text"=>$_SESSION['meta_content']['text']);
+		// $meta->localname = $_SESSION['meta_localname'];
+		// $meta->localname_lang = $_SESSION['meta_localname_lang'];
+		// $meta->purpose = array("text"=>$_SESSION['meta_purpose']['text']);
+		// $meta->cancellation = array("text"=>$_SESSION['meta_cancellation']['text']);
+		// $meta->lodging = array("text"=>$_SESSION['meta_lodging']['text']);
+		// $meta->contact = array("text"=>$_SESSION['meta_contact']['text']);
+		// $meta->target = $_SESSION['meta_target'];
+		// $meta->instructors = $_SESSION['meta_instructors'];
+		// $meta->target_description = array("text"=>$_SESSION['meta_target_description']['text']);
+		// $meta->comment = array("text"=>$_SESSION['meta_comment']['text']);
+		// $meta->multiple_dates = array("text"=>$_SESSION['meta_multiple_dates']['text']);
+		// $meta->duration = array();
+		// $meta->duration['number'] = $_SESSION['meta_duration']['number'];
+		// $meta->duration['timeunit'] = $_SESSION['meta_duration']['timeunit'];
+		// $mform->set_data($meta);
 	} else {
 		// echo "ELSE";
 		// TODO:
@@ -89,6 +88,7 @@ if ($id == 0) {
 		unset($_SESSION['meta_duration']);
 		unset($_SESSION['meta_coordinator']);
 		unset($_SESSION['meta_provider']);
+		unset($_SESSION['meta_unpublishdate']);
 	  	redirect($URL, 'Your action was canceled!');
 
 	} else if ($fromform = $mform->get_data()) {
@@ -117,7 +117,8 @@ if ($id == 0) {
 	$data->id = $id;
 	$data->name = $meta->name;
 	$data->localname = $meta->localname;
-	$data->localname_lang = $meta->localname_lang;
+	$langid = $DB->get_record("meta_languages",array("iso"=>$meta->localname_lang));
+	$data->localname_lang = $langid->id;
 	$data->instructors = $meta->instructors;
 	$data->purpose = array("text"=>$meta->purpose);
 	$data->content = array("text"=>$meta->content);
@@ -129,9 +130,17 @@ if ($id == 0) {
 	$data->comment = array("text"=>$meta->comment);
 	$data->multiple_dates = array("text"=>$meta->multiple_dates);
 	$data->multipledates = 1;
-
+	$data->coordinator = $meta->coordinator;
+	$data->provider = $meta->provider;
 	$data->duration['number'] = $meta->duration;
 	$data->duration['timeunit'] = $meta->duration_unit;
+	$data->unpublishdate = $meta->unpublishdate;
+
+	// get the competence from the dates and use it here
+	$one_date = $DB->get_records("meta_datecourse", array("metaid"=>$id));
+	$one_date = reset($one_date);
+	$data->competence = $one_date->category;
+
 	$mform->set_data($data);
 
 	if ($mform->is_cancelled()) {

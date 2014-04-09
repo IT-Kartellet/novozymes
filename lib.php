@@ -572,15 +572,17 @@ function check_provider_role($courseid){
 
 function check_if_not_enrolled($userid, $courseid) {
     global $DB;
+    
     $context = get_context_instance(CONTEXT_COURSE, $courseid);
-    $students = $DB->get_records_sql("select u.id as id, firstname, lastname, picture, imagealt, email from role_assignments as a, user as u where contextid= :cid and roleid=5 and a.userid=u.id", array("cid"=>$context->id));
+    @$students = $DB->get_records_sql("select u.id from user u join (select ue.* from user_enrolments ue join enrol e on ue.enrolid = e.id where e.courseid = :cid and ue.status = 0) a on u.id = a.userid;
+", array("cid"=>$courseid));
     $user = $DB->get_record("user",array("id"=>$userid));
-
     foreach ($students as $st) {
         if ($st->id == $user->id) {
             return false;
         }
     }
+
     return true;
 }
 

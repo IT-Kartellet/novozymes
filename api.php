@@ -40,6 +40,7 @@ $courseProvider       = optional_param("courseProvider",0,PARAM_INT);
 $newAllow = optional_param("newAllow",0, PARAM_INT);
 $removeAllow = optional_param("removeAllow",0, PARAM_INT);
 $enrolGuy = optional_param("enrolGuy",0,PARAM_INT);
+$unenrolGuy = optional_param("unenrolGuy",0,PARAM_INT);
 $enrolCourse = optional_param("enrolCourse",0,PARAM_INT);
 
 
@@ -52,7 +53,29 @@ if ($enrolGuy && $enrolCourse) {
 		$enrol = new enrol_manual_pluginITK();
 		$enrol->enrol_user($instance, $enrolGuy, 5);
 		$enrolUser = $DB->get_record("user", array("id"=>$enrolGuy));
+		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
 		$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+		echo json_encode("done");
+	} catch (Exception $e) {
+		echo json_encode($e);
+	}
+}
+
+
+if ($unenrolGuy && $enrolCourse) {
+	try {
+
+		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
+		$instance = reset($instance);
+		$user = $DB->get_record("user", array("id"=>$unenrolGuy));
+
+	 
+		// 	//check if on waiting list
+		// 	//delete from waiting list
+			//TODO
+
+		// 	//disable enrolment
+		$DB->set_field("user_enrolments", "status", 1, array("enrolid"=>$instance->id, "userid"=>$unenrolGuy));
 		echo json_encode("done");
 	} catch (Exception $e) {
 		echo json_encode($e);

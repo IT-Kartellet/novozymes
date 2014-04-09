@@ -36,7 +36,7 @@ if ($category != 0) {
 	$metacourses = get_courses_in_category($category);
 } else {
 	$metacourses = $DB->get_records_sql("SELECT d.*, pr.provider FROM {meta_providers} pr join 
-									(SELECT c.id, c.localname,c.localname_lang, c.name, c.provider as providerid, u.firstname, u.lastname, u.email, c.unpublishdate 
+									(SELECT c.id, c.localname,c.localname_lang, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate 
 									FROM {meta_course} c join {user} u on c.coordinator = u.id order by c.provider asc) d 
 									on pr.id = d.providerid");	
 }
@@ -45,10 +45,10 @@ $table->id = "meta_table";
 $table->width = "100%";
 $table->tablealign = "center";
 if ($teacher) {
-	$table->head = array(get_string('course'), get_string('administrator'), get_string('provider','block_metacourse'), get_string("languages","block_metacourse"), "Status", get_string('action'));
+	$table->head = array(get_string('course'), get_string('provider','block_metacourse'), get_string("languages","block_metacourse"),get_string("competence", "block_metacourse"), "Published", get_string('action'));
 
 } else {
-	$table->head = array(get_string('course'), get_string('provider','block_metacourse'),get_string("languages","block_metacourse"));
+	$table->head = array(get_string('course'), get_string('provider','block_metacourse'),get_string("languages","block_metacourse"), get_string("competence", "block_metacourse"));
 }
 
 foreach ($metacourses as $key => $course) {
@@ -106,13 +106,15 @@ foreach ($metacourses as $key => $course) {
 	} else {
 		$link = html_writer::link(new moodle_url('/blocks/metacourse/view_metacourse.php', array('id'=>$key)), html_entity_decode($course->name));
 	}
-	$coordinator = $course->firstname." ".$course->lastname . " &lt;" . $course->email . "&gt;";
+	$coordinator = strtoupper($course->username);
 	$provider = $course->provider;
 
 	$dates = "<ul>";
 
 	$count_datecourses = 0;
+	$competence = "";
 	foreach ($datecourses as $key => $datecourse) {
+		$competence = $datecourse->category;
 		$languages[] = $datecourse->lang;
 		if (!$teacher) {
 			if ($datecourse->publishdate < time()) {
@@ -125,6 +127,10 @@ foreach ($metacourses as $key => $course) {
 		}
 		
 	}
+
+	$competence = $DB->get_record("course_categories", array("id"=>$competence));
+	$competence = $competence->name;
+
 	$dates .= "</ul>";
 
 	$languages = array_map(function($l){
@@ -133,15 +139,15 @@ foreach ($metacourses as $key => $course) {
 
 
 	if ($teacher && $count_datecourses) {
-		$status = (($isPublished) ? "Published" : "Unpublished");
+		$status = (($isPublished) ? "Yes" : "No");
 		if (!$isProvider) {
-			$table->data[] = array($link, $coordinator, $provider, rtrim(join("<br>",$languages),','), $status ,"");
+			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),','),$competence, $status ,"");
 		} else {
-			$table->data[] = array($link, $coordinator, $provider, rtrim(join("<br>",$languages),',') , $status,$OUTPUT->render($editCourse). $OUTPUT->render($exportExcel) . $OUTPUT->render($deleteCourse));
+			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),',') , $competence, $status,$OUTPUT->render($editCourse). $OUTPUT->render($exportExcel) . $OUTPUT->render($deleteCourse));
 		}
 	} else {
 		if ($count_datecourses) {
-			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),','));
+			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),','), $competence);
 		}
 	}
 }

@@ -37,7 +37,7 @@
 		var victim = $(".template").last();
 		var index = $('.template').length;
 
-		victim.find('input').val("");
+		victim.find('input').not("#removeDateCourse").val("");
 		victim.find('select').val("0");
 		victim.find("select[name='timestart[" + (index-2) + "][day]']").attr("name", "timestart[" + (index-1) + "][day]");
 		victim.find("select[name='timestart[" + (index-2) + "][month]']").attr("name", "timestart[" + (index-1) + "][month]");
@@ -86,11 +86,38 @@
 		victim.find("input[name='publishdate[" + (index-2) + "][calendar]']").attr("name", "publishdate[" + (index-1) + "][calendar]");
 		victim.find("input[name='unpublishdate[" + (index-2) + "][calendar]']").attr("name", "unpublishdate[" + (index-1) + "][calendar]");
 		victim.find("input[name='startenrolment[" + (index-2) + "][calendar]']").attr("name", "startenrolment[" + (index-1) + "][calendar]");
+		
 	});
 
 	$(document.body).on("click","#removeDateCourse",function(){
+		$(this).parent(".template").remove();
+		var templates = $(".template");
+		var count = templates.length;
 
-		$("div.template").last().remove();
+		for (var i = 0; i < count; i++) {
+			var victim = $(templates[i]);
+			console.log(victim);
+			victim.find('input').val("");
+			victim.find('select').val("0");
+			victim.find("select[name^=timestart]").attr("name", "timestart[" + i + "][day]");
+			victim.find("select[name^=timeend]").attr("name", "timeend[" + i + "][day]");
+			victim.find("select[name^=publishdate]").attr("name", "publishdate[" + i + "][day]");
+			victim.find("select[name^=startenrolment]").attr("name", "startenrolment[" + i + "][day]");
+
+			victim.find("select[name^=unpublishdate]").attr("name", "unpublishdate[" + i + "][day]");
+		
+			victim.find("select[name$=\[location\]]").attr("name", "datecourse[" + i + "][location]");
+			victim.find("select[name$=[language]]").attr("name", "datecourse[" + i + "][language]");
+			victim.find("select[name$=[coordinator]]").attr("name", "datecourse[" + i + "][coordinator]");
+
+
+			victim.find("input[name$=[price]]").attr("name", "datecourse[" + i + "][price]");
+			victim.find("input[name$=[id]]").attr("name", "datecourse[" + i + "][id]");
+			victim.find("input[name$=[places]]").attr("name", "datecourse[" + i + "][places]");
+			victim.find("select[name$=[category]]").attr("name", "datecourse[" + i + "][category]");
+			victim.find("select[name$=[currency]]").attr("name", "datecourse[" + i + "][currency]");
+
+		};
 		
 	});
 
