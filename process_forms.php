@@ -102,6 +102,12 @@ if ($metaid) {
 
 
 foreach ($datecourses as $key => $course) {
+
+	//TODO:// delete course
+	if (is_null($course->location) || is_null($course->lang)) {
+		continue;
+	}
+
 	$dc = new stdClass();
 
 	//if we are editing

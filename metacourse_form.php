@@ -32,11 +32,11 @@ class metacourse_form extends moodleform {
         $data = $this->_customdata['data'];
 
         $coordinators = $DB->get_records_sql("
-            select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u where u.id <> 1 and u.deleted <> 1 and u.suspended <> 1
+            select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u where u.id <> 1 and u.deleted <> 1 and u.suspended <> 1 order by username asc
                 
          ");     
         $coordinators = array_map(function ($arg){
-                return " (" .$arg->firstname . " " . $arg->lastname . ") " .$arg->email;
+                return strtoupper($arg->username) . " - " . $arg->firstname . " " . $arg->lastname;
             }, $coordinators);
         //get the locations from the database
         $locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");		
@@ -45,7 +45,7 @@ class metacourse_form extends moodleform {
     		}, $locations);
         // $locations[] = 'Add new location';
 
-        $providers = $DB->get_records_sql("SELECT * FROM {meta_providers}");      
+        $providers = $DB->get_records_sql("SELECT * FROM {meta_providers} order by provider asc");      
         $providers = array_map(function ($arg){
                 return $arg->provider;
             }, $providers);
@@ -76,17 +76,17 @@ class metacourse_form extends moodleform {
 
         
         // Get the Target groups
-        $meta_cat = $DB->get_records_sql("SELECT * FROM {meta_category}");      
+        $meta_cat = $DB->get_records_sql("SELECT * FROM {meta_category} order by name asc");      
         $meta_cat = array_map(function ($arg){
                 return $arg->name;
             }, $meta_cat);
 
-        $languages = $DB->get_records_sql("SELECT * FROM {meta_languages} where active = :active",array("active"=>1));
+        $languages = $DB->get_records_sql("SELECT * FROM {meta_languages} where active = :active order by language asc",array("active"=>1));
         $languages = array_map(function($lang){
             return $lang->language;
         }, $languages);
 
-        $categories = $DB->get_records_sql("SELECT id, name FROM {course_categories}");
+        $categories = $DB->get_records_sql("SELECT id, name FROM {course_categories} order by name asc");
         $categories = array_map(function($cat){
             return $cat->name;
         }, $categories); 

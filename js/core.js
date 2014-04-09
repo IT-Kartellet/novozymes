@@ -35,89 +35,109 @@
 		var course = $("div.template").last().clone();
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
-		var index = $('.template').length;
+		var index = $('.template').length - 1;
 
+		// todo: refactor
 		victim.find('input').not("#removeDateCourse").val("");
 		victim.find('select').val("0");
-		victim.find("select[name='timestart[" + (index-2) + "][day]']").attr("name", "timestart[" + (index-1) + "][day]");
-		victim.find("select[name='timestart[" + (index-2) + "][month]']").attr("name", "timestart[" + (index-1) + "][month]");
-		victim.find("select[name='timestart[" + (index-2) + "][year]']").attr("name", "timestart[" + (index-1) + "][year]")
-		victim.find("select[name='timestart[" + (index-2) + "][hour]']").attr("name", "timestart[" + (index-1) + "][hour]")
-		victim.find("select[name='timestart[" + (index-2) + "][minute]']").attr("name", "timestart[" + (index-1) + "][minute]")
+		var timestarts = victim.find("select[name*='timestart']");
+		var timeends = victim.find("select[name*='timeend']");
+		var publishdates = victim.find("select[name*='publishdate']");
+		var startenrolments = victim.find("select[name*='startenrolment']");
+		var unpublishdates = victim.find("select[name*='unpublishdate']");
+
+		$.each(timestarts, function(itimestart, timestart){
+			timestart.name = timestart.name.replace(/(\[\d\])/g, "[" + index + "]");
+			console.log("TIMESTART", timestart.name);
+		});
+
+		$.each(timeends, function(itimestart, timeend){
+			timeend.name = timeend.name.replace(/(\[\d\])/g, "[" + index + "]");
+			console.log("TIMEEND", timeend.name);
+		});
+
+		$.each(publishdates, function(itimestart, publishdate){
+			publishdate.name = publishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
+			console.log("publish", publishdate.name);
+		});
+
+		$.each(startenrolments, function(itimestart, startenrolment){
+			startenrolment.name = startenrolment.name.replace(/(\[\d\])/g, "[" + index + "]");
+			console.log("start", startenrolment.name);
+		});
+
+		$.each(unpublishdates, function(itimestart, unpublishdate){
+			unpublishdate.name = unpublishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
+			console.log("unpublish", unpublishdate.name);
+		});
+
+		victim.find("select.location").attr("name", "datecourse[" + index + "][location]");
+		victim.find("select.language").attr("name", "datecourse[" + index + "][language]");
+		victim.find("select.coordinator").attr("name", "datecourse[" + index + "][coordinator]");
 
 
-		victim.find("select[name='timeend[" + (index-2) + "][day]']").attr("name", "timeend[" + (index-1) + "][day]");
-		victim.find("select[name='timeend[" + (index-2) + "][month]']").attr("name", "timeend[" + (index-1) + "][month]");
-		victim.find("select[name='timeend[" + (index-2) + "][year]']").attr("name", "timeend[" + (index-1) + "][year]");
-		victim.find("select[name='timeend[" + (index-2) + "][hour]']").attr("name", "timeend[" + (index-1) + "][hour]");
-		victim.find("select[name='timeend[" + (index-2) + "][minute]']").attr("name", "timeend[" + (index-1) + "][minute]");
-
-		victim.find("select[name='publishdate[" + (index-2) + "][day]']").attr("name", "publishdate[" + (index-1) + "][day]");
-		victim.find("select[name='publishdate[" + (index-2) + "][month]']").attr("name", "publishdate[" + (index-1) + "][month]");
-		victim.find("select[name='publishdate[" + (index-2) + "][year]']").attr("name", "publishdate[" + (index-1) + "][year]");
-		victim.find("select[name='publishdate[" + (index-2) + "][hour]']").attr("name", "publishdate[" + (index-1) + "][hour]");
-		victim.find("select[name='publishdate[" + (index-2) + "][minute]']").attr("name", "publishdate[" + (index-1) + "][minute]");
-
-		victim.find("select[name='startenrolment[" + (index-2) + "][day]']").attr("name", "startenrolment[" + (index-1) + "][day]");
-		victim.find("select[name='startenrolment[" + (index-2) + "][month]']").attr("name", "startenrolment[" + (index-1) + "][month]");
-		victim.find("select[name='startenrolment[" + (index-2) + "][year]']").attr("name", "startenrolment[" + (index-1) + "][year]");
-		victim.find("select[name='startenrolment[" + (index-2) + "][hour]']").attr("name", "startenrolment[" + (index-1) + "][hour]");
-		victim.find("select[name='startenrolment[" + (index-2) + "][minute]']").attr("name", "startenrolment[" + (index-1) + "][minute]");
-
-		victim.find("select[name='unpublishdate[" + (index-2) + "][day]']").attr("name", "unpublishdate[" + (index-1) + "][day]");
-		victim.find("select[name='unpublishdate[" + (index-2) + "][month]']").attr("name", "unpublishdate[" + (index-1) + "][month]");
-		victim.find("select[name='unpublishdate[" + (index-2) + "][year]']").attr("name", "unpublishdate[" + (index-1) + "][year]");
-		victim.find("select[name='unpublishdate[" + (index-2) + "][hour]']").attr("name", "unpublishdate[" + (index-1) + "][hour]");
-		victim.find("select[name='unpublishdate[" + (index-2) + "][minute]']").attr("name", "unpublishdate[" + (index-1) + "][minute]");
-
-		victim.find("select[name='datecourse[" + (index-2) + "][location]']").attr("name", "datecourse[" + (index-1) + "][location]");
-		victim.find("select[name='datecourse[" + (index-2) + "][language]']").attr("name", "datecourse[" + (index-1) + "][language]");
-		victim.find("select[name='datecourse[" + (index-2) + "][coordinator]']").attr("name", "datecourse[" + (index-1) + "][coordinator]");
+		victim.find("input.price").attr("name", "datecourse[" + index + "][price]");
+		victim.find("input[name='datecourse[" + (index-1) + "][id]']").attr("name", "datecourse[" + index + "][id]");
+		victim.find("input.noPlaces").attr("name", "datecourse[" + index + "][places]");
+		victim.find("select.category").attr("name", "datecourse[" + index + "][category]");
+		victim.find("select.currency").attr("name", "datecourse[" + index + "][currency]");
 
 
-		victim.find("input[name='datecourse[" + (index-2) + "][price]']").attr("name", "datecourse[" + (index-1) + "][price]");
-		victim.find("input[name='datecourse[" + (index-2) + "][id]']").attr("name", "datecourse[" + (index-1) + "][id]");
-		victim.find("input[name='datecourse[" + (index-2) + "][places]']").attr("name", "datecourse[" + (index-1) + "][places]");
-		victim.find("select[name='datecourse[" + (index-2) + "][category]']").attr("name", "datecourse[" + (index-1) + "][category]");
-		victim.find("select[name='datecourse[" + (index-2) + "][currency]']").attr("name", "datecourse[" + (index-1) + "][currency]");
-
-		victim.find("input[name='timestart[" + (index-2) + "][calendar]']").attr("name", "timestart[" + (index-1) + "][calendar]");
-		victim.find("input[name='timend[" + (index-2) + "][calendar]']").attr("name", "timeend[" + (index-1) + "][calendar]");
-		victim.find("input[name='publishdate[" + (index-2) + "][calendar]']").attr("name", "publishdate[" + (index-1) + "][calendar]");
-		victim.find("input[name='unpublishdate[" + (index-2) + "][calendar]']").attr("name", "unpublishdate[" + (index-1) + "][calendar]");
-		victim.find("input[name='startenrolment[" + (index-2) + "][calendar]']").attr("name", "startenrolment[" + (index-1) + "][calendar]");
-		
 	});
+	
 
+	// don't screw this up
 	$(document.body).on("click","#removeDateCourse",function(){
 		$(this).parent(".template").remove();
 		var templates = $(".template");
 		var count = templates.length;
 
-		for (var i = 0; i < count; i++) {
-			var victim = $(templates[i]);
-			console.log(victim);
-			victim.find('input').val("");
-			victim.find('select').val("0");
-			victim.find("select[name^=timestart]").attr("name", "timestart[" + i + "][day]");
-			victim.find("select[name^=timeend]").attr("name", "timeend[" + i + "][day]");
-			victim.find("select[name^=publishdate]").attr("name", "publishdate[" + i + "][day]");
-			victim.find("select[name^=startenrolment]").attr("name", "startenrolment[" + i + "][day]");
+		$.each(templates, function( index, t ) {
+			var victim = $(t);
 
-			victim.find("select[name^=unpublishdate]").attr("name", "unpublishdate[" + i + "][day]");
-		
-			victim.find("select[name$=\[location\]]").attr("name", "datecourse[" + i + "][location]");
-			victim.find("select[name$=[language]]").attr("name", "datecourse[" + i + "][language]");
-			victim.find("select[name$=[coordinator]]").attr("name", "datecourse[" + i + "][coordinator]");
+			var timestarts = victim.find("select[name*='timestart']");
+			var timeends = victim.find("select[name*='timeend']");
+			var publishdates = victim.find("select[name*='publishdate']");
+			var startenrolments = victim.find("select[name*='startenrolment']");
+			var unpublishdates = victim.find("select[name*='unpublishdate']");
+
+			$.each(timestarts, function(itimestart, timestart){
+				timestart.name = timestart.name.replace(/(\[\d\])/g, "[" + index + "]");
+				console.log("TIMESTART", timestart.name);
+			});
+
+			$.each(timeends, function(itimestart, timeend){
+				timeend.name = timeend.name.replace(/(\[\d\])/g, "[" + index + "]");
+				console.log("TIMEEND", timeend.name);
+			});
+
+			$.each(publishdates, function(itimestart, publishdate){
+				publishdate.name = publishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
+				console.log("publish", publishdate.name);
+			});
+
+			$.each(startenrolments, function(itimestart, startenrolment){
+				startenrolment.name = startenrolment.name.replace(/(\[\d\])/g, "[" + index + "]");
+				console.log("start", startenrolment.name);
+			});
+
+			$.each(unpublishdates, function(itimestart, unpublishdate){
+				unpublishdate.name = unpublishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
+				console.log("unpublish", unpublishdate.name);
+			});
+
+			victim.find("select.location").attr("name", "datecourse[" + index + "][location]");
+			victim.find("select.language").attr("name", "datecourse[" + index + "][language]");
+			victim.find("select.coordinator").attr("name", "datecourse[" + index + "][coordinator]");
 
 
-			victim.find("input[name$=[price]]").attr("name", "datecourse[" + i + "][price]");
-			victim.find("input[name$=[id]]").attr("name", "datecourse[" + i + "][id]");
-			victim.find("input[name$=[places]]").attr("name", "datecourse[" + i + "][places]");
-			victim.find("select[name$=[category]]").attr("name", "datecourse[" + i + "][category]");
-			victim.find("select[name$=[currency]]").attr("name", "datecourse[" + i + "][currency]");
+			victim.find("input.price").attr("name", "datecourse[" + index + "][price]");
+			victim.find("input[name='datecourse[" + (index-1) + "][id]']").attr("name", "datecourse[" + index + "][id]");
+			victim.find("input.noPlaces").attr("name", "datecourse[" + index + "][places]");
+			victim.find("select.category").attr("name", "datecourse[" + index + "][category]");
+			victim.find("select.currency").attr("name", "datecourse[" + index + "][currency]");
 
-		};
+		});
 		
 	});
 
