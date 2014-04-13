@@ -446,10 +446,16 @@ function delete_metacourse($eventData){
     //supress the warning, as sometimes the datecourse can be deleted without deleting the course first
     @$metaid = $datecourse->metaid;
 
-    $DB->delete_records("meta_datecourse",array("metaid"=>$metaid));
-    $DB->delete_records("meta_course",array("id"=>$metaid));
+    $DB->delete_records("meta_datecourse",array("courseid"=>$courseid));
     $DB->delete_records("meta_waitlist",array("courseid"=>$courseid));
     $DB->delete_records("meta_tos_accept",array("courseid"=>$courseid));
+
+    $otherCourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :meta", array("meta"=>$metaid));
+
+    if (count($otherCourses) == 0) {
+        $DB->delete_records("meta_course",array("id"=>$metaid));
+    }
+
   } catch(Exception $e){
         add_to_log(1, 'metacourse_err', 'course_deleted_error', "", json_encode($e), 0, $USER->id);
   }
@@ -592,7 +598,7 @@ function get_courses_in_category($category_id){
     $courses = $DB->get_records_sql("
         SELECT d.*, pr.provider 
                 FROM {meta_providers} pr JOIN (
-                    SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.firstname, u.lastname, u.email, c.unpublishdate 
+                    SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate 
                     FROM {meta_course} c 
                     JOIN {user} u on c.coordinator = u.id 
                     ORDER BY c.provider asc) d 

@@ -1,6 +1,7 @@
 <?php
 require_once('../../config.php');
 require_once("$CFG->libdir/formslib.php");
+require_once("$CFG->libdir/moodlelib.php");
 require_once("$CFG->libdir/adminlib.php");
 require_once("$CFG->libdir/modinfolib.php");
 require_once('datecourse_form.php');
@@ -41,7 +42,7 @@ $unpublish_meta_time = array(	"day"=>$unpublish_meta['day'],
 $umt = implode("-",array($unpublish_meta_time['year'], $unpublish_meta_time['month'], $unpublish_meta_time['day']));
 $umt .= " " . $unpublish_meta_time['hour'] . ":" . $unpublish_meta_time['minute'] . ":00";
 
-
+global $DB;
 
 //TODO: fix these posts. Moodle fucks with me now.
 $datecourses = $_POST['datecourse'];
@@ -76,7 +77,6 @@ $meta->provider = $provider;
 $meta->unpublishdate = date_timestamp_get(date_create($umt));
 $meta->timemodified = time();
 
-
 //if we are editing
 if ($metaid) {
 	$DB->update_record('meta_course',$meta);
@@ -104,11 +104,17 @@ if ($metaid) {
 foreach ($datecourses as $key => $course) {
 
 	//TODO:// delete course
-	if (is_null($course->location) || is_null($course->lang)) {
-		continue;
-	}
 
 	$dc = new stdClass();
+	if (is_null($course['location']) && is_null($course['language'])) {
+		
+		$toDeleteCourse = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id", array("id"=>$course['id']));
+		$toDeleteCourse = reset($toDeleteCourse);
+
+		delete_course($toDeleteCourse->courseid, false);
+
+		continue;
+	}
 
 	//if we are editing
 	if ($course['id']) {
@@ -244,4 +250,5 @@ foreach ($datecourses as $key => $course) {
 
 	purge_all_caches();
 }
+
 header("Location: " . $CFG->wwwroot."/blocks/metacourse/list_metacourses.php" );

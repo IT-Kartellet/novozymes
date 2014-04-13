@@ -50,6 +50,7 @@ $string['addtowaitinglist'] = 'Add me to waiting list';
 $string['tostitle'] = 'Terms of agreement'; 
 $string['tosaccept'] = 'I accept the terms of agreement'; 
 $string['cancellationaccept'] = 'If cancelling later than 5 weeks prior to the course your department will be charged the full amount.'; 
+$string['agreecancel'] = 'I agree to the cancellation policy.'; 
 $string['tosacceptwait'] = 'and I have acknowledged that I will be enrolled as soon as there is an available seat'; 
 $string['toscontent'] = 'Registration requires an accept from you manager. Please tick the box below to confirm that you have this accept. 
 

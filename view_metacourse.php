@@ -105,7 +105,7 @@ if ($metacourse) {
 		if ($key == 'target' && !$isTeacher) continue; //we don't want to display the target group to students
 		if ($key == "cancellation") {
 			$cancellation = $course;
-			continue;
+
 		}
 		// get the name and the email instead of his id
 		if ($key == 'coordinator') {
@@ -327,7 +327,7 @@ if ($metacourse) {
 		<h1><? echo get_string('cancellation','block_metacourse') ?></h1>
         <div id='tos_content'><? echo $cancellation; ?></div>
         <div id='cmd'>
-        	<input type='checkbox' name='accept_unenrol'> <? echo get_string('cancellationaccept','block_metacourse') ?>
+        	<input type='checkbox' name='accept_unenrol'> <? echo get_string('agreecancel','block_metacourse') ?>
         	<input id='accept_unenrol' type='button' name='submit' value='<? echo get_string('unenrolme','block_metacourse') ?>' >
         	<input type='button' name='cancel' value='<? echo get_string('cancel') ?>' >
         </div>

@@ -48,27 +48,22 @@
 
 		$.each(timestarts, function(itimestart, timestart){
 			timestart.name = timestart.name.replace(/(\[\d\])/g, "[" + index + "]");
-			console.log("TIMESTART", timestart.name);
 		});
 
 		$.each(timeends, function(itimestart, timeend){
 			timeend.name = timeend.name.replace(/(\[\d\])/g, "[" + index + "]");
-			console.log("TIMEEND", timeend.name);
 		});
 
 		$.each(publishdates, function(itimestart, publishdate){
 			publishdate.name = publishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
-			console.log("publish", publishdate.name);
 		});
 
 		$.each(startenrolments, function(itimestart, startenrolment){
 			startenrolment.name = startenrolment.name.replace(/(\[\d\])/g, "[" + index + "]");
-			console.log("start", startenrolment.name);
 		});
 
 		$.each(unpublishdates, function(itimestart, unpublishdate){
 			unpublishdate.name = unpublishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
-			console.log("unpublish", unpublishdate.name);
 		});
 
 		victim.find("select.location").attr("name", "datecourse[" + index + "][location]");
@@ -88,56 +83,57 @@
 
 	// don't screw this up
 	$(document.body).on("click","#removeDateCourse",function(){
-		$(this).parent(".template").remove();
-		var templates = $(".template");
-		var count = templates.length;
+		
+		var x;
+		var r=confirm("Are you sure you want to remove this date? This could remove course files and data if the course already started.");
+		if (r==true){
 
-		$.each(templates, function( index, t ) {
-			var victim = $(t);
+			$(this).parent(".template").remove();
+			var templates = $(".template");
+			var count = templates.length;
 
-			var timestarts = victim.find("select[name*='timestart']");
-			var timeends = victim.find("select[name*='timeend']");
-			var publishdates = victim.find("select[name*='publishdate']");
-			var startenrolments = victim.find("select[name*='startenrolment']");
-			var unpublishdates = victim.find("select[name*='unpublishdate']");
+			$.each(templates, function( index, t ) {
+				var victim = $(t);
 
-			$.each(timestarts, function(itimestart, timestart){
-				timestart.name = timestart.name.replace(/(\[\d\])/g, "[" + index + "]");
-				console.log("TIMESTART", timestart.name);
+				var timestarts = victim.find("select[name*='timestart']");
+				var timeends = victim.find("select[name*='timeend']");
+				var publishdates = victim.find("select[name*='publishdate']");
+				var startenrolments = victim.find("select[name*='startenrolment']");
+				var unpublishdates = victim.find("select[name*='unpublishdate']");
+
+				$.each(timestarts, function(itimestart, timestart){
+					timestart.name = timestart.name.replace(/(\[\d\])/g, "[" + index + "]");
+				});
+
+				$.each(timeends, function(itimestart, timeend){
+					timeend.name = timeend.name.replace(/(\[\d\])/g, "[" + index + "]");
+				});
+
+				$.each(publishdates, function(itimestart, publishdate){
+					publishdate.name = publishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
+				});
+
+				$.each(startenrolments, function(itimestart, startenrolment){
+					startenrolment.name = startenrolment.name.replace(/(\[\d\])/g, "[" + index + "]");
+				});
+
+				$.each(unpublishdates, function(itimestart, unpublishdate){
+					unpublishdate.name = unpublishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
+				});
+
+				victim.find("select.location").attr("name", "datecourse[" + index + "][location]");
+				victim.find("select.language").attr("name", "datecourse[" + index + "][language]");
+				victim.find("select.coordinator").attr("name", "datecourse[" + index + "][coordinator]");
+
+
+				victim.find("input.price").attr("name", "datecourse[" + index + "][price]");
+				victim.find("input[name='datecourse[" + (index-1) + "][id]']").attr("name", "datecourse[" + index + "][id]");
+				victim.find("input.noPlaces").attr("name", "datecourse[" + index + "][places]");
+				victim.find("select.category").attr("name", "datecourse[" + index + "][category]");
+				victim.find("select.currency").attr("name", "datecourse[" + index + "][currency]");
+
 			});
-
-			$.each(timeends, function(itimestart, timeend){
-				timeend.name = timeend.name.replace(/(\[\d\])/g, "[" + index + "]");
-				console.log("TIMEEND", timeend.name);
-			});
-
-			$.each(publishdates, function(itimestart, publishdate){
-				publishdate.name = publishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
-				console.log("publish", publishdate.name);
-			});
-
-			$.each(startenrolments, function(itimestart, startenrolment){
-				startenrolment.name = startenrolment.name.replace(/(\[\d\])/g, "[" + index + "]");
-				console.log("start", startenrolment.name);
-			});
-
-			$.each(unpublishdates, function(itimestart, unpublishdate){
-				unpublishdate.name = unpublishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
-				console.log("unpublish", unpublishdate.name);
-			});
-
-			victim.find("select.location").attr("name", "datecourse[" + index + "][location]");
-			victim.find("select.language").attr("name", "datecourse[" + index + "][language]");
-			victim.find("select.coordinator").attr("name", "datecourse[" + index + "][coordinator]");
-
-
-			victim.find("input.price").attr("name", "datecourse[" + index + "][price]");
-			victim.find("input[name='datecourse[" + (index-1) + "][id]']").attr("name", "datecourse[" + index + "][id]");
-			victim.find("input.noPlaces").attr("name", "datecourse[" + index + "][places]");
-			victim.find("select.category").attr("name", "datecourse[" + index + "][category]");
-			victim.find("select.currency").attr("name", "datecourse[" + index + "][currency]");
-
-		});
+		}
 		
 	});
 

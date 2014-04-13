@@ -86,6 +86,9 @@ foreach ($metacourses as $key => $course) {
 	$sql = "select count(distinct ue.userid) as nr_users 
 		from {enrol} e join {user_enrolments} ue 
 		on e.id = ue.enrolid where courseid in (";
+	
+	// print_r($datecourses);
+	// print_r($course->id);
 
 	foreach ($datecourses as $k => $dc) {
 			$sql .= $dc->courseid . ",";
