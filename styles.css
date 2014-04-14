@@ -1232,3 +1232,11 @@ disabled look for disabled choices in the results dropdown
   }
 }
 
+
+@media print
+{
+  .block_navigation, .block_settings, #page-footer, #view_date_table, #meta_wrapper #course_header, ul.nav {
+    display: none;
+  }
+}
+

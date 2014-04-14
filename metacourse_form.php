@@ -38,6 +38,10 @@ class metacourse_form extends moodleform {
         $coordinators = array_map(function ($arg){
                 return strtoupper($arg->username) . " - " . $arg->firstname . " " . $arg->lastname;
             }, $coordinators);
+
+        $nocoordinator = array("0" => "none");
+        $coordinators = $nocoordinator + $coordinators;
+
         //get the locations from the database
         $locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");		
         $locations = array_map(function ($arg){
@@ -145,7 +149,7 @@ class metacourse_form extends moodleform {
         $mform->addElement('select', 'coordinator', 'Coordinator', $coordinators, null);
         $mform->setDefault('coordinator', $USER->id);
         $mform->addElement('select', 'provider', 'Provider', $providers, null);
-        $mform->addElement('date_time_selector', 'unpublishdate', get_string("unpublishdate", "block_metacourse"), array('startyear'=>2013, 'stopyear'=>2020, 'optional'=>false));
+        $mform->addElement('date_time_selector', 'unpublishdate', get_string("unpublishdate", "block_metacourse"), array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false));
         $mform->addHelpButton('unpublishdate', 'unpublishdate', 'block_metacourse');
         $mform->addElement('select', 'competence', 'Competence', $categories, null);
 

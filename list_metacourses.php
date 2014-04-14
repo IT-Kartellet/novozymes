@@ -29,7 +29,13 @@ $teacher = has_capability("moodle/course:create", get_system_context());
 
 global $DB, $USER, $PAGE, $CFG;
 
-echo html_writer::tag('h1', get_string('frontpagecourselist'), array('id' => 'course_header', 'class' => 'main'));
+if ($category != 0) {
+	$cat = $DB->get_record("meta_category", array("id"=>$category));
+	echo html_writer::tag('h1', get_string('coursesfor','block_metacourse') . " " .$cat->name, array('id' => 'course_header', 'class' => 'main'));
+} else {
+	echo html_writer::tag('h1', get_string('listofcourses', 'block_metacourse'), array('id' => 'course_header', 'class' => 'main'));
+}
+
 echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 
 if ($category != 0) {
@@ -37,8 +43,8 @@ if ($category != 0) {
 } else {
 	$metacourses = $DB->get_records_sql("SELECT d.*, pr.provider FROM {meta_providers} pr join 
 									(SELECT c.id, c.localname,c.localname_lang, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate 
-									FROM {meta_course} c join {user} u on c.coordinator = u.id order by c.provider asc) d 
-									on pr.id = d.providerid");	
+									FROM {meta_course} c left outer join {user} u on c.coordinator = u.id order by c.provider asc) d 
+									on pr.id = d.providerid");
 }
 $table = new html_table();
 $table->id = "meta_table";

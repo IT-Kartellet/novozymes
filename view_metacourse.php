@@ -109,9 +109,14 @@ if ($metacourse) {
 		}
 		// get the name and the email instead of his id
 		if ($key == 'coordinator') {
-			$course = $DB->get_records_sql("SELECT firstname, lastname, email, username from {user} where id = :id", array("id"=>$course));
-			$course = reset($course);
-			$course = $course->firstname . " " . $course->lastname. " (<a href='mailto:".$course->email."'>".$course->username."</a>)";
+			if ($course != 0) {
+				$course = $DB->get_records_sql("SELECT firstname, lastname, email, username from {user} where id = :id", array("id"=>$course));
+				$course = reset($course);
+				$course = $course->firstname . " " . $course->lastname. " (<a href='mailto:".$course->email."'>".$course->username."</a>)";
+			} else {
+				$course = "None";
+			}
+			
 		}
 
 		//format from unix timestamp to human readable

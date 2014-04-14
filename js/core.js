@@ -67,6 +67,7 @@
 		});
 
 		victim.find("select.location").attr("name", "datecourse[" + index + "][location]");
+		victim.find("select.country").attr("name", "datecourse[" + index + "][country]");
 		victim.find("select.language").attr("name", "datecourse[" + index + "][language]");
 		victim.find("select.coordinator").attr("name", "datecourse[" + index + "][coordinator]");
 
@@ -122,6 +123,7 @@
 				});
 
 				victim.find("select.location").attr("name", "datecourse[" + index + "][location]");
+				victim.find("select.country").attr("name", "datecourse[" + index + "][country]");
 				victim.find("select.language").attr("name", "datecourse[" + index + "][language]");
 				victim.find("select.coordinator").attr("name", "datecourse[" + index + "][coordinator]");
 
@@ -268,6 +270,7 @@
 					});
 		    };
 		  });
+		  return false;
 	});
 
 	$('#allowHim').on('click',function(e){

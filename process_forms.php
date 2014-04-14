@@ -176,7 +176,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->unpublishdate = date_timestamp_get(date_create($upd));
 	$dc->startenrolment = date_timestamp_get(date_create($ste));
 	$dc->location = $course['location'];
-
+	$dc->country = $course['country'];
 	$dc->lang = $course['language'];
 	$dc->category = $competence;
 	$dc->price = $course['price'];
@@ -203,7 +203,9 @@ foreach ($datecourses as $key => $course) {
 		
 		update_meta_course($metaid,$dc, $competence);
 		$updatedCourseId = $DB->get_record('meta_datecourse', array('id'=>$dc->id));
-		add_coordinator($meta->coordinator, $updatedCourseId->courseid);
+		if ($meta->coordinator!=0) {
+			add_coordinator($meta->coordinator, $updatedCourseId->courseid);	
+		}
 		add_coordinator($dc->coordinator, $updatedCourseId->courseid);
 
 		//go and add people from the waiting list
@@ -221,7 +223,9 @@ foreach ($datecourses as $key => $course) {
 
 		// update the datecourse with the course id
 		$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
-		add_coordinator($meta->coordinator, $created_courseid);
+		if ($meta->coordinator!=0) {
+			add_coordinator($meta->coordinator, $created_courseid);
+		}
 		add_coordinator($dc->coordinator, $created_courseid);
 
 		//add the label with the description
