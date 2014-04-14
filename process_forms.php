@@ -19,6 +19,7 @@ $localname = $_SESSION['meta_localname'];
 $localname_lang = $_SESSION['meta_localname_lang'];
 $purpose = $_SESSION['meta_purpose'];
 $target = $_SESSION['meta_target'];
+$targetgroup = $_SESSION['meta_targetgroup'];
 $target_description = $_SESSION['meta_target_description'];
 $content = $_SESSION['meta_content'];
 $instructors = $_SESSION['meta_instructors'];
@@ -53,7 +54,6 @@ $unpublishdate = $_POST['unpublishdate'];
 $startenrolment = $_POST['startenrolment'];
 $custom_emails = $_SESSION['custom_email'];
 
-
 $meta = new stdClass();
 $meta->id = $metaid;
 $meta->name = $name;
@@ -61,7 +61,7 @@ $meta->localname = $localname;
 $iso_lang = $DB->get_record("meta_languages",array('id'=>$localname_lang));
 $meta->localname_lang = $iso_lang->iso;
 $meta->purpose = $purpose['text'];
-$meta->target = json_encode($target);
+$meta->target = json_encode(array_keys(array_filter($targetgroup)));
 $meta->target_description = $target_description['text'];
 $meta->content = $content['text'];
 $meta->instructors = $instructors;

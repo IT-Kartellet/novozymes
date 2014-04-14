@@ -102,10 +102,14 @@ foreach ($metacourses as $key => $course) {
 
 	$sql = substr($sql, 0, -1); // remove the last comma
 	$sql .= ") and e.roleid = 5";
+	try{
+		$nr_enrolled = $DB->get_records_sql($sql);
+		$nr_enrolled = reset($nr_enrolled);
+		$nr_enrolled->nr_users--; // substract the coordinator of the course
+	} catch(Exception $e){
+		
+	}
 	
-	$nr_enrolled = $DB->get_records_sql($sql);
-	$nr_enrolled = reset($nr_enrolled);
-	$nr_enrolled->nr_users--; // substract the coordinator of the course
 
 
 	$deleteCourse->add_confirm_action("Are you sure you want to delete it?  There are $nr_enrolled->nr_users students enrolled in this course.");

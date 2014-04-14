@@ -175,7 +175,7 @@ if ($metacourse) {
 			default:
 				break;
 		}
-
+		if (!$course || !$key) { continue; }
 		$table->data[] = array(ucfirst($key), $course);
 	}
 

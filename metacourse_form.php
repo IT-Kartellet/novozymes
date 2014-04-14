@@ -84,7 +84,6 @@ class metacourse_form extends moodleform {
         $meta_cat = array_map(function ($arg){
                 return $arg->name;
             }, $meta_cat);
-
         $languages = $DB->get_records_sql("SELECT * FROM {meta_languages} where active = :active order by language asc",array("active"=>1));
         $languages = array_map(function($lang){
             return $lang->language;
@@ -115,8 +114,21 @@ class metacourse_form extends moodleform {
         $mform->addHelpButton('localname_lang', 'localname_lang', 'block_metacourse');
 		$mform->addElement('editor', 'purpose', 'Purpose', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addHelpButton('purpose', 'purpose', 'block_metacourse');
-        $mform->addElement('select', 'target', 'Target group', $meta_cat, "multiple");
-        $mform->addHelpButton('target', 'target', 'block_metacourse');
+        // $mform->addElement('select', 'target', 'Target group', $meta_cat, "multiple");
+
+        // == checkbox target
+        $mform->addElement('html',"<div class='fitem'>");
+        $mform->addElement('html',"<div class='fitemtitle'><label>Target<label></div>");
+        $mform->addElement('html',"<div class='felement chkbox'>");
+
+        foreach ($meta_cat as $key => $cat) {
+            $mform->addElement('advcheckbox', "targetgroup[".$key."]", $cat, null, array('group' => 1));
+        }
+        $this->add_checkbox_controller(1);
+        $mform->addElement('html',"</div></div>");
+
+        // == end checkbox target
+        // $mform->addHelpButton('target', 'target', 'block_metacourse');
         $mform->addElement('editor', 'target_description', 'Target description', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addHelpButton('target_description', 'target_description', 'block_metacourse');
 		$mform->addElement('editor', 'content', 'Content', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
@@ -160,7 +172,7 @@ class metacourse_form extends moodleform {
         $mform->setType('id', PARAM_INT);
         $mform->setType('name', PARAM_NOTAGS);
         $mform->setType('localname', PARAM_NOTAGS);
-        $mform->setType('target', PARAM_NOTAGS);
+        // $mform->setType('target', PARAM_NOTAGS);
 		$mform->setType('purpose', PARAM_RAW); // no vulnerability prevention here, users must be trusted! :)
         $mform->setType('content', PARAM_RAW);
         $mform->setType('cancellation', PARAM_RAW);
@@ -179,7 +191,7 @@ class metacourse_form extends moodleform {
 		//RULES
 		$mform->addRule('name', get_string('required'), 'required', null, 'client');
 		$mform->addRule('purpose', get_string('required'), 'required', null, 'client');
-		$mform->addRule('target', get_string('required'), 'required', null, 'client');
+		// $mform->addRule('target', get_string('required'), 'required', null, 'client');
         $mform->addRule('content', get_string('required'), 'required', null, 'client');
 		$mform->addRule('duration', get_string('required'), 'required', null, 'client');
         $mform->addRule('cancellation', get_string('required'), 'required', null, 'client');
