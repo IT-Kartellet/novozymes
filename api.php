@@ -42,7 +42,7 @@ $removeAllow = optional_param("removeAllow",0, PARAM_INT);
 $enrolGuy = optional_param("enrolGuy",0,PARAM_INT);
 $unenrolGuy = optional_param("unenrolGuy",0,PARAM_INT);
 $enrolCourse = optional_param("enrolCourse",0,PARAM_INT);
-
+$sendEmail = optional_param("sendEmail", false, PARAM_BOOL);
 
 $getTemplate = optional_param("getTemplate", 0, PARAM_INT);
 
@@ -54,7 +54,9 @@ if ($enrolGuy && $enrolCourse) {
 		$enrol->enrol_user($instance, $enrolGuy, 5);
 		$enrolUser = $DB->get_record("user", array("id"=>$enrolGuy));
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
-		$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+		if ($sendEmail) {
+			$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+		}
 		echo json_encode("done");
 	} catch (Exception $e) {
 		echo json_encode($e);
@@ -128,9 +130,11 @@ if ($newTarget) {
 }
 
 if ($newProvider) {
-	create_role_and_provider($newProvider);
-	echo json_encode($provider);
-
+		if(create_role_and_provider($newProvider)){
+			echo json_encode("200");
+		} else {
+			echo json_encode("500");
+		}
 }
 
 if ($getLocations == 1) {

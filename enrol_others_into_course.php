@@ -101,6 +101,7 @@ if(!$teacher){
     </tr>
   </table>
 </div></form>
+<span>Send enrolment email: </span><input type="checkbox" id="sendEmail" />
 
 
 <?php }

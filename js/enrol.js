@@ -49,6 +49,7 @@
 		e.preventDefault();
 		var courseid = $(this).siblings("#courseID").val();
 		var userids = $("#addselect :selected");
+		var sendEmail = $('#sendEmail').prop('checked');
 		userids.each(function(k, v){
 			var uid = $(v).val();
 			$.ajax({
@@ -56,7 +57,8 @@
 			  url: "./api.php",
 			  data: { 	
 			  			enrolGuy: uid,
-			  			enrolCourse: courseid 
+			  			enrolCourse: courseid, 
+			  			sendEmail: sendEmail
 			  		},
 			  success: function(e){
 			  	// console.log("SUCCESS:", e);

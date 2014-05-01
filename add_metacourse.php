@@ -38,64 +38,20 @@ if ($id == 0) {
 	$PAGE->navbar->add("Add course", new moodle_url('/blocks/metacourse/add_metacourse.php'));
 	$mform = new metacourse_form("add_datecourse.php");
 
-	if (isset($_SESSION['meta_name']) && $_SESSION['meta_name'] != "") {
+	//the id of the metacourse
+	$data = new stdClass();
+	$data->id = $id;
+	$data->cancellation = array("text"=>get_string("cancellationaccept", "block_metacourse"));
+	$mform->set_data($data);
 
-		// $meta = new stdClass();
-		// $meta->id = $_SESSION['meta_id'];
-		// $meta->name = $_SESSION['meta_name'];
-		// $meta->content = array("text"=>$_SESSION['meta_content']['text']);
-		// $meta->localname = $_SESSION['meta_localname'];
-		// $meta->localname_lang = $_SESSION['meta_localname_lang'];
-		// $meta->purpose = array("text"=>$_SESSION['meta_purpose']['text']);
-		// $meta->cancellation = array("text"=>$_SESSION['meta_cancellation']['text']);
-		// $meta->lodging = array("text"=>$_SESSION['meta_lodging']['text']);
-		// $meta->contact = array("text"=>$_SESSION['meta_contact']['text']);
-		// $meta->target = $_SESSION['meta_target'];
-		// $meta->instructors = $_SESSION['meta_instructors'];
-		// $meta->target_description = array("text"=>$_SESSION['meta_target_description']['text']);
-		// $meta->comment = array("text"=>$_SESSION['meta_comment']['text']);
-		// $meta->multiple_dates = array("text"=>$_SESSION['meta_multiple_dates']['text']);
-		// $meta->duration = array();
-		// $meta->duration['number'] = $_SESSION['meta_duration']['number'];
-		// $meta->duration['timeunit'] = $_SESSION['meta_duration']['timeunit'];
-		// $mform->set_data($meta);
-	} else {
-		// echo "ELSE";
-		// TODO:
-		$metaid = 0;
-
-		//the id of the metacourse
-		$data = new stdClass();
-		$data->id = $id;
-		$data->cancellation = array("text"=>get_string("cancellationaccept", "block_metacourse"));
-		$mform->set_data($data);
-	}
 	if ($mform->is_cancelled()) {
-	 	//nothing to do here.
-	 // 	unset($_SESSION['meta_id']);
-		// unset($_SESSION['meta_name']);
-		// unset($_SESSION['meta_localname']);
-		// unset($_SESSION['meta_localname_lang']);
-		// unset($_SESSION['meta_purpose']);
-		// unset($_SESSION['meta_target']);
-		// unset($_SESSION['meta_content']);
-		// unset($_SESSION['meta_target_description']);
-		// unset($_SESSION['meta_cancellation']);
-		// unset($_SESSION['meta_lodging']);
-		// unset($_SESSION['meta_contact']);
-		// unset($_SESSION['meta_instructors']);
-		// unset($_SESSION['meta_comment']);
-		// unset($_SESSION['meta_duration']);
-		// unset($_SESSION['meta_coordinator']);
-		// unset($_SESSION['meta_provider']);
-		// unset($_SESSION['meta_unpublishdate']);
 	  	redirect($URL, 'Your action was canceled!');
 
 	} else if ($fromform = $mform->get_data()) {
-		
+		// redirect($URL, "TESTING THIS THIS");
 	} else {
 		//if data not valid
-
+		
 		$toform = $mform->get_data();
 		$mform->set_data(null);
 		$mform->display();
@@ -126,7 +82,20 @@ if ($id == 0) {
 	$data->lodging = array("text"=>$meta->lodging);
 	$data->contact = array("text"=>$meta->contact);
 	$data->target_description = array("text"=>$meta->target_description);
-	$data->target = json_decode($meta->target);
+	$data->targetgroup = array();
+	$targets = $DB->get_records_sql("SELECT id from {meta_category} order by name asc");
+
+	$targ = json_decode($meta->target);
+	foreach ($targets as $i => $t) {
+		$data->targetgroup[$t->id] = 0;
+	}
+
+	foreach ($targ as $i => $t) {
+		$data->targetgroup[$t] = 1;
+	}
+	// moodle fucks with this
+	echo "<script> var itk_targets = ". json_encode($data->targetgroup) ."</script>";
+
 	$data->comment = array("text"=>$meta->comment);
 	$data->multiple_dates = array("text"=>$meta->multiple_dates);
 	$data->multipledates = 1;
@@ -144,23 +113,6 @@ if ($id == 0) {
 	$mform->set_data($data);
 
 	if ($mform->is_cancelled()) {
-	 	//nothing to do here.
-	 // 	unset($_SESSION['meta_id']);
-		// unset($_SESSION['meta_name']);
-		// unset($_SESSION['meta_localname']);
-		// unset($_SESSION['meta_localname_lang']);
-		// unset($_SESSION['meta_purpose']);
-		// unset($_SESSION['meta_target']);
-		// unset($_SESSION['meta_content']);
-		// unset($_SESSION['meta_target_description']);
-		// unset($_SESSION['meta_cancellation']);
-		// unset($_SESSION['meta_lodging']);
-		// unset($_SESSION['meta_contact']);
-		// unset($_SESSION['meta_instructors']);
-		// unset($_SESSION['meta_comment']);
-		// unset($_SESSION['meta_duration']);
-		// unset($_SESSION['meta_coordinator']);
-		// unset($_SESSION['meta_provider']);
 	  	redirect($URL, 'Your action was canceled!');
 
 	} else if ($fromform = $mform->get_data()) {

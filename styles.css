@@ -86,6 +86,33 @@ datalist {
   overflow: scroll;
 }
 
+div.unEnrolMeButton > form input[type='submit'] {
+  background-image: url('http://i57.tinypic.com/awuiht.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 1em;
+}
+
+div.enrolMeButton > form input[type='submit']{
+  background-image: url('http://i59.tinypic.com/255t0rb.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 1em;
+}
+
+div.enrolOthers > form input[type='submit']{
+  background-image: url('http://i59.tinypic.com/96ht85.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 1em;
+}
+
+div.unEnrolMeButton > form input[type='submit']:hover, 
+div.enrolMeButton > form input[type='submit']:hover,
+div.enrolOthers > form input[type='submit']  {
+  background-position: center;
+}
+
 #meta_wrapper {
   width:75%;
   margin:auto;
@@ -314,6 +341,21 @@ div.export_course_btn input[type='submit']{
   background-repeat: no-repeat;
   width: 24px;
   height: 24px;
+}
+
+div.edit_course_btn input[type='submit'] {
+  background-image:("/pix/settings.png");
+  background-repeat: no-repeat;
+}
+
+div.delete_course_btn input[type='submit'] {
+  background-image:("/pix/trash.png");
+  background-repeat: no-repeat;
+}
+
+div.export_course_btn input[type='submit'] {
+  background-image:("/pix/xls.png");
+  background-repeat: no-repeat;
 }
 
 div.export_course_btn input[type='submit'], div.delete_course_btn input[type='submit'], div.edit_course_btn input[type='submit']{

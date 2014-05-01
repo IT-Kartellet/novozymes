@@ -23,7 +23,7 @@ class metacourse_form extends moodleform {
                     $PAGE->requires->js(new moodle_url('js/select2/select2_locale_'.$current_language.".js"));
                     break;
             }
-            
+
         }
 
 
@@ -106,7 +106,7 @@ class metacourse_form extends moodleform {
         if (count($templates) > 1) {
             $mform->addElement('select', 'template', 'Choose a template', $templates, null);
         }
-        $mform->addElement('text', 'name', get_string('name')); 
+        $mform->addElement('text', 'name', "Name"); 
         $mform->addHelpButton('name', 'meta_name', 'block_metacourse');
         $mform->addElement('text', 'localname', 'Local name');
         $mform->addHelpButton('localname', 'localname', 'block_metacourse');
@@ -122,7 +122,7 @@ class metacourse_form extends moodleform {
         $mform->addElement('html',"<div class='felement chkbox'>");
 
         foreach ($meta_cat as $key => $cat) {
-            $mform->addElement('advcheckbox', "targetgroup[".$key."]", $cat, null, array('group' => 1));
+            $mform->addElement('advcheckbox', "targetgroup[".$key."]", $cat, null, array('group' => 1), false);
         }
         $this->add_checkbox_controller(1);
         $mform->addElement('html',"</div></div>");
@@ -143,7 +143,7 @@ class metacourse_form extends moodleform {
         $mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addHelpButton('cancellation', 'cancellation', 'block_metacourse');
         $mform->addElement('editor', 'lodging', 'Course Location & Lodging',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
-        $mform->addElement('editor', 'contact', get_string("contact", "block_metacourse"),null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        $mform->addElement('editor', 'contact', "Course owner",null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addElement('checkbox', 'multipledates', get_string('multipledates', 'block_metacourse'));
         $mform->addHelpButton('multipledates', 'multipledates', 'block_metacourse');
         $mform->addElement('editor', 'multiple_dates', 'Multiple Dates',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
@@ -198,16 +198,12 @@ class metacourse_form extends moodleform {
 		$mform->addRule('unpublishdate', get_string('required'), 'required', null, 'client');
 
 		//BUTTONS
-      	$this->add_action_buttons(true, "Next");
+        $this->set_data($data);
 
-      	$this->set_data($data);
+        $this->add_action_buttons(true, "Next");
 
 
     }
-    //Custom validation should be added here
-    // function validation($data, $files) {
-    //     return array();
-    // }
 
     
 }

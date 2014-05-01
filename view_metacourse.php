@@ -197,6 +197,15 @@ if ($metacourse) {
 	echo html_writer::tag('h1', get_string('coursedates','block_metacourse'), array('id' => 'course_header', 'class' => 'main'));
 	$datecourses = $DB->get_records_sql("SELECT d.*, c.currency FROM {meta_datecourse} d join {meta_currencies} c on d.currencyid=c.id where metaid = :id", array("id"=>$id));
 
+
+	// sort datecourses after date
+	$ads = usort($datecourses, function($d1, $d2){
+		if ($d1->startdate == $d2->startdate) {
+			return 0;
+		}
+		return ($d1->startdate < $d2->startdate) ? -1 : 1;
+	});
+
 	$date_table = new html_table();
 	$date_table->id = "view_date_table";
 	$date_table->width = "100%";
@@ -211,8 +220,8 @@ if ($metacourse) {
 								get_string("nrparticipants", "block_metacourse"), 
 								get_string('signup', 'block_metacourse')
 							);
-
 	foreach ($datecourses as $key => $datecourse) {
+
 		if (!$isTeacher) {
 			// if not published skip it.
 			if ($datecourse->publishdate > time()) {
@@ -224,11 +233,16 @@ if ($metacourse) {
 			}
 		}
 		// get coordinator
-		$cor = $DB->get_records_sql("SELECT firstname, lastname FROM {user} where id = :id", array("id"=>$datecourse->coordinator));
+		$cor = $DB->get_records_sql("SELECT username FROM {user} where id = :id", array("id"=>$datecourse->coordinator));
 		$cor = reset($cor);
 
-		$start = date("d M Y - h:i A",$datecourse->startdate);
-		$end = date("d M Y - h:i A",$datecourse->enddate);
+		if ($datecourse->startdate == 0) {
+			$start = "-";
+			$end = "-";
+		} else{
+			$start = date("d M Y - h:i A",$datecourse->startdate);
+			$end = date("d M Y - h:i A",$datecourse->enddate);
+		}
 
 		//replace id with location
 		$loc = $DB->get_record('meta_locations', array ('id'=> $datecourse->location), 'location');
@@ -240,7 +254,11 @@ if ($metacourse) {
 		$price = str_replace(array(".",","), '', $datecourse->price);
 		$price = number_format($price);
 		$price .= " " . $datecourse->currency;
-		$coordinator = $cor->firstname . " " . $cor->lastname;
+		@$coordinator = strtoupper($cor->username);
+		if (strlen($coordinator)<2) {
+			$coordinator = "-";
+		}
+
 		$total_places =$datecourse->total_places;
 		$busy_places = $DB->get_records_sql("
 			select count(ra.id) as busy_places from {role_assignments} ra
@@ -252,9 +270,11 @@ if ($metacourse) {
 		$busy_places = reset($busy_places);
 		$busy_places = $busy_places->busy_places;
 
- 		$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), get_string('enrolme','enrol_self'));
- 		$enrolOthers = new single_button(new moodle_url('/blocks/metacourse/enrol_others_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), get_string('enrolOthers','block_metacourse'));
+ 		$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
+ 		$enrolOthers = new single_button(new moodle_url('/blocks/metacourse/enrol_others_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
  		$enrolOthers->class="enrolOthers";
+ 		$enrolOthers->tooltip = get_string("enrolOthers", "block_metacourse");
+ 		$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
 		//if no more places, disable the button
 		if ($busy_places == $total_places) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), get_string('addtowaitinglist','block_metacourse'));
@@ -265,7 +285,7 @@ if ($metacourse) {
 		}
 
 		/// if the user is already enrolled add the unenrol button
-		$coursecontext = context_course::instance($datecourse->courseid);
+		// $coursecontext = context_course::instance($datecourse->courseid);
 		$course_students = $DB->get_records_sql("
 			SELECT u.id FROM {user} u 
 			JOIN {user_enrolments} ue ON ue.userid = u.`id`
@@ -281,8 +301,9 @@ if ($metacourse) {
 		}, $course_students);
 
 		if (in_array($USER->id, $course_students)) {
-			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), get_string("unenrolme",'block_metacourse'));
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'unEnrolMeButton';
+			$enrolMe->tooltip = get_string("unenrolme", "block_metacourse");
 		} else {
 			$enrolMe->class = 'enrolMeButton';
 		}

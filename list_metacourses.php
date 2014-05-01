@@ -7,6 +7,7 @@ require_once("$CFG->libdir/moodlelib.php");
 require_login();
 
 $category = optional_param("category",0,PARAM_INT);
+$competence = optional_param("competence",0,PARAM_INT);
 
 $PAGE->set_context(get_system_context());
 $PAGE->set_pagelayout('admin');
@@ -38,8 +39,8 @@ if ($category != 0) {
 
 echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 
-if ($category != 0) {
-	$metacourses = get_courses_in_category($category);
+if ($category != 0 || $competence != 0) {
+	$metacourses = get_courses_in_category($category, $competence);
 } else {
 	$metacourses = $DB->get_records_sql("SELECT d.*, pr.provider FROM {meta_providers} pr join 
 									(SELECT c.id, c.localname,c.localname_lang, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate 
@@ -51,10 +52,10 @@ $table->id = "meta_table";
 $table->width = "100%";
 $table->tablealign = "center";
 if ($teacher) {
-	$table->head = array(get_string('course'), get_string('provider','block_metacourse'), get_string("languages","block_metacourse"),get_string("competence", "block_metacourse"), "Published", get_string('action'));
+	$table->head = array(get_string('course'), get_string('provider','block_metacourse'), get_string("languages","block_metacourse"),get_string("countries", "block_metacourse"), get_string("published", "block_metacourse"), get_string('action'));
 
 } else {
-	$table->head = array(get_string('course'), get_string('provider','block_metacourse'),get_string("languages","block_metacourse"), get_string("competence", "block_metacourse"));
+	$table->head = array(get_string('course'), get_string('provider','block_metacourse'),get_string("languages","block_metacourse"), get_string("countries", "block_metacourse"));
 }
 
 foreach ($metacourses as $key => $course) {
@@ -69,7 +70,8 @@ foreach ($metacourses as $key => $course) {
 	$languages = $DB->get_records_sql("SELECT DISTINCT ml.id, ml.language from {meta_datecourse} md JOIN {meta_languages} ml on md.lang = ml.id where metaid = :metaid",
 		array("metaid"=>$key));
 	$datecourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id", array("id"=>$course->id));
-
+	$countries = $DB->get_records_sql("select a.id, mct.country from {meta_countries} mct join (select md.id, md.country from {meta_course} mc join {meta_datecourse} md on mc.id = md.metaid where md.metaid = :metaid) a on mct.id = a.country", array("metaid"=>$key));
+	
 	$deleteCourse = new single_button(new moodle_url("/blocks/metacourse/api.php", array("deleteMeta"=>$key)), "", 'post');
 	$deleteCourse->tooltip = "Delete course";
 	$deleteCourse->class = "delete_course_btn icon-trash";
@@ -97,7 +99,9 @@ foreach ($metacourses as $key => $course) {
 	// print_r($course->id);
 
 	foreach ($datecourses as $k => $dc) {
+		if ($dc->courseid) {
 			$sql .= $dc->courseid . ",";
+		}
 	}
 
 	$sql = substr($sql, 0, -1); // remove the last comma
@@ -106,11 +110,13 @@ foreach ($metacourses as $key => $course) {
 		$nr_enrolled = $DB->get_records_sql($sql);
 		$nr_enrolled = reset($nr_enrolled);
 		$nr_enrolled->nr_users--; // substract the coordinator of the course
+		print($course);
+		print($nr_enrolled->nr_users);
+		echo "<hr />";
 	} catch(Exception $e){
-		
+		// echo $sql;
 	}
 	
-
 
 	$deleteCourse->add_confirm_action("Are you sure you want to delete it?  There are $nr_enrolled->nr_users students enrolled in this course.");
 
@@ -150,17 +156,22 @@ foreach ($metacourses as $key => $course) {
 		return @$l->language;
 	}, $languages);
 
+	$countries = array_map(function($l){
+		return @$l->country;
+	}, $countries);
+	$countries = array_unique($countries);
+
 
 	if ($teacher && $count_datecourses) {
 		$status = (($isPublished) ? "Yes" : "No");
 		if (!$isProvider) {
-			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),','),$competence, $status ,"");
+			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),','),rtrim(join("<br>",$countries),','), $status ,"");
 		} else {
-			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),',') , $competence, $status,$OUTPUT->render($editCourse). $OUTPUT->render($exportExcel) . $OUTPUT->render($deleteCourse));
+			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),',') , rtrim(join("<br>",$countries),','), $status,$OUTPUT->render($editCourse). $OUTPUT->render($exportExcel) . $OUTPUT->render($deleteCourse));
 		}
 	} else {
 		if ($count_datecourses) {
-			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),','), $competence);
+			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),','), rtrim(join("<br>",$countries),','));
 		}
 	}
 }
@@ -185,23 +196,39 @@ if ($teacher) {
 //TODO: see what's up with this
 // echo $OUTPUT->render($allowEnrol);
 
-$meta_categories = $DB->get_records("meta_category");
+$meta_categories = $DB->get_records_sql("select * from {meta_category} order by name asc");
+$meta_competences = $DB->get_records_sql("select * from {course_categories} order by name asc");
 
 ?>
-
-<form id="filters_form" action="/blocks/metacourse/list_metacourses.php">
-	<h2>Employee group</h2>
-	<select name="category" id="filters" onchange="this.form.submit()">
-		<option value="0">All</option>
-		<?php foreach ($meta_categories as $key => $cat) { 
-			if ($key == $category) { ?>
-			<option selected value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
-		<?php } else { ?>
-			<option value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
-		<?php } 
-		}?>
-	</select>
-</form>
+<div class="filter_courses">
+	<h4 class="filter_title">Filters</h4>
+	<form id="filters_form" action="/blocks/metacourse/list_metacourses.php">
+		<fieldset>
+			<label for="category">Employee group</label>
+			<select name="category" id="filters" onchange="this.form.submit()">
+				<option value="0">All</option>
+				<?php foreach ($meta_categories as $key => $cat) { 
+					if ($key == $category) { ?>
+					<option selected value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
+				<?php } else { ?>
+					<option value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
+				<?php } 
+				}?>
+			</select>
+			<label for="competence">Competence</label>
+			<select name="competence" id="competence" onchange="this.form.submit()">
+				<option value="0">All</option>
+				<?php foreach ($meta_competences as $key => $cat) { 
+					if ($key == $competence) { ?>
+					<option selected value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
+				<?php } else { ?>
+					<option value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
+				<?php } 
+				}?>
+			</select>
+		</fieldset>
+	</form>
+</div>
 
 <?php
 echo html_writer::table($table);

@@ -20,8 +20,11 @@ $string['enrolOthers'] = 'Enrol others';
 $string['unenrolme'] = 'Unenrol me'; 
 $string['customemail'] = 'Custom email'; 
 $string['competence'] = 'Competence'; 
-$string['listofcourses'] = "List of courses";
+$string['listofcourses'] = "List of all courses";
 $string['coursesfor'] = "Courses for";
+$string['countries'] = "Countries";
+$string['published'] = 'Published'; 
+
 // need translation
 
 $string['purpose'] = 'Purpose';

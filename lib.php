@@ -528,29 +528,21 @@ function create_role_and_provider($provider){
     $role->sortorder = $role->sortorder->sortorder;
     ++$role->sortorder;
     try {
-        $transaction = $DB->start_delegated_transaction();
-        $existing_role = $DB->get_record("role",array("shortname"=>$role->shortname));
-        
-        if (isset($existing_role)) {
-            $role_id = $existing_role->id;
-        } else {
+
             $role_id = $DB->insert_record('role',$role);
             $role_context = new stdClass();
             $role_context->roleid = $role_id;
             $role_context->contextlevel = 10;
 
             $DB->insert_record('role_context_levels',$role_context);
-        }
         
         $providerRec = new stdClass();
         $providerRec->provider = $provider;
         $providerRec->role = $role_id;
         $DB->insert_record('meta_providers', $providerRec);
-
-
-        $transaction->allow_commit();
+        echo "200";
     } catch (Exception $e) {
-        $transaction->rollback($e);
+        echo json_encode($e);
     }
 
 }
@@ -580,8 +572,13 @@ function check_if_not_enrolled($userid, $courseid) {
     global $DB;
     
     $context = get_context_instance(CONTEXT_COURSE, $courseid);
-    @$students = $DB->get_records_sql("select u.id from user u join (select ue.* from user_enrolments ue join enrol e on ue.enrolid = e.id where e.courseid = :cid and ue.status = 0) a on u.id = a.userid;
-", array("cid"=>$courseid));
+    @$students = $DB->get_records_sql("select u.id from user u join (select ue.* 
+            from user_enrolments ue 
+            join enrol e on ue.enrolid = e.id where e.courseid = :cid and ue.status = 0) a 
+            on u.id = a.userid", 
+        array("cid"=>$courseid)
+    );
+
     $user = $DB->get_record("user",array("id"=>$userid));
     foreach ($students as $st) {
         if ($st->id == $user->id) {
@@ -593,14 +590,14 @@ function check_if_not_enrolled($userid, $courseid) {
 }
 
 
-function get_courses_in_category($category_id){
+function get_courses_in_category($category_id, $competence_id){
     global $DB;
     $courses = $DB->get_records_sql("
         SELECT d.*, pr.provider 
                 FROM {meta_providers} pr JOIN (
                     SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate 
                     FROM {meta_course} c 
-                    JOIN {user} u on c.coordinator = u.id 
+                    LEFT JOIN {user} u on c.coordinator = u.id 
                     ORDER BY c.provider asc) d 
                 ON pr.id = d.providerid");
 

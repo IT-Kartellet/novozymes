@@ -70,18 +70,18 @@ function xmldb_block_metacourse_install() {
         $DB->insert_record("meta_currencies", $cur);
     }
 
-    // $countries = array();
-    // $countries[] = array("country"=>"Denmark"); // euros
-    // $countries[] = array("country"=>"Brazil"); // brazilian
-    // $countries[] = array("country"=>"Great Britan"); // british pounds
-    // $countries[] = array("country"=>"China"); // chinese
-    // $countries[] = array("country"=>"Switzerland"); // swiss franc
-    // $countries[] = array("country"=>"India"); // indian
-    // $countries[] = array("country"=>"United States"); // us dollars
+    $countries = array();
+    $countries[] = array("country"=>"Denmark"); // euros
+    $countries[] = array("country"=>"Brazil"); // brazilian
+    $countries[] = array("country"=>"Great Britan"); // british pounds
+    $countries[] = array("country"=>"China"); // chinese
+    $countries[] = array("country"=>"Switzerland"); // swiss franc
+    $countries[] = array("country"=>"India"); // indian
+    $countries[] = array("country"=>"United States"); // us dollars
 
-    // foreach ($countries as $cur) {
-    //     $DB->insert_record("meta_countries", $cur);
-    // }
+    foreach ($countries as $cur) {
+        $DB->insert_record("meta_countries", $cur);
+    }
 
     $providers = array();
     $providers[] = array("provider"=>"P&O Development & Performance");

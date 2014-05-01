@@ -2,6 +2,7 @@
 
 	var enrolledCourse;
 	var calendarInput = $('input[name*=calendar]');
+	var itk_course_template = $("div.template").last().clone();
 	calendarInput.removeClass('visibleifjs');
 	calendarInput.addClass('ninja');
 	try {
@@ -27,12 +28,36 @@
 	} else {
 		$("[id^='fitem_id_custom_email']").hide();
 	}
+
+	if (!(typeof itk_targets === 'undefined')) {
+		$.each(itk_targets, function( key, value ) {
+		  if (value === 1 ) {
+		  	var elem = "#id_targetgroup_" + key;
+
+		  	$(elem).prop('checked', true);
+
+		  };
+		});
+	};
+	
+	$(document.body).on("click","input[id^='id_datecourse_no_dates_']",function(){
+		var parent = $(this).closest(".template");
+		if ($(this).is(":checked")) {
+			parent.find("div[id^='fitem_id_timestart_'], div[id^='fitem_id_timeend_'], div[id^='fitem_id_publishdate_'], div[id^='fitem_id_unpublishdate_'],div[id^='fitem_id_startenrolment_']").remove();
+		} else {
+			itk_course_template.find("select").val("0");
+			itk_course_template.find("input").not("#removeDateCourse").val("");
+			parent.html(itk_course_template.html());
+		}
+	});
 	
 	$(document.body).on("click","#addDateCourse",function(){
 
 		//used to duplicate the datecourses;
 
 		var course = $("div.template").last().clone();
+		course.find("select").val("0");
+		course.find("input").not("#removeDateCourse").val("");
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
 		var index = $('.template').length - 1;
@@ -392,6 +417,7 @@
 	$('input[name="addPro"]').on('click',function(e){
 		e.preventDefault();
 		var newPro = $('input[name="addProvider"]').val();
+		console.log(newPro);
 		$('input[name="addProvider"]').val("");
 
 		// add the location

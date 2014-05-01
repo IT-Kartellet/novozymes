@@ -51,8 +51,8 @@ class datecourse_form extends moodleform {
             $mform->addElement('html',"<div class='template'>");
             $mform->addElement('hidden','datecourse['. $key .'][id]', '0');
             $mform->addElement('html',"<input type='button' id='removeDateCourse' title='Remove date' value='X'>");
-            $mform->addElement('date_time_selector', 'timestart['. $key .']', get_string("from"), array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, "id"=>"timestart"),array("class"=>"timestart"));
-            $mform->addElement('date_time_selector', 'timeend['. $key .']', get_string("to"), array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false),array("class"=>"timeend"));
+            $mform->addElement('date_time_selector', 'timestart['. $key .']', "Start", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, "id"=>"timestart"),array("class"=>"timestart"));
+            $mform->addElement('date_time_selector', 'timeend['. $key .']', "End", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false),array("class"=>"timeend"));
             $mform->addElement('select', 'datecourse['. $key .'][location]', 'Location', $locations, array("class"=>"location"));
             $mform->addElement('select', 'datecourse['. $key .'][country]', 'Where', $countries, array("class"=>"country"));
             $mform->addElement('html', "<div class='fitem'><div class='felement'> <a href='#' class='anotherLocation' > + another location </a></div></div>");
@@ -65,6 +65,7 @@ class datecourse_form extends moodleform {
             $mform->addElement('date_time_selector', 'publishdate['. $key .']', "Publish date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false), array("class"=>"publishdate"));
             $mform->addElement('date_time_selector', 'startenrolment['. $key .']', "Start enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false), array("class"=>"startenrolment"));
             $mform->addElement('date_time_selector', 'unpublishdate['. $key .']', "End enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false),array("class"=>"unpublishdate"));
+            $mform->addElement('advcheckbox', "datecourse_no_dates[".$key."]", "No dates", null, array('group' => 1), false);
 
             $mform->addElement('html',"</div>");
 
@@ -80,7 +81,6 @@ class datecourse_form extends moodleform {
             $mform->addRule('timeend['. $key .']', get_string('required'), 'required', null, 'client');
             $mform->addRule('publishdate['. $key .']', get_string('required'), 'required', null, 'client');
             $mform->addRule('startenrolment['. $key .']', get_string('required'), 'required', null, 'client');
-
            
             $key++;
         }

@@ -46,13 +46,14 @@ $umt .= " " . $unpublish_meta_time['hour'] . ":" . $unpublish_meta_time['minute'
 global $DB;
 
 //TODO: fix these posts. Moodle fucks with me now.
-$datecourses = $_POST['datecourse'];
-$timestarts = $_POST['timestart'];
-$timeends = $_POST['timeend'];
-$publishdate = $_POST['publishdate'];
-$unpublishdate = $_POST['unpublishdate'];
-$startenrolment = $_POST['startenrolment'];
-$custom_emails = $_SESSION['custom_email'];
+// supress the warning, in case they are not defined we will add a course for the waitlist
+$datecourses = @$_POST['datecourse'];
+$timestarts = @$_POST['timestart'];
+$timeends = @$_POST['timeend'];
+$publishdate = @$_POST['publishdate'];
+$unpublishdate = @$_POST['unpublishdate'];
+$startenrolment = @$_POST['startenrolment'];
+$custom_emails = @$_SESSION['custom_email'];
 
 $meta = new stdClass();
 $meta->id = $metaid;
@@ -100,7 +101,6 @@ if ($metaid) {
 }
 
 
-
 foreach ($datecourses as $key => $course) {
 
 	//TODO:// delete course
@@ -122,78 +122,100 @@ foreach ($datecourses as $key => $course) {
 	}
 	$dc->metaid = $metaid;
 
-	$starttime = array(	"day"=>$timestarts[$key]['day'],
-						"month"=>$timestarts[$key]['month'],
-						"year"=>$timestarts[$key]['year'],
-						"hour"=>$timestarts[$key]['hour'],
-						"minute"=>$timestarts[$key]['minute']
-	 );
-
-	$endtime = array(	"day"=>$timeends[$key]['day'],
-						"month"=>$timeends[$key]['month'],
-						"year"=>$timeends[$key]['year'],
-						"hour"=>$timeends[$key]['hour'],
-						"minute"=>$timeends[$key]['minute']
-	 );
-
-	$publishtime = array(	"day"=>$publishdate[$key]['day'],
-						"month"=>$publishdate[$key]['month'],
-						"year"=>$publishdate[$key]['year'],
-						"hour"=>$publishdate[$key]['hour'],
-						"minute"=>$publishdate[$key]['minute']
-	 );
-	$unpublishtime = array(	"day"=>$unpublishdate[$key]['day'],
-						"month"=>$unpublishdate[$key]['month'],
-						"year"=>$unpublishdate[$key]['year'],
-						"hour"=>$unpublishdate[$key]['hour'],
-						"minute"=>$unpublishdate[$key]['minute']
-	 );
-
-	$startenrolmenttime = array("day"=>$startenrolment[$key]['day'],
-							"month"=>$startenrolment[$key]['month'],
-							"year"=>$startenrolment[$key]['year'],
-							"hour"=>$startenrolment[$key]['hour'],
-							"minute"=>$startenrolment[$key]['minute']
-	 );
-	
-	//format the times
-	$ts = implode("-",array($starttime['year'], $starttime['month'], $starttime['day']));
-	$ts .= " " . $starttime['hour'] . ":" . $starttime['minute'] . ":00";
-	$te = implode("-",array($endtime['year'], $endtime['month'], $endtime['day']));
-	$te .= " " . $endtime['hour'] . ":" . $endtime['minute'] . ":00";
-	$pd = implode("-",array($publishtime['year'], $publishtime['month'], $publishtime['day']));
-	$pd .= " " . $publishtime['hour'] . ":" . $publishtime['minute'] . ":00";
-
-	$upd = implode("-",array($unpublishtime['year'], $unpublishtime['month'], $unpublishtime['day']));
-	$upd .= " " . $unpublishtime['hour'] . ":" . $unpublishtime['minute'] . ":00";
-
-	$ste = implode("-",array($startenrolmenttime['year'], $startenrolmenttime['month'], $startenrolmenttime['day']));
-	$ste .= " " . $startenrolmenttime['hour'] . ":" . $startenrolmenttime['minute'] . ":00";
-
-	$dc->startdate = date_timestamp_get(date_create($ts));
-	$dc->enddate = date_timestamp_get(date_create($te));
-	$dc->publishdate = date_timestamp_get(date_create($pd));
-	$dc->unpublishdate = date_timestamp_get(date_create($upd));
-	$dc->startenrolment = date_timestamp_get(date_create($ste));
-	$dc->location = $course['location'];
-	$dc->country = $course['country'];
-	$dc->lang = $course['language'];
-	$dc->category = $competence;
-	$dc->price = $course['price'];
-	$dc->currencyid = $course['currency'];
-	$dc->total_places = $course['places'];
-	// only if have a new course we add the free seats
-	if (@!$dc->id) {
+	if(is_null($timestarts[$key]['day'])){
+		$dc->startdate = 0;
+		$dc->enddate = 0;
+		$dc->publishdate = 0;
+		$dc->unpublishdate = 0;
+		$dc->startenrolment = 0;
+		$dc->free_places = 0;
+		$dc->open = 0;
+		$dc->coordinator = $course['coordinator'];
+		$dc->timemodified = time();
+		$dc->location = $course['location'];
+		$dc->country = $course['country'];
+		$dc->lang = $course['language'];
+		$dc->category = $competence;
+		$dc->price = $course['price'];
+		$dc->currencyid = $course['currency'];
+		$dc->total_places = $course['places'];
 		$dc->free_places = $course['places'];
-	} else {
-		// update the nr of free places
-		$places = $DB->get_records_sql("SELECT total_places, free_places from {meta_datecourse} where id=:id",array("id"=>$dc->id));
-		$places = reset($places);
-		$dc->free_places = ($dc->total_places - $places->total_places) + $places->free_places;
+
+	} else{
+
+		$starttime = array(	"day"=>$timestarts[$key]['day'],
+							"month"=>$timestarts[$key]['month'],
+							"year"=>$timestarts[$key]['year'],
+							"hour"=>$timestarts[$key]['hour'],
+							"minute"=>$timestarts[$key]['minute']
+		 );
+
+		$endtime = array(	"day"=>$timeends[$key]['day'],
+							"month"=>$timeends[$key]['month'],
+							"year"=>$timeends[$key]['year'],
+							"hour"=>$timeends[$key]['hour'],
+							"minute"=>$timeends[$key]['minute']
+		 );
+
+		$publishtime = array(	"day"=>$publishdate[$key]['day'],
+							"month"=>$publishdate[$key]['month'],
+							"year"=>$publishdate[$key]['year'],
+							"hour"=>$publishdate[$key]['hour'],
+							"minute"=>$publishdate[$key]['minute']
+		 );
+		$unpublishtime = array(	"day"=>$unpublishdate[$key]['day'],
+							"month"=>$unpublishdate[$key]['month'],
+							"year"=>$unpublishdate[$key]['year'],
+							"hour"=>$unpublishdate[$key]['hour'],
+							"minute"=>$unpublishdate[$key]['minute']
+		 );
+
+		$startenrolmenttime = array("day"=>$startenrolment[$key]['day'],
+								"month"=>$startenrolment[$key]['month'],
+								"year"=>$startenrolment[$key]['year'],
+								"hour"=>$startenrolment[$key]['hour'],
+								"minute"=>$startenrolment[$key]['minute']
+		 );
+		
+		//format the times
+		$ts = implode("-",array($starttime['year'], $starttime['month'], $starttime['day']));
+		$ts .= " " . $starttime['hour'] . ":" . $starttime['minute'] . ":00";
+		$te = implode("-",array($endtime['year'], $endtime['month'], $endtime['day']));
+		$te .= " " . $endtime['hour'] . ":" . $endtime['minute'] . ":00";
+		$pd = implode("-",array($publishtime['year'], $publishtime['month'], $publishtime['day']));
+		$pd .= " " . $publishtime['hour'] . ":" . $publishtime['minute'] . ":00";
+
+		$upd = implode("-",array($unpublishtime['year'], $unpublishtime['month'], $unpublishtime['day']));
+		$upd .= " " . $unpublishtime['hour'] . ":" . $unpublishtime['minute'] . ":00";
+
+		$ste = implode("-",array($startenrolmenttime['year'], $startenrolmenttime['month'], $startenrolmenttime['day']));
+		$ste .= " " . $startenrolmenttime['hour'] . ":" . $startenrolmenttime['minute'] . ":00";
+
+		$dc->startdate = date_timestamp_get(date_create($ts));
+		$dc->enddate = date_timestamp_get(date_create($te));
+		$dc->publishdate = date_timestamp_get(date_create($pd));
+		$dc->unpublishdate = date_timestamp_get(date_create($upd));
+		$dc->startenrolment = date_timestamp_get(date_create($ste));
+		$dc->location = $course['location'];
+		$dc->country = $course['country'];
+		$dc->lang = $course['language'];
+		$dc->category = $competence;
+		$dc->price = $course['price'];
+		$dc->currencyid = $course['currency'];
+		$dc->total_places = $course['places'];
+		// only if have a new course we add the free seats
+		if (@!$dc->id) {
+			$dc->free_places = $course['places'];
+		} else {
+			// update the nr of free places
+			$places = $DB->get_records_sql("SELECT total_places, free_places from {meta_datecourse} where id=:id",array("id"=>$dc->id));
+			$places = reset($places);
+			$dc->free_places = ($dc->total_places - $places->total_places) + $places->free_places;
+		}
+		$dc->open = 1;
+		$dc->coordinator = $course['coordinator'];
+		$dc->timemodified = time();
 	}
-	$dc->open = 1;
-	$dc->coordinator = $course['coordinator'];
-	$dc->timemodified = time();
 
 	//if we have id we update on old one
 	if (@$dc->id) {
@@ -214,22 +236,24 @@ foreach ($datecourses as $key => $course) {
 
 		$datecourseid = $DB->insert_record('meta_datecourse', $dc);
 		//create the course
-		$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
+		if ($dc->open == 1) {
+			$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
 
-		$created_courseid = create_new_course($courseName,$courseName, $competence, $dc->startdate, $meta->content);
+			$created_courseid = create_new_course($courseName,$courseName, $competence, $dc->startdate, $meta->content);
 
-		// add the manual enrolment
-		$DB->insert_record("enrol",array("enrol"=>"manual","status"=>0, "roleid"=>5,"courseid"=>$created_courseid));
+			// add the manual enrolment
+			$DB->insert_record("enrol",array("enrol"=>"manual","status"=>0, "roleid"=>5,"courseid"=>$created_courseid));
 
-		// update the datecourse with the course id
-		$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
-		if ($meta->coordinator!=0) {
-			add_coordinator($meta->coordinator, $created_courseid);
+			// update the datecourse with the course id
+			$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
+			if ($meta->coordinator!=0) {
+				add_coordinator($meta->coordinator, $created_courseid);
+			}
+			add_coordinator($dc->coordinator, $created_courseid);
+
+			//add the label with the description
+			add_label($created_courseid, $meta);
 		}
-		add_coordinator($dc->coordinator, $created_courseid);
-
-		//add the label with the description
-		add_label($created_courseid, $meta);
 
 	}
 	//remove them from the session
@@ -254,5 +278,8 @@ foreach ($datecourses as $key => $course) {
 
 	purge_all_caches();
 }
+
+
+
 
 header("Location: " . $CFG->wwwroot."/blocks/metacourse/list_metacourses.php" );
