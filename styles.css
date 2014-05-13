@@ -70,6 +70,7 @@ div.template {
   width:300px;
 }
 
+
 #buttonscell {
   width:100px;
 }
@@ -100,6 +101,13 @@ div.enrolMeButton > form input[type='submit']{
   width: 1em;
 }
 
+div.addToWaitingList > form input[type='submit']{
+  background-image: url('http://i60.tinypic.com/e16k9t.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 1em;
+}
+
 div.enrolOthers > form input[type='submit']{
   background-image: url('http://i59.tinypic.com/96ht85.png');
   background-repeat: no-repeat;
@@ -109,7 +117,8 @@ div.enrolOthers > form input[type='submit']{
 
 div.unEnrolMeButton > form input[type='submit']:hover, 
 div.enrolMeButton > form input[type='submit']:hover,
-div.enrolOthers > form input[type='submit']  {
+div.enrolOthers > form input[type='submit']:hover,
+div.addToWaitingList > form input[type='submit']:hover  {
   background-position: center;
 }
 
@@ -126,6 +135,20 @@ div.enrolOthers > form input[type='submit']  {
 #meta_table, #view_meta_table {
   margin-top:50px;
   margin-bottom: 50px;
+}
+
+#meta_wrapper table table tr td {
+  border: 1px solid #ccc;
+  font-weight: normal !important;
+  text-align: center !important;
+}
+
+#view_date_table tr td {
+  text-align: center;
+}
+
+#view_date_table tr:odd {
+  background-color: red;
 }
 
 #addNewCourse {

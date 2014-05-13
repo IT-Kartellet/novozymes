@@ -155,6 +155,8 @@ foreach ($metacourses as $key => $course) {
 	$languages = array_map(function($l){
 		return @$l->language;
 	}, $languages);
+	// remove empty langs
+	$languages = array_filter($languages);
 
 	$countries = array_map(function($l){
 		return @$l->country;
@@ -198,7 +200,6 @@ if ($teacher) {
 
 $meta_categories = $DB->get_records_sql("select * from {meta_category} order by name asc");
 $meta_competences = $DB->get_records_sql("select * from {course_categories} order by name asc");
-
 ?>
 <div class="filter_courses">
 	<h4 class="filter_title">Filters</h4>
@@ -218,11 +219,11 @@ $meta_competences = $DB->get_records_sql("select * from {course_categories} orde
 			<label for="competence">Competence</label>
 			<select name="competence" id="competence" onchange="this.form.submit()">
 				<option value="0">All</option>
-				<?php foreach ($meta_competences as $key => $cat) { 
-					if ($key == $competence) { ?>
-					<option selected value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
+				<?php foreach ($meta_competences as $a => $com) { 
+					if ($a == $competence) {  ?>
+					<option selected value="<?php echo $com->id; ?>"><?php echo $com->name; ?></option>
 				<?php } else { ?>
-					<option value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
+					<option value="<?php echo $com->id; ?>"><?php echo $com->name; ?></option>
 				<?php } 
 				}?>
 			</select>

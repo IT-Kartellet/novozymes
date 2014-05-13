@@ -65,5 +65,21 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2014041406, 'metacourse');
     }
 
+        if ($result && $oldversion < 2014041408) {
+
+        // Define field remarks to be added to meta_datecourse.
+        $table = new xmldb_table('meta_datecourse');
+        $field = new xmldb_field('remarks', XMLDB_TYPE_TEXT, null, null, null, null, null, 'country');
+
+        // Conditionally launch add field remarks.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Label savepoint reached.
+        upgrade_block_savepoint(true, 2014041408, 'metacourse');
+    }
+
+
     return $result;
 }

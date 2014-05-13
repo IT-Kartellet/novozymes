@@ -65,6 +65,12 @@ if(!$teacher){
 	}
 } else { ?>
 
+<span>Select user role: &nbsp; </span>
+<select name="user_role_enrol" id="enrol_role">
+	<option value="student" id='enrol_student'>Student</option>
+	<option value="teacher" id='enrol_teacher'>Teacher</option>
+</select> 
+
 <form id="assignform" method="post" ><div>
   <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
 

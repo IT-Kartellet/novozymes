@@ -277,7 +277,8 @@ if ($metacourse) {
  		$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
 		//if no more places, disable the button
 		if ($busy_places == $total_places) {
-			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), get_string('addtowaitinglist','block_metacourse'));
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "");
+			$enrolMe->class = 'addToWaitingList';
 			if ($DB->record_exists('meta_waitlist',array('userid'=>$USER->id, 'courseid'=>$datecourse->courseid))) {
 				$enrolMe->disabled = true;
 				$enrolOthers->disabled = true;
@@ -310,8 +311,10 @@ if ($metacourse) {
 
 		// check if the enrolment is expired
 		if ($datecourse->unpublishdate < time()) {
-			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), get_string("expiredenrolment",'block_metacourse'));
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "");
 			$enrolMe->disabled = true;
+			$enrolMe->class = 'enrolMeButton';
+
 			$enrolOthers->disabled = true;
 		}
 		if ($datecourse->startenrolment > time()) {
@@ -323,8 +326,14 @@ if ($metacourse) {
 		
 		if ($isTeacher && ($busy_places > 0)) {
 			$date_table->data[] = array($start, $end,$location,$language,$price,$coordinator,$total_places, $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$busy_places), $action);
+			if ($datecourse->remarks) {
+				$date_table->data[] = array($datecourse->remarks, "","","","","","","","");
+			}
 		} else {
 			$date_table->data[] = array($start, $end,$location,$language,$price,$coordinator,$total_places, $busy_places, $action);
+			if ($datecourse->remarks) {
+				$date_table->data[] = array($datecourse->remarks, "","","","","","","","");
+			}
 		}
 	}
 	echo html_writer::table($date_table);

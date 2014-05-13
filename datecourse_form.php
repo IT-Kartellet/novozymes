@@ -12,9 +12,8 @@ class datecourse_form extends moodleform {
  
         $mform = $this->_form;
         $numberOfDates = ($this->_customdata['dateCourseNr'])? $this->_customdata['dateCourseNr'] : 1;
-
         //get locations from the database
-        $locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");        
+        $locations = $DB->get_records_sql("SELECT * FROM {meta_locations} order by location asc");        
         $locations = array_map(function ($arg){
                 return $arg->location;
             }, $locations);
@@ -24,7 +23,18 @@ class datecourse_form extends moodleform {
             return $lang->language;
         }, $languages);
 
-        $countries = $DB->get_records_sql("SELECT * FROM {meta_countries}");
+        $ordered_languages = array();
+        foreach ($languages as $key => $value) {
+            if ($value == 'English') {
+                $ordered_languages[$key] = $value;
+                unset($languages[$key]);
+                array_filter($languages);
+            }
+        }
+
+        $languages = $ordered_languages + $languages;
+
+        $countries = $DB->get_records_sql("SELECT * FROM {meta_countries} ");
         $countries = array_map(function($c){
             return $c->country;
         }, $countries);
@@ -65,6 +75,7 @@ class datecourse_form extends moodleform {
             $mform->addElement('date_time_selector', 'publishdate['. $key .']', "Publish date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false), array("class"=>"publishdate"));
             $mform->addElement('date_time_selector', 'startenrolment['. $key .']', "Start enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false), array("class"=>"startenrolment"));
             $mform->addElement('date_time_selector', 'unpublishdate['. $key .']', "End enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false),array("class"=>"unpublishdate"));
+            $mform->addElement('text', 'datecourse['. $key .'][remarks]', 'Remarks',array("class"=>"date_remarks"));
             $mform->addElement('advcheckbox', "datecourse_no_dates[".$key."]", "No dates", null, array('group' => 1), false);
 
             $mform->addElement('html',"</div>");
@@ -72,6 +83,7 @@ class datecourse_form extends moodleform {
             $mform->setType('datecourse['. $key .'][id]', PARAM_INT);
             $mform->setType('datecourse['. $key .'][price]', PARAM_NOTAGS);
             $mform->setType('datecourse['. $key .'][places]', PARAM_NOTAGS);
+            $mform->setType('datecourse['. $key .'][remarks]', PARAM_TEXT);
 
             // $mform->addRule('datecourse['. $key .'][places]', "Needs to be a number", 'numeric', null, 'client');
             // $mform->addRule('datecourse['. $key .'][price]', "Needs to be a number", 'numeric', null, 'client');
@@ -108,6 +120,7 @@ class datecourse_form extends moodleform {
                 $awesomeData->{'datecourse['. $horribleCounter .'][country]'} = $dc->country;
                 $awesomeData->{'datecourse['. $horribleCounter .'][language]'} = $dc->lang;
                 $awesomeData->{'datecourse['. $horribleCounter .'][price]'} = $dc->price;
+                $awesomeData->{'datecourse['. $horribleCounter .'][remarks]'} = $dc->remarks;
                 $awesomeData->{'datecourse['. $horribleCounter .'][currency]'} = $dc->currencyid;
                 $awesomeData->{'datecourse['. $horribleCounter .'][places]'} = $dc->total_places;
                 $awesomeData->{'datecourse['. $horribleCounter .'][coordinator]'} = $dc->coordinator;

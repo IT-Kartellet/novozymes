@@ -77,5 +77,5 @@ if ($courseid != 0 && $userid != 0) {
 	
 }
 
-header("Location: " . $CFG->wwwroot."/" );
+header("Location: " . $CFG->wwwroot."/blocks/list_metacourses.php" );
 

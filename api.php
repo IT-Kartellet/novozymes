@@ -12,6 +12,10 @@ $newTarget    = optional_param("newTarget", "",PARAM_TEXT);
 $getLocations   = optional_param("getLocations",0, PARAM_INT);
 $getProviders   = optional_param("getProviders",0, PARAM_INT);
 $deleteLocation = optional_param("deleteLocation", 0, PARAM_INT);
+$renameLocationID = optional_param("renameLocationID", 0, PARAM_INT);
+$renameProviderID = optional_param("renameProviderID", 0, PARAM_INT);
+$renameLocationText = optional_param("renameLocationText", "", PARAM_TEXT);
+$renameProviderText = optional_param("renameProviderText", "", PARAM_TEXT);
 $newProvider    = optional_param("newProvider", "", PARAM_TEXT);
 $deleteProvider = optional_param("deleteProvider", 0, PARAM_INT);
 $deleteMeta     = optional_param("deleteMeta", 0, PARAM_INT);
@@ -43,21 +47,23 @@ $enrolGuy = optional_param("enrolGuy",0,PARAM_INT);
 $unenrolGuy = optional_param("unenrolGuy",0,PARAM_INT);
 $enrolCourse = optional_param("enrolCourse",0,PARAM_INT);
 $sendEmail = optional_param("sendEmail", false, PARAM_BOOL);
+$enrolRole = optional_param("enrolRole", "", PARAM_TEXT);
 
 $getTemplate = optional_param("getTemplate", 0, PARAM_INT);
 
-if ($enrolGuy && $enrolCourse) {
+if ($enrolGuy && $enrolCourse && $enrolRole) {
 	try {
 		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
 		$instance = reset($instance);
 		$enrol = new enrol_manual_pluginITK();
-		$enrol->enrol_user($instance, $enrolGuy, 5);
+		$role = ($enrolRole == 'teacher') ? 3 : 5;
+		$enrol->enrol_user($instance, $enrolGuy, $role);
 		$enrolUser = $DB->get_record("user", array("id"=>$enrolGuy));
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
 		if ($sendEmail) {
 			$enrol->send_confirmation_email($enrolUser, $enrolCourse);
 		}
-		echo json_encode("done");
+		echo json_encode("done, $role");
 	} catch (Exception $e) {
 		echo json_encode($e);
 	}
@@ -114,6 +120,31 @@ if ($newLocation) {
 	$location = $DB->get_records_sql("SELECT * FROM {meta_locations} where id = :id", array("id"=>$loc_id));
 
 	echo json_encode($location);
+
+}
+
+if ($renameLocationID && $renameLocationText) {
+	
+	$loc_id = $DB->set_field('meta_locations', 'location', $renameLocationText, array('id'=>$renameLocationID));
+	$loc = $DB->set_field('meta_locations', 'location', $renameLocationText, array('id' => $renameLocationID));
+	$locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");
+
+	echo json_encode($locations);
+}
+
+if ($renameProviderID && $renameProviderText) {
+	
+	$DB->set_field('meta_providers', 'provider', $renameProviderText, array('id' => $renameProviderID));
+	$providers = $DB->get_records_sql("SELECT * FROM {meta_providers}");
+
+	$r_id = $DB->get_record("meta_providers",array("id"=>$renameProviderID));
+	$r_id = $r_id->role;
+	$DB->set_field('role', 'name', $renameProviderText, array('id' => $r_id));
+	$DB->set_field('role', 'description', $renameProviderText, array('id' => $r_id));
+	$DB->set_field('role', 'shortname', str_replace(" ", "", strtolower($renameProviderText)), array('id' => $r_id));
+
+
+	echo json_encode($providers);
 
 }
 

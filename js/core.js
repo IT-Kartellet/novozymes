@@ -39,6 +39,23 @@
 		  };
 		});
 	};
+
+	$(document.body).on("click","form[action='add_datecourse.php'] input[id='id_submitbutton']",function(){
+		// var list = $('input.checkboxgroup1');
+		var target_checked = false;
+		$('input.checkboxgroup1').each(function() {
+			if($(this).prop('checked')) {
+				target_checked = true;
+			}
+		});
+
+		if (!target_checked) {
+			alert("Please select at least one target.");
+			return false;
+		};
+	
+	});	
+
 	
 	$(document.body).on("click","input[id^='id_datecourse_no_dates_']",function(){
 		var parent = $(this).closest(".template");
@@ -55,7 +72,7 @@
 
 		//used to duplicate the datecourses;
 
-		var course = $("div.template").last().clone();
+		var course = $("div.template").last().clone(true, true);
 		course.find("select").val("0");
 		course.find("input").not("#removeDateCourse").val("");
 		$("#wrapper").append(course);
@@ -104,12 +121,27 @@
 		victim.find("select.currency").attr("name", "datecourse[" + index + "][currency]");
 
 
+		// update dates
+
+		var today = new Date();
+		var dd = today.getDate();
+		var mm = today.getMonth()+1; 
+		var yyyy = today.getFullYear();
+
+		victim.find("select[name*='day']").val(dd);
+		victim.find("select[name*='month']").val(mm);
+		victim.find("select[name*='year']").val(yyyy);
+
+
 	});
 	
 
 	// don't screw this up
 	$(document.body).on("click","#removeDateCourse",function(){
-		
+		if ($("div.template").length < 2) {
+			alert("You cannot remove this. Select the 'No dates' checkbox if you don't need any dates.");
+			return false;
+		};
 		var x;
 		var r=confirm("Are you sure you want to remove this date? This could remove course files and data if the course already started.");
 		if (r==true){
@@ -309,10 +341,10 @@
 		  url: "./api.php",
 		  data: { newAllow: newGuyValue },
 		  success: function(e){
-		  	console.log(e);
+		  	
 		  },
 		  error: function(e){
-		  	console.log(e);
+		  	
 		  }
 		})
 	});
@@ -329,10 +361,10 @@
 		  url: "./api.php",
 		  data: { removeAllow: newGuyValue },
 		  success: function(e){
-		  	console.log(e);
+		  	
 		  },
 		  error: function(e){
-		  	console.log(e);
+		  	
 		  }
 		})
 	});
@@ -379,12 +411,52 @@
 		   
 	});
 
+	$('input[name="renameLoc"]').on('click',function(e){
+		e.preventDefault();
+		var locId = $("select[name='locations']").find(":selected").val();
+		var locText = $("#id_renameLocation").val();
+		$("#id_renameLocation").val("");
+
+		$.ajax({
+		  type: "POST", 
+		  url: "./api.php",
+		  data: { renameLocationID: locId, renameLocationText: locText }
+		})
+			.done(function(locations){
+				// remove all the locations, and draw them again.
+				$("select[name='locations'] > option").remove();
+				locations = $.parseJSON(locations);
+				$.each(locations, function(k, v){
+				    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + "</option>"));
+				});
+			});
+		   
+	});
+
+
+	$('input[name="renamePro"]').on('click',function(e){
+		e.preventDefault();
+		var proId = $("select[name='providers']").find(":selected").val();
+		var proText = $("#id_renameProvider").val();
+		$("#id_renameProvider").val("");
+		$.ajax({
+		  type: "POST", 
+		  url: "./api.php",
+		  data: { renameProviderID: proId, renameProviderText: proText }
+		})
+			.done(function(providers){
+				$("select[name='providers'] > option").remove();
+				providers = $.parseJSON(providers);
+				$.each(providers, function(k, v){
+				    $("select[name='providers']").append($("<option value= '" + v.id + "'>" + v.provider + "</option>"));
+				});
+			});
+	});
+
 	// on the datecourse form
 	$(document.body).on('click','.anotherLocation' ,function(e){
-		console.log("asdas");
 		e.preventDefault();
 		window.scrollTo(0, 0);
-		console.log("ni");
 		$("#lean_background").show();
 
 		$('input[name="addL"]').on('click',function(e){
@@ -417,7 +489,6 @@
 	$('input[name="addPro"]').on('click',function(e){
 		e.preventDefault();
 		var newPro = $('input[name="addProvider"]').val();
-		console.log(newPro);
 		$('input[name="addProvider"]').val("");
 
 		// add the location

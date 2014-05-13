@@ -89,6 +89,18 @@ class metacourse_form extends moodleform {
             return $lang->language;
         }, $languages);
 
+        //put the god darn english first
+        $ordered_languages = array();
+        foreach ($languages as $key => $value) {
+            if ($value == 'English') {
+                $ordered_languages[$key] = $value;
+                unset($languages[$key]);
+                array_filter($languages);
+            }
+        }
+
+        $languages = $ordered_languages + $languages;
+
         $categories = $DB->get_records_sql("SELECT id, name FROM {course_categories} order by name asc");
         $categories = array_map(function($cat){
             return $cat->name;
@@ -152,6 +164,7 @@ class metacourse_form extends moodleform {
         $mform->addHelpButton('customemail', 'customemail', 'block_metacourse');
         $active_languages = $DB->get_records_sql("SELECT * FROM {meta_languages} where active = 1");
 
+
         foreach ($active_languages as $lang) {
             if ($lang->active == 1) {
                 $mform->addElement('editor', 'custom_email['.$lang->id."]", 'Email - ' . $lang->language,null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
@@ -193,9 +206,7 @@ class metacourse_form extends moodleform {
 		$mform->addRule('purpose', get_string('required'), 'required', null, 'client');
 		// $mform->addRule('target', get_string('required'), 'required', null, 'client');
         $mform->addRule('content', get_string('required'), 'required', null, 'client');
-		$mform->addRule('duration', get_string('required'), 'required', null, 'client');
         $mform->addRule('cancellation', get_string('required'), 'required', null, 'client');
-		$mform->addRule('unpublishdate', get_string('required'), 'required', null, 'client');
 
 		//BUTTONS
         $this->set_data($data);

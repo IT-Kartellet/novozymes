@@ -101,7 +101,7 @@ if ($id == 0) {
 	$data->multipledates = 1;
 	$data->coordinator = $meta->coordinator;
 	$data->provider = $meta->provider;
-	$data->duration['number'] = $meta->duration;
+	$data->duration['number'] = $meta->duration || 0;
 	$data->duration['timeunit'] = $meta->duration_unit;
 	$data->unpublishdate = $meta->unpublishdate;
 

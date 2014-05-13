@@ -67,7 +67,7 @@ $meta->target_description = $target_description['text'];
 $meta->content = $content['text'];
 $meta->instructors = $instructors;
 $meta->comment = $comment['text'];
-$meta->duration = $duration['number'];
+$meta->duration = ($duration['number']) ? $duration['number'] : 0;
 $meta->duration_unit = $duration['timeunit'];
 $meta->cancellation = $cancellation['text'];
 $meta->lodging = $lodging['text'];
@@ -140,6 +140,7 @@ foreach ($datecourses as $key => $course) {
 		$dc->currencyid = $course['currency'];
 		$dc->total_places = $course['places'];
 		$dc->free_places = $course['places'];
+		$dc->remarks = $course['remarks'];
 
 	} else{
 
@@ -214,6 +215,7 @@ foreach ($datecourses as $key => $course) {
 		}
 		$dc->open = 1;
 		$dc->coordinator = $course['coordinator'];
+		$dc->remarks = $course['remarks'];
 		$dc->timemodified = time();
 	}
 
@@ -226,9 +228,9 @@ foreach ($datecourses as $key => $course) {
 		update_meta_course($metaid,$dc, $competence);
 		$updatedCourseId = $DB->get_record('meta_datecourse', array('id'=>$dc->id));
 		if ($meta->coordinator!=0) {
-			add_coordinator($meta->coordinator, $updatedCourseId->courseid);	
+			// add_coordinator($meta->coordinator, $updatedCourseId->courseid);	
 		}
-		add_coordinator($dc->coordinator, $updatedCourseId->courseid);
+		// add_coordinator($dc->coordinator, $updatedCourseId->courseid);
 
 		//go and add people from the waiting list
 	} else {
@@ -247,9 +249,9 @@ foreach ($datecourses as $key => $course) {
 			// update the datecourse with the course id
 			$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
 			if ($meta->coordinator!=0) {
-				add_coordinator($meta->coordinator, $created_courseid);
+				// add_coordinator($meta->coordinator, $created_courseid);
 			}
-			add_coordinator($dc->coordinator, $created_courseid);
+			// add_coordinator($dc->coordinator, $created_courseid);
 
 			//add the label with the description
 			add_label($created_courseid, $meta);

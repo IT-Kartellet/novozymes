@@ -27,13 +27,18 @@ class tos_form extends moodleform {
             }, $locations);
 
         $mform->addElement('header', 'header_locations', 'Locations');
-        $mform->addElement('select', 'locations', 'Locations', $locations, null);
-        $mform->setType('locations', PARAM_TEXT);
-        $mform->addElement('button', 'deleteLoc', "Delete selected location");
 
         $mform->addElement('text', 'addLocation', 'New location');
         $mform->setType('addLocation', PARAM_TEXT);
         $mform->addElement('button', 'addLoc', "Add location");
+
+        $mform->addElement('select', 'locations', 'Locations', $locations, null);
+        $mform->setType('locations', PARAM_TEXT);
+        $mform->addElement('button', 'deleteLoc', "Delete selected location");
+        $mform->addElement('text', 'renameLocation', 'Rename selected location');
+        $mform->setType('renameLocation', PARAM_TEXT);
+        $mform->addElement('button', 'renameLoc', "Rename");
+
 
 
         //LANGUAGES
@@ -57,13 +62,20 @@ class tos_form extends moodleform {
             }, $providers);
 
         $mform->addElement('header', 'header_providers', 'Providers');
+        
+        $mform->addElement('text', 'addProvider', 'New provider');
+        $mform->setType('addProvider', PARAM_TEXT);
+        $mform->addElement('button', 'addPro', "Add provider");
+
         $mform->addElement('select', 'providers', 'Providers', $providers, null);
         $mform->setType('providers', PARAM_TEXT);
         $mform->addElement('button', 'deletePro', "Delete selected provider");
 
-        $mform->addElement('text', 'addProvider', 'New provider');
-        $mform->setType('addProvider', PARAM_TEXT);
-        $mform->addElement('button', 'addPro', "Add provider");
+        $mform->addElement('text', 'renameProvider', 'Rename selected provider');
+        $mform->setType('renameProvider', PARAM_TEXT);
+        $mform->addElement('button', 'renamePro', "Rename");
+
+        
 
       	$this->add_action_buttons();
 

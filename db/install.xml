@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/label/db" VERSION="20140414" COMMENT="XMLDB file for Moodle mod/metacourse"
+<XMLDB PATH="mod/label/db" VERSION="20140508" COMMENT="XMLDB file for Moodle mod/metacourse"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -148,6 +148,7 @@
         <FIELD NAME="open" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="0 = open for registration, 1 = registration closed"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="country" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="remarks" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

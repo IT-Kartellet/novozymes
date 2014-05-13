@@ -334,38 +334,42 @@ function create_new_course($fullname, $shortname, $categoryid, $startdate = 0 , 
   return $courseid;
 }
 
-function update_meta_course($metaid, $datecourse, $category = 1){
+function update_meta_course($metaid, $datecourse, $category){
   global $DB;
-  $meta = $DB->get_record("meta_course",array("id"=>$metaid));
+  // if we have a date, and an actual course for it.
+  if ($datecourse->courseid) {
+      $meta = $DB->get_record("meta_course",array("id"=>$metaid));
 
-  $course = $DB->get_record("course",array("id"=>$datecourse->courseid));
+      $course = $DB->get_record("course",array("id"=>$datecourse->courseid));
 
-  $oldCategory = $DB->get_record('course_categories', array('id'=>$course->category), '*', MUST_EXIST);
-  $newCategory = $DB->get_record('course_categories', array('id'=>$category), '*', MUST_EXIST);
+      $oldCategory = $DB->get_record('course_categories', array('id'=>$course->category), '*', MUST_EXIST);
+      $newCategory = $DB->get_record('course_categories', array('id'=>$category), '*', MUST_EXIST);
 
-  //TODO: fix the naming and the category
-  $updatedCourse = new stdClass();
-  $updatedCourse->id = $datecourse->courseid;
-  $updatedCourse->fullname = $meta->name."-".$datecourse->lang."-".$datecourse->id;
-  $updatedCourse->shortname = $meta->name."-".$datecourse->lang."-".$datecourse->id;
-  $updatedCourse->startdate = $datecourse->startdate;
-  $updatedCourse->lang = $datecourse->lang;
-  $updatedCourse->category = $category;
-  $updatedCourse->sortorder = 0;
-  $updatedCourse->timemodified = time();
+      //TODO: fix the naming and the category
+      $updatedCourse = new stdClass();
+      $updatedCourse->id = $datecourse->courseid;
+      $updatedCourse->fullname = $meta->name."-".$datecourse->lang."-".$datecourse->id;
+      $updatedCourse->shortname = $meta->name."-".$datecourse->lang."-".$datecourse->id;
+      $updatedCourse->startdate = $datecourse->startdate;
+      $updatedCourse->lang = $datecourse->lang;
+      $updatedCourse->category = $category;
+      $updatedCourse->sortorder = 0;
+      $updatedCourse->timemodified = time();
 
-  $DB->update_record("course",$updatedCourse);
+      $DB->update_record("course",$updatedCourse);
 
-  if ($oldCategory != $newCategory) {
+      if ($oldCategory != $newCategory) {
 
-    $DB->set_field('course_categories', 'coursecount', $oldCategory->coursecount - 1, array('id'=>$oldCategory->id));
-    $DB->set_field('course_categories', 'coursecount', $newCategory->coursecount + 1, array('id'=>$newCategory->id));
+        $DB->set_field('course_categories', 'coursecount', $oldCategory->coursecount - 1, array('id'=>$oldCategory->id));
+        $DB->set_field('course_categories', 'coursecount', $newCategory->coursecount + 1, array('id'=>$newCategory->id));
+      }
+      //enrol users from the waiting list if we find available seats
+      for ($i=0; $i < $datecourse->free_places; $i++) {
+        enrol_waiting_user($datecourse);
+      }
+
   }
-  //enrol users from the waiting list if we find available seats
-  for ($i=0; $i < $datecourse->free_places; $i++) {
-    enrol_waiting_user($datecourse);
-  }
-
+  
 }
 
 // enrols a coordinator in a course with a teacher role
@@ -474,8 +478,8 @@ function add_label($courseid, $meta) {
 
   $label = new stdClass();
   $label->course = $courseid;
-  $label->name = substr($meta->content,0, 30);
-  $label->intro = $meta->purpose;
+  $label->name = "Content of the course";
+  $label->intro = $meta->content;
   $label->introformat = 1;
   $label->timemodified = time();
 
@@ -528,7 +532,6 @@ function create_role_and_provider($provider){
     $role->sortorder = $role->sortorder->sortorder;
     ++$role->sortorder;
     try {
-
             $role_id = $DB->insert_record('role',$role);
             $role_context = new stdClass();
             $role_context->roleid = $role_id;
@@ -593,19 +596,35 @@ function check_if_not_enrolled($userid, $courseid) {
 function get_courses_in_category($category_id, $competence_id){
     global $DB;
     $courses = $DB->get_records_sql("
-        SELECT d.*, pr.provider 
+        select  distinct cde.*, da.category from {meta_datecourse} da
+        JOIN 
+        (SELECT d.*, pr.provider 
                 FROM {meta_providers} pr JOIN (
                     SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate 
                     FROM {meta_course} c 
                     LEFT JOIN {user} u on c.coordinator = u.id 
                     ORDER BY c.provider asc) d 
-                ON pr.id = d.providerid");
+                ON pr.id = d.providerid) cde
+        ON cde.id = da.metaid");
 
     $result = array();
+
     foreach ($courses as $i => $course) {
         $targets = json_decode($course->target);
-        if (in_array($category_id, $targets)) {
-            $result[$i] = $course; 
+        if ($category_id != 0 && $competence_id != 0) {
+            if (in_array($category_id, $targets) && ($course->category == $competence_id)) {
+                $result[$i] = $course; 
+            }
+        }
+        if ($category_id == 0 && $competence_id != 0) {
+            if ($course->category == $competence_id) {
+                $result[$i] = $course;
+            }
+        } 
+        if ($category_id != 0 && $competence_id == 0) {
+            if (in_array($category_id, $targets)) {
+                $result[$i] = $course;
+            }
         }
     }
 
