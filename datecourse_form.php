@@ -7,7 +7,6 @@ class datecourse_form extends moodleform {
 
     public function definition() {
         global $CFG, $DB, $PAGE, $USER;
-        $PAGE->requires->jquery();
         $PAGE->requires->js(new moodle_url('js/core.js'));
  
         $mform = $this->_form;

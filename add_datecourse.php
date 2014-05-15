@@ -33,8 +33,9 @@ $_SESSION['meta_unpublishdate'] = $_POST['unpublishdate']; //TODO: fix these pos
 $_SESSION['meta_competence'] = $_POST['competence']; //TODO: fix these posts to be secure. It's 3 am. and I don't want to fuck with moodle now.
 $_SESSION['custom_email'] = $_POST['custom_email'];
 
-$PAGE->set_context(get_system_context());
+$PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('admin');
+$PAGE->requires->jquery();
 $URL = '/moodle/blocks/metacourse/list_metacourses.php'; 
 
 if ($id == 0) {
