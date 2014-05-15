@@ -10,7 +10,7 @@ require_login();
 
 $PAGE->set_context(get_system_context());
 $PAGE->set_pagelayout('admin');
-$PAGE->requires->js(new moodle_url('/lib/jquery/jquery-1.9.1.min.js'));
+$PAGE->requires->jquery();
 $PAGE->requires->js(new moodle_url('js/core.js'));
 $URL = '/moodle/blocks/metacourse/enrol_others_into_course.php';
 
@@ -19,9 +19,6 @@ $PAGE->set_heading("Moodle Custom Courses");
 $PAGE->set_url($CFG->wwwroot."/blocks/metacourse/enrol_others_into_course.php");
 $PAGE->navbar->ignore_active();
 $PAGE->navbar->add("Enrol others", new moodle_url('/blocks/metacourse/enrol_others_into_course.php'));
-
-$PAGE->requires->js(new moodle_url('/lib/jquery/jquery-1.9.1.min.js'));
-
 
 echo $OUTPUT->header();
 //used to hide the buttons for adding new courses;

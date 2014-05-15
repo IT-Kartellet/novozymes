@@ -9,7 +9,7 @@ require_login();
 $category = optional_param("category",0,PARAM_INT);
 $competence = optional_param("competence",0,PARAM_INT);
 
-$PAGE->set_context(get_system_context());
+$PAGE->set_context(context_system::instance() );
 $PAGE->set_pagelayout('admin');
 $URL = '/moodle/blocks/metacourse/list_metacourses.php';
 
@@ -19,14 +19,14 @@ $PAGE->set_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php");
 $PAGE->navbar->ignore_active();
 $PAGE->navbar->add(get_string('frontpagecourselist'), new moodle_url('/blocks/metacourse/list_metacourses.php'));
 
-$PAGE->requires->js(new moodle_url('/lib/jquery/jquery-1.9.1.min.js'));
+$PAGE->requires->jquery();
 $PAGE->requires->js(new moodle_url('js/dataTables.js'));
 $PAGE->requires->js(new moodle_url('js/dataTables_start.js'));
 $PAGE->requires->js(new moodle_url('js/core.js'));
 
 echo $OUTPUT->header();
 //used to hide the buttons for adding new courses;
-$teacher = has_capability("moodle/course:create", get_system_context());
+$teacher = has_capability("moodle/course:create", context_system::instance() );
 
 global $DB, $USER, $PAGE, $CFG;
 

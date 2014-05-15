@@ -19,7 +19,7 @@ $PAGE->set_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id=$id");
 $PAGE->navbar->ignore_active();
 $PAGE->navbar->add(get_string("frontpagecourselist"), new moodle_url('/blocks/metacourse/list_metacourses.php'));
 $PAGE->navbar->add(get_string("viewcourse", "block_metacourse"), new moodle_url("/blocks/metacourse/view_metacourse.php?id=$id"));
-$PAGE->requires->js("/lib/jquery/jquery-1.9.1.min.js");
+$PAGE->requires->jquery();
 $PAGE->requires->js("/blocks/metacourse/js/core.js");
 $isTeacher = has_capability("moodle/course:create", get_system_context());
 

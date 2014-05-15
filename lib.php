@@ -553,7 +553,7 @@ function create_role_and_provider($provider){
 
 function check_provider_role($courseid){
     global $USER, $DB;
-    $context = get_context_instance(CONTEXT_SYSTEM);
+    $context = context_system::instance();
     $roles = get_user_roles($context, $USER->id, true);
 
     $metacourse = $DB->get_record("meta_course",array("id"=>$courseid));

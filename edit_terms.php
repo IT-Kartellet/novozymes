@@ -13,6 +13,7 @@ global $DB;
 $PAGE->set_context(get_system_context());
 $PAGE->set_pagelayout('admin');
 $PAGE->navbar->ignore_active();
+$PAGE->requires->jquery();
 $PAGE->navbar->add("List courses", new moodle_url('/blocks/metacourse/list_metacourses.php'));
 $PAGE->navbar->add("Settings", new moodle_url('/blocks/metacourse/edit_terms.php'));
 $URL = '/blocks/metacourse/list_metacourses.php';

@@ -10,9 +10,10 @@ require_capability('moodle/course:create', context_system::instance());
 
 $id = optional_param('id', 0, PARAM_INT);
 
-$PAGE->set_context(get_system_context());
+$PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('admin');
 $URL = '/moodle/blocks/metacourse/list_metacourses.php';
+$PAGE->requires->jquery();
 
 //we have to set these before starting the output
 if ($id == 0) {

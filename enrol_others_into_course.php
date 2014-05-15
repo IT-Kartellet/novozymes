@@ -10,7 +10,7 @@ require_login();
 
 $PAGE->set_context(get_system_context());
 $PAGE->set_pagelayout('admin');
-$PAGE->requires->js(new moodle_url('/lib/jquery/jquery-1.9.1.min.js'));
+$PAGE->requires->jquery();
 $PAGE->requires->js(new moodle_url('js/core.js'));
 $PAGE->requires->js(new moodle_url('js/enrol.js'));
 $URL = '/moodle/blocks/metacourse/enrol_others_into_course.php';

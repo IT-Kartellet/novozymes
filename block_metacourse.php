@@ -8,11 +8,11 @@ class block_metacourse extends block_list {
     function get_content(){
     	global $DB, $CFG, $USER, $OUTPUT, $PAGE;
     	$CFG->stylesheets[] = $CFG->wwwroot.'/blocks/metacourse/styles.css';
-        $PAGE->requires->js("/lib/jquery/jquery-1.9.1.min.js");
+        $PAGE->requires->jquery();
         $PAGE->requires->js("/blocks/metacourse/js/core.js");
 
     	$course = $this->page->course;
-        $context = get_context_instance(CONTEXT_COURSE, $course->id);
+        $context = context_course::instance( $course->id);
 
     	if ($this->content !== null) {
 	      return $this->content;

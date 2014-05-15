@@ -6,7 +6,7 @@ class metacourse_form extends moodleform {
     //Add elements to form
     public function definition() {
         global $CFG, $DB, $USER, $PAGE;
-        $PAGE->requires->js(new moodle_url('/lib/jquery/jquery-1.9.1.min.js'));
+        
         $PAGE->requires->js(new moodle_url('js/select2/select2.min.js'));
         $PAGE->requires->js(new moodle_url('js/core.js'));
 
@@ -56,7 +56,7 @@ class metacourse_form extends moodleform {
 
         
         // Ugly code to take the roles and the providers with their id.
-        $context = get_context_instance (CONTEXT_SYSTEM);
+        $context = context_system::instance();
         $roles = get_user_roles($context, $USER->id, false);
         $roles = array_map(function($role){
             if ($role->roleid != 1) {
