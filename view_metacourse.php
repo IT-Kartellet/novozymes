@@ -10,7 +10,7 @@ require_login();
 
 $id = optional_param('id', 0, PARAM_INT);
 
-$PAGE->set_context(get_system_context());
+$PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('admin');
 $URL = '/moodle/blocks/metacourse/edit_metacourse.php';
 $PAGE->set_title(get_string('viewcourse','block_metacourse'));
@@ -21,7 +21,7 @@ $PAGE->navbar->add(get_string("frontpagecourselist"), new moodle_url('/blocks/me
 $PAGE->navbar->add(get_string("viewcourse", "block_metacourse"), new moodle_url("/blocks/metacourse/view_metacourse.php?id=$id"));
 $PAGE->requires->jquery();
 $PAGE->requires->js("/blocks/metacourse/js/core.js");
-$isTeacher = has_capability("moodle/course:create", get_system_context());
+$isTeacher = has_capability("moodle/course:create", context_system::instance());
 
 echo $OUTPUT->header();
 global $DB, $USER;

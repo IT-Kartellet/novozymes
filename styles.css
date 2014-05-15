@@ -173,6 +173,11 @@ div.who_enrol {
   font-size: 1.12em;
 }
 
+#view_meta_table tr {
+  display: table-row;
+  vertical-align: inherit;
+  border-color: inherit;
+}
 #lean_overlay {
   margin: auto;
   position: absolute;
