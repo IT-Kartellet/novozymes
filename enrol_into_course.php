@@ -1,5 +1,4 @@
 <?php
-
 require_once('../../config.php');
 require_once("$CFG->libdir/enrollib.php");
 require_once("$CFG->libdir/moodlelib.php");
@@ -11,10 +10,22 @@ global $DB;
 $PAGE->set_context(get_system_context());
 
 $courseid = optional_param("courseid", 0,PARAM_INT);
+$datecourseid = optional_param("datecourseid",0, PARAM_INT);
 $userid = optional_param("userid", 0,PARAM_INT);
 $wait = optional_param("wait", 0,PARAM_INT);
 
-if ($courseid != 0 && $userid != 0) {
+if (($courseid != 0 && $userid != 0) || ($datecourseid !=0 && $userid != 0)){
+
+	if ($datecourseid!=0) {
+		$waitlist = new stdClass();
+		$waitlist->userid = $userid;
+		$waitlist->courseid = $datecourseid;
+		$waitlist->timestart = 0;
+		$waitlist->timeend = 0;
+		$waitlist->timecreated = time();
+		$waitlist->nodates = 1;
+	} else {
+
 	$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$courseid));
 	$instance = reset($instance);
 	$user = $DB->get_record("user", array("id"=>$userid));
@@ -74,8 +85,8 @@ if ($courseid != 0 && $userid != 0) {
 			$DB->insert_record("meta_tos_accept", $accept);
 		}
 	}
+}
 	
 }
 
-header("Location: " . $CFG->wwwroot."/blocks/list_metacourses.php" );
-
+redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);

@@ -84,14 +84,15 @@ class datecourse_form extends moodleform {
             $mform->setType('datecourse['. $key .'][places]', PARAM_NOTAGS);
             $mform->setType('datecourse['. $key .'][remarks]', PARAM_TEXT);
 
+            // No fields should be required. 
             // $mform->addRule('datecourse['. $key .'][places]', "Needs to be a number", 'numeric', null, 'client');
             // $mform->addRule('datecourse['. $key .'][price]', "Needs to be a number", 'numeric', null, 'client');
-            $mform->addRule('datecourse['. $key .'][places]', get_string('required'), 'required', null, 'client');
-            $mform->addRule('datecourse['. $key .'][price]', get_string('required'), 'required', null, 'client');
-            $mform->addRule('timestart['. $key .']', get_string('required'), 'required', null, 'client');
-            $mform->addRule('timeend['. $key .']', get_string('required'), 'required', null, 'client');
-            $mform->addRule('publishdate['. $key .']', get_string('required'), 'required', null, 'client');
-            $mform->addRule('startenrolment['. $key .']', get_string('required'), 'required', null, 'client');
+            //$mform->addRule('datecourse['. $key .'][places]', get_string('required'), 'required', null, 'client');
+            //$mform->addRule('datecourse['. $key .'][price]', get_string('required'), 'required', null, 'client');
+            //$mform->addRule('timestart['. $key .']', get_string('required'), 'required', null, 'client');
+            //$mform->addRule('timeend['. $key .']', get_string('required'), 'required', null, 'client');
+            //$mform->addRule('publishdate['. $key .']', get_string('required'), 'required', null, 'client');
+            //$mform->addRule('startenrolment['. $key .']', get_string('required'), 'required', null, 'client');
            
             $key++;
         }

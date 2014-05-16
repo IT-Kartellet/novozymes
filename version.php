@@ -9,6 +9,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2014041408;       // The current module version (Date: YYYYMMDDXX)
+$plugin->version   = 2014041409;       // The current module version (Date: YYYYMMDDXX)
 $plugin->requires  = 2013050100;    // Requires this Moodle version
 $plugin->component = 'block_metacourse'; // Full name of the plugin (used for diagnostics)

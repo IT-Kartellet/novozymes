@@ -80,6 +80,22 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2014041408, 'metacourse');
     }
 
+    if ($oldversion < 2014041409) {
+
+        // Define field nodates to be added to meta_waitlist.
+        $table = new xmldb_table('meta_waitlist');
+        $field = new xmldb_field('nodates', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timecreated');
+
+        // Conditionally launch add field nodates.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Label savepoint reached.
+        upgrade_block_savepoint(true, 2014041409, 'metacourse');
+    }
+
+
 
     return $result;
 }

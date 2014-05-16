@@ -270,7 +270,12 @@ if ($metacourse) {
 		$busy_places = reset($busy_places);
 		$busy_places = $busy_places->busy_places;
 
- 		$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
+		if (isset($datecourse->courseid) && @$datecourse->courseid) {
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("datecourseid"=>$datecourse->id, "userid"=>$USER->id)), "");
+		} else {
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
+		}
+ 		
  		$enrolOthers = new single_button(new moodle_url('/blocks/metacourse/enrol_others_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
  		$enrolOthers->class="enrolOthers";
  		$enrolOthers->tooltip = get_string("enrolOthers", "block_metacourse");
@@ -310,9 +315,11 @@ if ($metacourse) {
 		}
 
 		// check if the enrolment is expired
-		if ($datecourse->unpublishdate < time()) {
+		if ($datecourse->unpublishdate < time() && $datecourse->unpublishdate != 0) {
+
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "");
 			$enrolMe->disabled = true;
+			echo "aici";
 			$enrolMe->class = 'enrolMeButton';
 
 			$enrolOthers->disabled = true;
@@ -346,12 +353,12 @@ if ($metacourse) {
 ?>
 <div id='lean_background'>
 	<div id='lean_overlay'>
-		<h1><? echo get_string('tostitle','block_metacourse') ?></h1>
-        <div id='tos_content'><? echo get_string('toscontent','block_metacourse') ?></div>
+		<h1><?php echo get_string('tostitle','block_metacourse') ?></h1>
+        <div id='tos_content'><?php echo get_string('toscontent','block_metacourse') ?></div>
         <div id='cmd'>
-        	<input type='checkbox' name='accept'> <? echo get_string('tosaccept','block_metacourse') ?> <span id='waitingSpan' style='display:none'><? echo get_string('tosacceptwait','block_metacourse') ?></span>
-        	<input id='accept_enrol' type='button' name='submit' value='<? echo get_string('enrolme','enrol_self') ?>' >
-        	<input type='button' name='cancel' value='<? echo get_string('cancel') ?>' >
+        	<input type='checkbox' name='accept'><?php echo get_string('tosaccept','block_metacourse') ?> <span id='waitingSpan' style='display:none'><? echo get_string('tosacceptwait','block_metacourse') ?></span>
+        	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','enrol_self') ?>' >
+        	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>
 		<div id='lean_close'></div>
     </div>
@@ -359,12 +366,12 @@ if ($metacourse) {
 
 <div id='lean_background_unenrol'>
 	<div id='lean_overlay'>
-		<h1><? echo get_string('cancellation','block_metacourse') ?></h1>
-        <div id='tos_content'><? echo $cancellation; ?></div>
+		<h1><?php echo get_string('cancellation','block_metacourse') ?></h1>
+        <div id='tos_content'><?php echo $cancellation; ?></div>
         <div id='cmd'>
-        	<input type='checkbox' name='accept_unenrol'> <? echo get_string('agreecancel','block_metacourse') ?>
-        	<input id='accept_unenrol' type='button' name='submit' value='<? echo get_string('unenrolme','block_metacourse') ?>' >
-        	<input type='button' name='cancel' value='<? echo get_string('cancel') ?>' >
+        	<input type='checkbox' name='accept_unenrol'> <?php echo get_string('agreecancel','block_metacourse') ?>
+        	<input id='accept_unenrol' type='button' name='submit' value='<?php echo get_string('unenrolme','block_metacourse') ?>' >
+        	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>
 		<div id='lean_close'></div>
     </div>
@@ -391,7 +398,5 @@ if (!$isTeacher) {
 	} catch (Exception $e) {
 	}
 }
-
-
 
 echo $OUTPUT->footer();

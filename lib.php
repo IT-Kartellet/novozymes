@@ -473,6 +473,10 @@ function enrol_update_free_places($eventData){
   $record->free_places = $current_record->free_places - 1;
 }
 
+// function course_created_enrol_waiters($eventData){
+
+// }
+
 function add_label($courseid, $meta) {
   global $DB;
 
@@ -574,7 +578,7 @@ function check_provider_role($courseid){
 function check_if_not_enrolled($userid, $courseid) {
     global $DB;
     
-    $context = get_context_instance(CONTEXT_COURSE, $courseid);
+    $context = context_course::instance($courseid);
     @$students = $DB->get_records_sql("select u.id from user u join (select ue.* 
             from user_enrolments ue 
             join enrol e on ue.enrolid = e.id where e.courseid = :cid and ue.status = 0) a 
@@ -591,6 +595,7 @@ function check_if_not_enrolled($userid, $courseid) {
 
     return true;
 }
+
 
 
 function get_courses_in_category($category_id, $competence_id){

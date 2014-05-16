@@ -1,7 +1,7 @@
 /*fontello*/
 
 @font-face {
-  font-family: 'fontello';
+  font-family: 'fontello' !important;
   src: url('../blocks/metacourse/font/fontello.eot?37385177');
   src: url('../blocks/metacourse/font/fontello.eot?37385177#iefix') format('embedded-opentype'),
        url('../blocks/metacourse/font/fontello.woff?37385177') format('woff'),
@@ -30,7 +30,7 @@
   display: inline-block;
   text-decoration: inherit;
   width: 1em;
-  margin-right: .2em;
+  margin-right: 0.2em;
   text-align: center;
   /* opacity: .8; */
  
@@ -43,7 +43,7 @@
  
   /* Animation center compensation - margins should be symmetric */
   /* remove if not needed */
-  margin-left: .2em;
+  margin-left: 0.2em;
  
   /* you can be more comfortable with increased icons size */
   /* font-size: 120%; */
@@ -57,7 +57,7 @@
 .icon-trash:before { content: '\e802'; } /* '' */
 
 [class^="icon-"], [class*=" icon-"] {
-  background-image: none !important;
+  /*background-image: none !important;*/
 }
 div.template {
   border-bottom: 1px solid #aaa;

@@ -279,7 +279,7 @@ if ($exportExcel) {
 	$courses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id ", array("id"=> $courseid));
 
 	foreach ($courses as $key => $course) {
-		$context = get_context_instance( CONTEXT_COURSE, $course->courseid );
+		$context = context_course::instance($course->courseid);
 
 		$query = 'select u.id as id, firstname, lastname, picture, imagealt, email from {role_assignments} as a, {user} as u where contextid=' . $context->id . ' and roleid=5 and a.userid=u.id';
 		$rs = $DB->get_recordset_sql( $query ); 

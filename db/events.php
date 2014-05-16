@@ -29,5 +29,11 @@ $handlers = array(
 		'handlerfunction'=>'delete_metacourse',
 		'schedule'=>'instant',
 		'internal'=>1
+	),
+	'coursecreated'=>array(
+		'handlerfile'=>'/blocks/metacourse/lib.php',
+		'handlerfunction'=>'course_created_enrol_waiters',
+		'schedule'=>'instant',
+		'internal'=>1
 	)
 );
