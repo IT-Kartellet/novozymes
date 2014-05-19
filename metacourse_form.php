@@ -6,6 +6,8 @@ class metacourse_form extends moodleform {
     //Add elements to form
     public function definition() {
         global $CFG, $DB, $USER, $PAGE;
+		
+		$context = context_system::instance();
         
         $PAGE->requires->js(new moodle_url('js/select2/select2.min.js'));
         $PAGE->requires->js(new moodle_url('js/core.js'));
@@ -23,10 +25,7 @@ class metacourse_form extends moodleform {
                     $PAGE->requires->js(new moodle_url('js/select2/select2_locale_'.$current_language.".js"));
                     break;
             }
-
         }
-
-
 
         $mform = $this->_form;
         $data = $this->_customdata['data'];
@@ -77,7 +76,6 @@ class metacourse_form extends moodleform {
             }
         }
         $providers = array_filter($providers);
-
         
         // Get the Target groups
         $meta_cat = $DB->get_records_sql("SELECT * FROM {meta_category} order by name asc");      
@@ -124,7 +122,7 @@ class metacourse_form extends moodleform {
         $mform->addHelpButton('localname', 'localname', 'block_metacourse');
         $mform->addElement('select', 'localname_lang', 'Local language', $languages, null);
         $mform->addHelpButton('localname_lang', 'localname_lang', 'block_metacourse');
-		$mform->addElement('editor', 'purpose', 'Purpose', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+		$mform->addElement('editor', 'purpose', 'Purpose', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true, 'context' => $context));
         $mform->addHelpButton('purpose', 'purpose', 'block_metacourse');
         // $mform->addElement('select', 'target', 'Target group', $meta_cat, "multiple");
 
@@ -212,9 +210,17 @@ class metacourse_form extends moodleform {
         $this->set_data($data);
 
         $this->add_action_buttons(true, "Next");
-
-
     }
-
-    
+	
+    function data_preprocessing(&$default_values) {
+        if ($this->current->instance) {
+			$fields = array('purpose', 'content', 'cancellation', 'target_description', 'contact', 'comment');
+			foreach($fields as $field){
+				$draftitemid = file_get_submitted_draft_itemid($field);
+				$default_values[$field]['format'] = $default_values['contentformat'];
+				$default_values[$field]['text']   = file_prepare_draft_area($draftitemid, $this->context->id, 'block_metacourse', 'content', 0, page_get_editor_options($this->context), $default_values['content']);
+				$default_values[$field]['itemid'] = $draftitemid;
+			}
+        }
+	}
 }

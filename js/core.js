@@ -538,10 +538,10 @@
 		   
 	});
 
-//template
+	//template
 	$("#saveTemplate").one("click",function(e){
 		e.preventDefault();
-
+		console.log("CLICK");
 		var courseName           = $("#id_name").val();
 		var courseLocalName      = $("#id_localname").val();
 		var courseLocalNameLang  = $("#id_localname_lang").find(":selected").val();
@@ -580,7 +580,6 @@
 		  	courseContact : courseContact,
 		  	courseCoordinator : courseCoordinator,
 		  	courseProvider : courseProvider
-
 	  	  },
 	  	  success : function(e){
 				// add the template at the top in the template select
@@ -589,6 +588,7 @@
 				// $.each(providers, function(k, v){
 				//     $("select[name='providers']").append($("<option value= '" + v.id + "'>" + v.provider + "</option>"));
 				// });
+				//console.log(e);
 				alert(e);
 			},
 			error : function(err){

@@ -51,7 +51,7 @@
 		var userids = $("#addselect :selected");
 		var sendEmail = $('#sendEmail').prop('checked');
 		var user_role = $('#enrol_role :selected').val();
-		console.log(user_role);
+		//console.log(user_role);
 		userids.each(function(k, v){
 			var uid = $(v).val();
 			$.ajax({
@@ -64,7 +64,7 @@
 			  			enrolRole: user_role
 			  		},
 			  success: function(e){
-			  	console.log("SUCCESS:", e);
+			  	//console.log("SUCCESS:", e);
 			  	$(v).appendTo("#removeselect");
 			  },
 			  error: function(e){
@@ -113,7 +113,4 @@
 		$("#removeselect_searchtext").val("");
 		$( "#removeselect_searchtext" ).trigger( "keyup" );
 	});
-
-
-
 })();

@@ -60,7 +60,7 @@ if ($metacourse) {
 			$table_index = count( $table->data ) - 1;
 			$unit_index = count($table->data[$table_index]) - 1;
 			$unit = $table->data[$table_index][$unit_index];
-
+			
 			$timeunit = "";
 			switch ($course) {
 				case '1':
@@ -82,6 +82,8 @@ if ($metacourse) {
 					# code...
 					break;
 			}
+			// Remove text if course is set to 0 minutes. 
+			$timeunit = ($course < 120) ? "" : $timeunit;
 			//add the timeunit to the duration strip the s from the end of the timeunit if only one.
 			$unit .= ($unit == 1) ? " ".substr($timeunit, 0, -1) : " $timeunit";
 			$table->data[$table_index][$unit_index] = $unit;
@@ -271,7 +273,7 @@ if ($metacourse) {
 		$busy_places = $busy_places->busy_places;
 
 		if (isset($datecourse->courseid) && @$datecourse->courseid) {
-			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("datecourseid"=>$datecourse->id, "userid"=>$USER->id)), "");
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("datecourseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 		} else {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 		}
@@ -331,7 +333,7 @@ if ($metacourse) {
 			$action .= $OUTPUT->render($enrolOthers);
 		}
 		
-		if ($isTeacher && ($busy_places > 0)) {
+		if ($busy_places > 0) {
 			$date_table->data[] = array($start, $end,$location,$language,$price,$coordinator,$total_places, $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$busy_places), $action);
 			if ($datecourse->remarks) {
 				$date_table->data[] = array($datecourse->remarks, "","","","","","","","");

@@ -51,10 +51,7 @@
   /* Uncomment for 3D effect */
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
- 
-.icon-export-alt:before { content: '\e801'; } /* '' */
-.icon-cog:before { content: '\e800'; } /* '' */
-.icon-trash:before { content: '\e802'; } /* '' */
+
 
 [class^="icon-"], [class*=" icon-"] {
   /*background-image: none !important;*/
@@ -88,28 +85,28 @@ datalist {
 }
 
 div.unEnrolMeButton > form input[type='submit'] {
-  background-image: url('http://i57.tinypic.com/awuiht.png');
+  background-image: url('/blocks/metacourse/pix/awuiht.png');
   background-repeat: no-repeat;
   background-position: center;
   width: 1em;
 }
 
 div.enrolMeButton > form input[type='submit']{
-  background-image: url('http://i59.tinypic.com/255t0rb.png');
+  background-image: url('/blocks/metacourse/pix/255t0rb.png');
   background-repeat: no-repeat;
   background-position: center;
   width: 1em;
 }
 
 div.addToWaitingList > form input[type='submit']{
-  background-image: url('http://i60.tinypic.com/e16k9t.png');
+  background-image: url('/blocks/metacourse/pix/e16k9t.png');
   background-repeat: no-repeat;
   background-position: center;
   width: 1em;
 }
 
 div.enrolOthers > form input[type='submit']{
-  background-image: url('http://i59.tinypic.com/96ht85.png');
+  background-image: url('/blocks/metacourse/pix/96ht85.png');
   background-repeat: no-repeat;
   background-position: center;
   width: 1em;
@@ -371,21 +368,6 @@ div.export_course_btn input[type='submit']{
   height: 24px;
 }
 
-div.edit_course_btn input[type='submit'] {
-  background-image:("/pix/settings.png");
-  background-repeat: no-repeat;
-}
-
-div.delete_course_btn input[type='submit'] {
-  background-image:("/pix/trash.png");
-  background-repeat: no-repeat;
-}
-
-div.export_course_btn input[type='submit'] {
-  background-image:("/pix/xls.png");
-  background-repeat: no-repeat;
-}
-
 div.export_course_btn input[type='submit'], div.delete_course_btn input[type='submit'], div.edit_course_btn input[type='submit']{
   position:absolute;
   top-left:0;
@@ -398,6 +380,9 @@ div.export_course_btn input[disabled='disabled'], div.delete_course_btn input[di
 
 div.delete_course_btn, div.edit_course_btn,div.export_course_btn {
   position:relative;
+}
+div.icon-export-alt {
+	background-position: -263px 0px;
 }
 
 div.edit_course_btn,
@@ -515,12 +500,12 @@ table.dataTable thead .sorting_desc_disabled {
   cursor: pointer;
 }
 
-table.dataTable thead .sorting { background: url('../images/sort_both.png') no-repeat center right; }
-table.dataTable thead .sorting_asc { background: url('../images/sort_asc.png') no-repeat center right; }
-table.dataTable thead .sorting_desc { background: url('../images/sort_desc.png') no-repeat center right; }
+table.dataTable thead .sorting { background: url('/blocks/metacourse/pix/sort_both.png') no-repeat center right; }
+table.dataTable thead .sorting_asc { background: url('/blocks/metacourse/pix/sort_asc.png') no-repeat center right; }
+table.dataTable thead .sorting_desc { background: url('/blocks/metacourse/pix/sort_desc.png') no-repeat center right; }
 
-table.dataTable thead .sorting_asc_disabled { background: url('../images/sort_asc_disabled.png') no-repeat center right; }
-table.dataTable thead .sorting_desc_disabled { background: url('../images/sort_desc_disabled.png') no-repeat center right; }
+table.dataTable thead .sorting_asc_disabled { background: url('/blocks/metacourse/pix/sort_asc_disabled.png') no-repeat center right; }
+table.dataTable thead .sorting_desc_disabled { background: url('/blocks/metacourse/pix/sort_desc_disabled.png') no-repeat center right; }
 
 table.dataTable th:active {
   outline: none;

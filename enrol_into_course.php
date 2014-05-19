@@ -13,10 +13,11 @@ $courseid = optional_param("courseid", 0,PARAM_INT);
 $datecourseid = optional_param("datecourseid",0, PARAM_INT);
 $userid = optional_param("userid", 0,PARAM_INT);
 $wait = optional_param("wait", 0,PARAM_INT);
+$courseid = ($datecourseid != 0) ? $datecourseid : $courseid;
+$datecourseid = 0;
 
 if (($courseid != 0 && $userid != 0) || ($datecourseid !=0 && $userid != 0)){
-
-	if ($datecourseid!=0) {
+	if ($datecourseid != 0) {
 		$waitlist = new stdClass();
 		$waitlist->userid = $userid;
 		$waitlist->courseid = $datecourseid;

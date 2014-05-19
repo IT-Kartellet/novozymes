@@ -5,7 +5,6 @@ require_once('datecourse_form.php');
 require_once('lib.php');
 
 require_login();
-require_capability('moodle/course:create', context_system::instance());
 
 //users must be trusted
 $id = optional_param('id', 0, PARAM_INT);
@@ -30,16 +29,9 @@ if ($id) {
 	$datecourse = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id",array("id"=>$id));
 	$datecourse = reset($datecourse);
 	if ($datecourse) {
-		//TODO
-		$enrolled_users = $DB->get_records_sql("
-			SELECT u.username, u.firstname, u.lastname, u.email, u.city, u.country, u.lastaccess
-			FROM {role_assignments} ra, {user} u, {course} c, {context} cxt
-			WHERE ra.userid = u.id
-			AND ra.contextid = cxt.id
-			AND cxt.contextlevel =50
-			AND cxt.instanceid = c.id
-			AND c.id = :courseid
-			AND (roleid = 5)", array("courseid"=>$datecourse->courseid));
+
+		$context = CONTEXT_COURSE::instance($datecourse->courseid);
+		$enrolled_users = get_role_users(5, $context);
 
 		$table = new html_table();
 		$table->id = "meta_table";
@@ -48,9 +40,7 @@ if ($id) {
 		$table->head = array('Fullname', 'Username', 'Email', 'City', 'Country', 'Last access');
 
 		foreach ($enrolled_users as $key => $user) {
-
 			$table->data[] = array($user->firstname ." ". $user->lastname, $user->username, $user->email, $user->city, $user->country, date("j/m/Y - h:i A",$user->lastaccess));
-
 		}
 
 		echo html_writer::table($table);

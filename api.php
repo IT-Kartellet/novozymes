@@ -1,4 +1,5 @@
 <?php
+
 require_once('../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
 require_once('lib.php');
@@ -227,13 +228,7 @@ if ($deleteProvider != 0) {
 	$providers = $DB->get_records_sql("SELECT * FROM {meta_providers}");
 	echo json_encode($providers);
 }
-
-if ($saveTemplate && $coursePurpose && 
-	$courseTarget && $courseContent && 
-	$courseInstructors && $courseDurationUnit && 
-	$courseDurationNumber && $courseCoordinator && 
-	$courseProvider) {
-	
+if ($saveTemplate) {
 	try {
 		$template                 = new stdClass();
 		$template->name           = $courseName;
@@ -254,7 +249,7 @@ if ($saveTemplate && $coursePurpose &&
 		$template->coordinator    = $courseCoordinator;
 		$template->provider       = $courseProvider;
 		$template->timemodified   = time();
-
+		
 		$DB->insert_record("meta_template", $template);
 
 		echo json_encode("Course template was saved");
@@ -269,7 +264,7 @@ if ($getTemplate != 0) {
 	if ($return) {
 		echo json_encode($return);
 	} else {
-		echo json_encode("");
+		echo json_encode("1234");
 	}
 }
 
