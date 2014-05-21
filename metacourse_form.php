@@ -31,9 +31,9 @@ class metacourse_form extends moodleform {
         $data = $this->_customdata['data'];
 
         $coordinators = $DB->get_records_sql("
-            select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u where u.id <> 1 and u.deleted <> 1 and u.suspended <> 1 order by username asc
-                
+            select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u where u.id <> 1 and u.deleted <> 1 and u.suspended <> 1 AND u.email <> '' AND u.firstname <> '' ORDER BY username ASC
          ");     
+		 
         $coordinators = array_map(function ($arg){
                 return strtoupper($arg->username) . " - " . $arg->firstname . " " . $arg->lastname;
             }, $coordinators);
@@ -211,16 +211,4 @@ class metacourse_form extends moodleform {
 
         $this->add_action_buttons(true, "Next");
     }
-	
-    function data_preprocessing(&$default_values) {
-        if ($this->current->instance) {
-			$fields = array('purpose', 'content', 'cancellation', 'target_description', 'contact', 'comment');
-			foreach($fields as $field){
-				$draftitemid = file_get_submitted_draft_itemid($field);
-				$default_values[$field]['format'] = $default_values['contentformat'];
-				$default_values[$field]['text']   = file_prepare_draft_area($draftitemid, $this->context->id, 'block_metacourse', 'content', 0, page_get_editor_options($this->context), $default_values['content']);
-				$default_values[$field]['itemid'] = $draftitemid;
-			}
-        }
-	}
 }

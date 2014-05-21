@@ -9,7 +9,7 @@ require_login();
 //users must be trusted
 $id = optional_param('id', 0, PARAM_INT);
 
-$PAGE->set_context(get_system_context());
+$PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('admin');
 $PAGE->set_url($CFG->wwwroot."/blocks/metacourse/enrolled_users.php");
 $PAGE->set_title("Enrolled users");
@@ -28,10 +28,21 @@ if ($id) {
 	echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 	$datecourse = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id",array("id"=>$id));
 	$datecourse = reset($datecourse);
+	
 	if ($datecourse) {
-
 		$context = CONTEXT_COURSE::instance($datecourse->courseid);
-		$enrolled_users = get_role_users(5, $context);
+		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
+		$sql = "SELECT u.*, je.* FROM {user} u
+				JOIN ($sql) je ON je.id = u.id";
+		$course_users = $DB->get_records_sql($sql, $params );
+
+		$enrolled_users = array();
+
+		foreach($course_users as $id => $user){
+			if(user_has_role_assignment($id, 5, $context->id)){
+				$enrolled_users[$id] = $user;
+			}
+		}
 
 		$table = new html_table();
 		$table->id = "meta_table";

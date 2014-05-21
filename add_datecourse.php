@@ -3,7 +3,7 @@ require_once('../../config.php');
 require_once("$CFG->libdir/formslib.php");
 require_once('datecourse_form.php');
 require_once('lib.php');
- 
+
 require_login();
 require_capability('moodle/course:create', context_system::instance());
 

@@ -105,7 +105,7 @@ class datecourse_form extends moodleform {
 
         $this->add_action_buttons(true, "Save");
 
-        if ($data = $this->_customdata['data']) {
+        if ($data = $this->_customdata['data']) {		
             $awesomeData = new stdClass();
 
             $horribleCounter = 0; // he doesn't eat his vegetables

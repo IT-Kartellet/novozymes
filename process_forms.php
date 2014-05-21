@@ -7,12 +7,11 @@ require_once("$CFG->libdir/modinfolib.php");
 require_once('datecourse_form.php');
 require_once('lib.php');
 
+$context = context_system::instance();
 require_login();
-require_capability('moodle/course:create', context_system::instance());
-
+require_capability('moodle/course:create', $context);
  
-$PAGE->set_context(get_system_context());
-
+$PAGE->set_context($context);
 $metaid = $_SESSION['meta_id'];
 $name = $_SESSION['meta_name'];
 $localname = $_SESSION['meta_localname'];
@@ -77,6 +76,12 @@ $meta->coordinator = $coordinator;
 $meta->provider = $provider;
 $meta->unpublishdate = date_timestamp_get(date_create($umt));
 $meta->timemodified = time();
+
+// Here is code associated with saving draft files
+if(!empty($purpose['itemid'])){
+	$draftitemid = $purpose['itemid'];
+	$meta->purpose = file_save_draft_area_files($draftitemid, $context->id, 'block_metacourse', 'purpose', 0, 		array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true, 'context' => $context), $purpose['text']);
+}
 
 //if we are editing
 if ($metaid) {
@@ -249,14 +254,13 @@ foreach ($datecourses as $key => $course) {
 			// update the datecourse with the course id
 			$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
 			if ($meta->coordinator!=0) {
-				// add_coordinator($meta->coordinator, $created_courseid);
+				 add_coordinator($meta->coordinator, $created_courseid);
 			}
-			// add_coordinator($dc->coordinator, $created_courseid);
+			add_coordinator($dc->coordinator, $created_courseid);
 
 			//add the label with the description
 			add_label($created_courseid, $meta);
 		}
-
 	}
 	//remove them from the session
  	unset($_SESSION['meta_id']);
@@ -280,8 +284,4 @@ foreach ($datecourses as $key => $course) {
 
 	purge_all_caches();
 }
-
-
-
-
 header("Location: " . $CFG->wwwroot."/blocks/metacourse/list_metacourses.php" );

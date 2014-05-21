@@ -7,7 +7,7 @@ require_once($CFG->dirroot . '/' . $CFG->admin . '/roles/lib.php');
 
 require_login();
 
-$PAGE->set_context(get_system_context());
+$PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('admin');
 $PAGE->requires->jquery();
 $PAGE->requires->js(new moodle_url('js/core.js'));
@@ -40,12 +40,19 @@ echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 // $users = $DB->get_records_sql("select e.id, a.canenrol, a.canbeenrolled, e.firstname, e.lastname from {meta_allow_enrol} a join {user} e on canbeenrolled = e.id where canenrol = :id", array("id"=>$USER->id));
 $users= $DB->get_records_sql("SELECT id, firstname, lastname, username, email from {user} where id <> :guest and deleted <> 1 AND email IS NOT NULL AND firstname IS NOT NULL AND email <> '' AND firstname <> '' ORDER BY username ASC", array("guest"=>1));
 
-//die(var_dump(count($users)));
 $context = CONTEXT_COURSE::instance($courseid);
-$enrolled_users = get_role_users(5, $context);
+list($sql, $params) = get_enrolled_sql($context, '', 0, true);
+$sql = "SELECT u.*, je.* FROM {user} u
+		JOIN ($sql) je ON je.id = u.id";
+$course_users = $DB->get_records_sql($sql, $params );
 
-foreach($enrolled_users as $id => $user){
-	unset($users[$id]);
+$enrolled_users = array();
+
+foreach($course_users as $id => $user){
+	if(user_has_role_assignment($id, 5, $context->id)){
+		$enrolled_users[$id] = $user;
+		unset($users[$id]);
+	}
 }
 
 $not_enrolled_users = $users;
@@ -102,7 +109,7 @@ echo html_writer::end_tag('div');
 
 echo $OUTPUT->footer();
 
-function output_users_for_enrolment($users, $add = false, $teacher){
+function output_users_for_enrolment($users, $add = false, $teacher = false){
 	global $USER;
 	if ($add) {
 		echo "<div class='userselector' id='add_select_wrapper' >";

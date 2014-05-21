@@ -73,7 +73,6 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 
 if ($unenrolGuy && $enrolCourse) {
 	try {
-
 		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
 		$instance = reset($instance);
 		$user = $DB->get_record("user", array("id"=>$unenrolGuy));

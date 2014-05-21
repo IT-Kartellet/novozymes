@@ -55,7 +55,6 @@ if ($id == 0) {
 		$toform = $mform->get_data();
 		$mform->set_data(null);
 		$mform->display();
-
 	}
 } else {
 	// EDIT
@@ -64,7 +63,7 @@ if ($id == 0) {
 	if (!check_provider_role($id)) {
 		die("Access denied!");
 	}
-
+	
 	$mform = new metacourse_form("add_datecourse.php");
 	
 	$meta = $DB->get_record("meta_course" ,array("id"=>$id));
@@ -104,22 +103,20 @@ if ($id == 0) {
 	$data->duration['number'] = $meta->duration || 0;
 	$data->duration['timeunit'] = $meta->duration_unit;
 	$data->unpublishdate = $meta->unpublishdate;
-
 	// get the competence from the dates and use it here
 	$one_date = $DB->get_records("meta_datecourse", array("metaid"=>$id));
 	$one_date = reset($one_date);
 	$data->competence = $one_date->category;
-
+	
 	$mform->set_data($data);
 
 	if ($mform->is_cancelled()) {
 	  	redirect($URL, 'Your action was canceled!');
 
 	} else if ($fromform = $mform->get_data()) {
-		
+	
 	} else {
 		//if data not valid
-
 		$toform = $mform->get_data();
 		$mform->set_data(null);
 		$mform->display();
@@ -127,5 +124,4 @@ if ($id == 0) {
 	}
 	// redirect($CFG->wwwroot ."/blocks/metacourse/add_metacourse.php", 'Course not found!');
 }
-
 echo $OUTPUT->footer();

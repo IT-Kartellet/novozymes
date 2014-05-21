@@ -118,7 +118,6 @@ if ($metacourse) {
 			} else {
 				$course = "None";
 			}
-			
 		}
 
 		//format from unix timestamp to human readable
@@ -128,7 +127,11 @@ if ($metacourse) {
 
 		switch ($key) {
 			case 'purpose':
+				$context = context_system::instance();
+				$course = file_rewrite_pluginfile_urls($course, 'pluginfile.php',
+				$context->id, 'block_metacourse', 'purpose', 0);
 				$key = get_string('purpose','block_metacourse');
+				
 				break;
 			case 'target':
 				$key = get_string('target','block_metacourse');
@@ -291,18 +294,12 @@ if ($metacourse) {
 				$enrolOthers->disabled = true;
 			}
 		}
-
 		/// if the user is already enrolled add the unenrol button
-		// $coursecontext = context_course::instance($datecourse->courseid);
-		$course_students = $DB->get_records_sql("
-			SELECT u.id FROM {user} u 
-			JOIN {user_enrolments} ue ON ue.userid = u.`id`
-			JOIN {enrol} e ON ue.enrolid = e.id 
-			AND e.courseid = :courseid 
-			AND ue.status = 0 
-			AND u.id <> 1 
-			AND u.deleted = 0 
-			AND u.suspended = 0", array("courseid"=>$datecourse->courseid));
+		$context = CONTEXT_COURSE::instance($datecourse->courseid);
+		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
+		$sql = "SELECT u.* FROM {user} u
+				JOIN ($sql) je ON je.id = u.id";
+		$course_students = $DB->get_records_sql($sql, $params );
 
 		$course_students = array_map(function($arg){
 			return $arg->id;

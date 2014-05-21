@@ -8,28 +8,22 @@ require_once('lib.php');
 require_login();
 
 global $DB;
-$PAGE->set_context(get_system_context());
+$PAGE->set_context(context_system::instance());
 
 $courseid = optional_param("courseid", 0,PARAM_INT);
 $userid = optional_param("userid", 0,PARAM_INT);
-
-
 
 if ($courseid != 0 && $userid != 0) {
 	$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$courseid));
 	$instance = reset($instance);
 	$user = $DB->get_record("user", array("id"=>$userid));
-
  
-// 	//check if on waiting list
-// 	//delete from waiting list
+ 	//check if on waiting list
+ 	//delete from waiting list
 	//TODO
-
-// 	//disable enrolment
+ 	//disable enrolment
 	$DB->set_field("user_enrolments", "status", 1, array("enrolid"=>$instance->id, "userid"=>$userid));
-
-
-	}
-	
-header("Location: " . $CFG->wwwroot."/" );
-
+	$enrol = new enrol_manual_pluginITK();
+	$enrol->sendUnenrolMail($userid, $courseid);
+}
+redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been unenrolled", 5);
