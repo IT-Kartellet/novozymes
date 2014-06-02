@@ -51,14 +51,13 @@ $enrolled_users = array();
 foreach($course_users as $id => $user){
 	if(user_has_role_assignment($id, 5, $context->id)){
 		$enrolled_users[$id] = $user;
-		unset($users[$id]);
+		//unset($users[$id]);
 	}
 }
 
 $not_enrolled_users = $users;
 
 ?>
-
 <span>Select user role: &nbsp; </span>
 <select name="user_role_enrol" id="enrol_role">
 	<option value="student" id='enrol_student'>Employee</option>

@@ -202,7 +202,6 @@ if ($metacourse) {
 	echo html_writer::tag('h1', get_string('coursedates','block_metacourse'), array('id' => 'course_header', 'class' => 'main'));
 	$datecourses = $DB->get_records_sql("SELECT d.*, c.currency FROM {meta_datecourse} d join {meta_currencies} c on d.currencyid=c.id where metaid = :id", array("id"=>$id));
 
-
 	// sort datecourses after date
 	$ads = usort($datecourses, function($d1, $d2){
 		if ($d1->startdate == $d2->startdate) {
@@ -226,16 +225,19 @@ if ($metacourse) {
 								get_string('signup', 'block_metacourse')
 							);
 	foreach ($datecourses as $key => $datecourse) {
-
 		if (!$isTeacher) {
 			// if not published skip it.
 			if ($datecourse->publishdate > time()) {
+			
 				continue;
 			}
 			// you can't be added anymore
 			if ($datecourse->startdate < time()) {
 				continue;
 			}
+		}
+		if(is_null($datecourse->courseid)){
+			continue;
 		}
 		// get coordinator
 		$cor = $DB->get_records_sql("SELECT username FROM {user} where id = :id", array("id"=>$datecourse->coordinator));
@@ -265,15 +267,22 @@ if ($metacourse) {
 		}
 
 		$total_places =$datecourse->total_places;
-		$busy_places = $DB->get_records_sql("
-			select count(ra.id) as busy_places from {role_assignments} ra
-			join
-			(select co.id as contextid from {course} c
-				join {context} co on c.id=co.instanceid where c.id = :cid) b
-			on b.contextid = ra.contextid
-			where ra.roleid = 5", array("cid"=>$datecourse->courseid));
-		$busy_places = reset($busy_places);
-		$busy_places = $busy_places->busy_places;
+		
+		$context = CONTEXT_COURSE::instance($datecourse->courseid);
+		
+		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
+		$sql = "SELECT u.*, je.* FROM {user} u
+				JOIN ($sql) je ON je.id = u.id";
+		$course_users = $DB->get_records_sql($sql, $params );
+
+		$enrolled_users = array();
+
+		foreach($course_users as $uid => $user){
+			if(user_has_role_assignment($uid, 5, $context->id)){
+				$enrolled_users[$uid] = $user;
+			}
+		}
+		$busy_places = count($enrolled_users);
 
 		if (isset($datecourse->courseid) && @$datecourse->courseid) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("datecourseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
@@ -308,7 +317,7 @@ if ($metacourse) {
 		if (in_array($USER->id, $course_students)) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'unEnrolMeButton';
-			$enrolMe->tooltip = get_string("unenrolme", "block_metacourse");
+			$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");
 		} else {
 			$enrolMe->class = 'enrolMeButton';
 		}
@@ -369,15 +378,13 @@ if ($metacourse) {
         <div id='tos_content'><?php echo $cancellation; ?></div>
         <div id='cmd'>
         	<input type='checkbox' name='accept_unenrol'> <?php echo get_string('agreecancel','block_metacourse') ?>
-        	<input id='accept_unenrol' type='button' name='submit' value='<?php echo get_string('unenrolme','block_metacourse') ?>' >
+        	<input id='accept_unenrol' type='button' name='submit' 'title'='unenrol' value='<?php echo get_string('unenrolme','block_metacourse') ?>' >
         	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>
 		<div id='lean_close'></div>
     </div>
 </div>
-	
 <?php
-
 }
 
 if (!$isTeacher) {
@@ -391,7 +398,6 @@ if (!$isTeacher) {
 	$log_record->action = 'view';
 	$log_record->url = "view_metacourse.php?id=$id";
 	$log_record->info = 1;
-
 	try {
 		$DB->insert_record('log',$log_record);
 	} catch (Exception $e) {

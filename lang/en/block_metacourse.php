@@ -18,6 +18,7 @@ $string['signup'] = 'Sign up';
 $string['enrolme'] = 'Enrol me'; 
 $string['enrolOthers'] = 'Enrol others'; 
 $string['unenrolme'] = 'Confirm'; 
+$string['unenrolmebutton'] = 'Cancel my signup'; 
 $string['customemail'] = 'Custom email'; 
 $string['competence'] = 'Competence'; 
 $string['listofcourses'] = "List of all courses";

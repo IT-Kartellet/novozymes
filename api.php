@@ -4,7 +4,6 @@ require_once('../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
 require_once('lib.php');
 
-
 require_login();
 // require_capability('moodle/course:create', context_system::instance());
 
@@ -56,10 +55,19 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 	try {
 		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
 		$instance = reset($instance);
+		
+		if(!$instance){
+		  $enrolManual = enrol_get_plugin('manual');
+		  $course = $DB->get_record('course', array('id' => $enrolCourse));
+		  $instance = $enrolManual->add_default_instance($course);
+		  $instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
+		  $instance = reset($instance);
+		}
+		
 		$enrol = new enrol_manual_pluginITK();
 		$role = ($enrolRole == 'teacher') ? 3 : 5;
-		$enrol->enrol_user($instance, $enrolGuy, $role);
 		$enrolUser = $DB->get_record("user", array("id"=>$enrolGuy));
+		$enrol->enrol_user($instance, $enrolGuy, $role);
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
 		if ($sendEmail) {
 			$enrol->send_confirmation_email($enrolUser, $enrolCourse);

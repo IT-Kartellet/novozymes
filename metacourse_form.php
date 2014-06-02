@@ -136,27 +136,35 @@ class metacourse_form extends moodleform {
         }
         $this->add_checkbox_controller(1);
         $mform->addElement('html',"</div></div>");
-
         // == end checkbox target
-        // $mform->addHelpButton('target', 'target', 'block_metacourse');
+        
         $mform->addElement('editor', 'target_description', 'Target description', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addHelpButton('target_description', 'target_description', 'block_metacourse');
+		
 		$mform->addElement('editor', 'content', 'Content', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addHelpButton('content', 'content', 'block_metacourse');
-        $mform->addElement('text', 'instructors', 'Instructors');
+        
+		$mform->addElement('text', 'instructors', 'Instructors');
         $mform->addHelpButton('instructors', 'instructors', 'block_metacourse');
-        // $mform->addElement('text', 'comment', 'Comment');
+        
+		
         $mform->addElement('editor', 'comment', 'Comment', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addHelpButton('comment', 'comment', 'block_metacourse');
-        // $mform->addElement('text', 'duration', 'Duration (days)');
+       
         $mform->addElement('duration', 'duration', "Duration");
-        $mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+		$mform->setDefault('duration', 1);
+        
+		$mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addHelpButton('cancellation', 'cancellation', 'block_metacourse');
-        $mform->addElement('editor', 'lodging', 'Course Location & Lodging',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
-        $mform->addElement('editor', 'contact', "Course owner",null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
-        $mform->addElement('checkbox', 'multipledates', get_string('multipledates', 'block_metacourse'));
+        
+		$mform->addElement('editor', 'lodging', 'Course Location & Lodging',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        
+		$mform->addElement('editor', 'contact', "Course owner",null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        
+		$mform->addElement('checkbox', 'multipledates', get_string('multipledates', 'block_metacourse'));
         $mform->addHelpButton('multipledates', 'multipledates', 'block_metacourse');
-        $mform->addElement('editor', 'multiple_dates', 'Multiple Dates',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+        
+		$mform->addElement('editor', 'multiple_dates', 'Multiple Dates',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
 
         $mform->addElement('checkbox', 'customemail', get_string('customemail', 'block_metacourse'));
         $mform->addHelpButton('customemail', 'customemail', 'block_metacourse');

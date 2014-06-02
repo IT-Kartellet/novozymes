@@ -10,30 +10,35 @@ require_once('lib.php');
 $context = context_system::instance();
 require_login();
 require_capability('moodle/course:create', $context);
- 
 $PAGE->set_context($context);
-$metaid = $_SESSION['meta_id'];
-$name = $_SESSION['meta_name'];
-$localname = $_SESSION['meta_localname'];
-$localname_lang = $_SESSION['meta_localname_lang'];
-$purpose = $_SESSION['meta_purpose'];
-$target = $_SESSION['meta_target'];
-$targetgroup = $_SESSION['meta_targetgroup'];
-$target_description = $_SESSION['meta_target_description'];
-$content = $_SESSION['meta_content'];
-$instructors = $_SESSION['meta_instructors'];
-$comment = $_SESSION['meta_comment'];
-$duration = $_SESSION['meta_duration'];
-$cancellation = $_SESSION['meta_cancellation'];
-$lodging = $_SESSION['meta_lodging'];
-$contact = $_SESSION['meta_contact'];
-$multiple_dates = $_SESSION['meta_multiple_dates'];
-$coordinator = $_SESSION['meta_coordinator'];
-$provider = $_SESSION['meta_provider'];
-$competence = $_SESSION["meta_competence"];
+
+//Get all info about meta course.
+$meta = optional_param('meta',"",PARAM_RAW);
+$meta = unserialize($meta);
+
+$metaid = $meta['meta_id'];
+$name = $meta['meta_name'];
+$localname = $meta['meta_localname'];
+$localname_lang = $meta['meta_localname_lang'];
+$purpose = $meta['meta_purpose'];
+$target = $meta['meta_target'];
+$targetgroup = $meta['meta_targetgroup'];
+$target_description = $meta['meta_target_description'];
+$content = $meta['meta_content'];
+$instructors = $meta['meta_instructors'];
+$comment = $meta['meta_comment'];
+$duration = $meta['meta_duration'];
+$cancellation = $meta['meta_cancellation'];
+$lodging = $meta['meta_lodging'];
+$contact = $meta['meta_contact'];
+$multiple_dates = $meta['meta_multiple_dates'];
+$coordinator = $meta['meta_coordinator'];
+$provider = $meta['meta_provider'];
+$competence = $meta['meta_competence'];
 
 //TODO: find a smarter and sober method to transform these dates into unix timestamp
-$unpublish_meta = $_SESSION['meta_unpublishdate'];
+$unpublish_meta = $meta['meta_unpublishdate'];
+
 $unpublish_meta_time = array(	"day"=>$unpublish_meta['day'],
 								"month"=>$unpublish_meta['month'],
 								"year"=>$unpublish_meta['year'],
@@ -44,8 +49,6 @@ $umt .= " " . $unpublish_meta_time['hour'] . ":" . $unpublish_meta_time['minute'
 
 global $DB;
 
-//TODO: fix these posts. Moodle fucks with me now.
-// supress the warning, in case they are not defined we will add a course for the waitlist
 $datecourses = @$_POST['datecourse'];
 $timestarts = @$_POST['timestart'];
 $timeends = @$_POST['timeend'];
@@ -77,22 +80,9 @@ $meta->provider = $provider;
 $meta->unpublishdate = date_timestamp_get(date_create($umt));
 $meta->timemodified = time();
 
-// Here is code associated with saving draft files
-if(!empty($purpose['itemid'])){
-	$draftitemid = $purpose['itemid'];
-	$meta->purpose = file_save_draft_area_files($draftitemid, $context->id, 'block_metacourse', 'purpose', 0, 		array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true, 'context' => $context), $purpose['text']);
-}
-
 //if we are editing
 if ($metaid) {
 	$DB->update_record('meta_course',$meta);
-	// foreach ($custom_emails as $lang => $email) {
-	// 	$em = new stdClass();
-	// 	$em->id = $metaid;
-	// 	$em->lang = $lang;
-	// 	$em->text = $email['text'];
-	// 	$DB->update_record("meta_custom_emails", $em);
-	// }
 } else {
 	$metaid = $DB->insert_record('meta_course', $meta);
 	// add the custom emails
@@ -105,19 +95,14 @@ if ($metaid) {
 	}
 }
 
-
 foreach ($datecourses as $key => $course) {
-
 	//TODO:// delete course
-
 	$dc = new stdClass();
 	if (is_null($course['location']) && is_null($course['language'])) {
-		
 		$toDeleteCourse = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id", array("id"=>$course['id']));
 		$toDeleteCourse = reset($toDeleteCourse);
 
 		delete_course($toDeleteCourse->courseid, false);
-
 		continue;
 	}
 
@@ -148,7 +133,6 @@ foreach ($datecourses as $key => $course) {
 		$dc->remarks = $course['remarks'];
 
 	} else{
-
 		$starttime = array(	"day"=>$timestarts[$key]['day'],
 							"month"=>$timestarts[$key]['month'],
 							"year"=>$timestarts[$key]['year'],
@@ -226,21 +210,34 @@ foreach ($datecourses as $key => $course) {
 
 	//if we have id we update on old one
 	if (@$dc->id) {
+		if(@is_null($dc->courseid)){
+			$courseName = $meta->name."-".$dc->lang."-".$dc->id;
+			//echo $courseName."\n";
+			if($mCourse = $DB->get_record('course', array('fullname' => $courseName))){
+				$dc->courseid = $mCourse->id;
+				//echo $dc->courseid;
+			}else{
+				$created_courseid = create_new_course($courseName,$courseName, $competence, $dc->startdate, $meta->content);
+				$dc->courseid = $created_courseid;
+				//echo $dc->courseid;
+			}
+		}
 		$DB->update_record('meta_datecourse', $dc);
 		$dc = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id",array("id"=>$dc->id));
 		$dc = reset($dc);
-		
-		update_meta_course($metaid,$dc, $competence);
+
+		update_meta_course($metaid, $dc, $competence);
 		$updatedCourseId = $DB->get_record('meta_datecourse', array('id'=>$dc->id));
-		if ($meta->coordinator!=0) {
-			// add_coordinator($meta->coordinator, $updatedCourseId->courseid);	
+		//var_dump($updatedCourseId);
+		if ($meta->coordinator != 0) {
+		//	 add_coordinator($meta->coordinator, $updatedCourseId->courseid);	
 		}
-		// add_coordinator($dc->coordinator, $updatedCourseId->courseid);
+		//add_coordinator($dc->coordinator, $updatedCourseId->courseid);
 
 		//go and add people from the waiting list
 	} else {
 		// else insert and create new courses
-
+		
 		$datecourseid = $DB->insert_record('meta_datecourse', $dc);
 		//create the course
 		if ($dc->open == 1) {
@@ -262,26 +259,6 @@ foreach ($datecourses as $key => $course) {
 			add_label($created_courseid, $meta);
 		}
 	}
-	//remove them from the session
- 	unset($_SESSION['meta_id']);
-	unset($_SESSION['meta_name']);
-	unset($_SESSION['meta_localname']);
-	unset($_SESSION['meta_localname_lang']);
-	unset($_SESSION['meta_purpose']);
-	unset($_SESSION['meta_target']);
-	unset($_SESSION['meta_content']);
-	unset($_SESSION['meta_target_description']);
-	unset($_SESSION['meta_cancellation']);
-	unset($_SESSION['meta_lodging']);
-	unset($_SESSION['meta_contact']);
-	unset($_SESSION['meta_instructors']);
-	unset($_SESSION['meta_comment']);
-	unset($_SESSION['meta_multiple_dates']);
-	unset($_SESSION['meta_duration']);
-	unset($_SESSION['meta_coordinator']);
-	unset($_SESSION['meta_provider']);
-
-
-	purge_all_caches();
+	//purge_all_caches();
 }
-header("Location: " . $CFG->wwwroot."/blocks/metacourse/list_metacourses.php" );
+redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've course has been saved", 5);

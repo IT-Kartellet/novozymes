@@ -10,12 +10,19 @@ class datecourse_form extends moodleform {
         $PAGE->requires->js(new moodle_url('js/core.js'));
  
         $mform = $this->_form;
-        $numberOfDates = ($this->_customdata['dateCourseNr'])? $this->_customdata['dateCourseNr'] : 1;
+		
+		//Add all meta-info and send it through.
+		$mform->addElement('hidden','meta', $this->_customdata['meta']);
+		$mform->setType('meta', PARAM_RAW);
+		
+        @$numberOfDates = ($this->_customdata['dateCourseNr'])? $this->_customdata['dateCourseNr'] : 1;
+		
         //get locations from the database
         $locations = $DB->get_records_sql("SELECT * FROM {meta_locations} order by location asc");        
         $locations = array_map(function ($arg){
                 return $arg->location;
             }, $locations);
+			
         //create the language select
         $languages = $DB->get_records_sql("SELECT * FROM {meta_languages} where active = :active order by language",array("active"=>1));
         $languages = array_map(function($lang){
@@ -30,7 +37,6 @@ class datecourse_form extends moodleform {
                 array_filter($languages);
             }
         }
-
         $languages = $ordered_languages + $languages;
 
         $countries = $DB->get_records_sql("SELECT * FROM {meta_countries} ");
@@ -98,14 +104,13 @@ class datecourse_form extends moodleform {
         }
         unset($key);
 
-
         $mform->addElement('html',"</div>");
         $mform->addElement('html',"<input type='button' id='addDateCourse' value='Add another date'>");
         // $mform->addElement('html',"<input type='button' id='removeDateCourse' value='Remove date'>");
 
         $this->add_action_buttons(true, "Save");
 
-        if ($data = $this->_customdata['data']) {		
+        if (@$data = $this->_customdata['data']) {		
             $awesomeData = new stdClass();
 
             $horribleCounter = 0; // he doesn't eat his vegetables
@@ -133,11 +138,5 @@ class datecourse_form extends moodleform {
         } else {
             $this->set_data(null);
         }
-
-
-
     }
-
-
-
 }

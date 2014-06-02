@@ -343,6 +343,10 @@ div.who_enrol {
   padding-top:10px;
 }
 
+#meta_table th.header {
+	padding-left: 8px;
+}
+
 div.edit_course_btn input[type='submit']:hover,
 div.delete_course_btn input[type='submit']:hover,
 div.export_course_btn input[type='submit']:hover,
@@ -1294,4 +1298,5 @@ disabled look for disabled choices in the results dropdown
     display: none;
   }
 }
+
 

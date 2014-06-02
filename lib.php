@@ -11,7 +11,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $site = get_site();
     $course = $DB->get_record("course", array("id" => $courseid));
 	$user = $DB->get_record("user", array("id" => $userid));
-    $supportuser = core_user::get_support_user();
+    //$supportuser = core_user::get_support_user();
 
     $data = new stdClass();
     $data->firstname = fullname($user);
@@ -29,13 +29,13 @@ class enrol_manual_pluginITK extends enrol_plugin {
       ", array("cid"=>$courseid));
     $teacherCC = reset($teacherCC);
 
-	$datecourse = $DB->get_record_sql("SELECT d.*, c.currency, l.location as loc FROM {meta_datecourse} d JOIN {meta_currencies} c on d.currencyid=c.id JOIN {meta_locations} l ON d.location = l.id where courseid = :id", array("id"=>$course->id));
+	$datecourse = $DB->get_record_sql("SELECT d.*, c.currency, l.location as loc, m.name as metaname FROM {meta_datecourse} d JOIN {meta_currencies} c on d.currencyid=c.id JOIN {meta_locations} l ON d.location = l.id JOIN {meta_course} m ON d.metaid = m.id where courseid = :id", array("id"=>$course->id));
 
     $a = new stdClass();
     $a->username = $username;
 	$a->firstname = $user->firstname;
 	$a->lastname = $user->lastname;
-    $a->course = $course->fullname;
+    $a->course = $datecourse->metaname;
 	$a->department = $user->department;
 	$a->periodfrom = date("d M Y - h:i A",$datecourse->startdate);
 	$a->periodto = date("d M Y - h:i A",$datecourse->enddate);
@@ -50,13 +50,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
 
     $user->mailformat = 0;  // Always send HTML version as well
-
-    $teacherCC = $DB->get_records_sql("
-      SELECT u.email from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
-      ", array("cid"=>$courseid));
-    $teacherCC = reset($teacherCC);
 	
-    $result =  $this->send_enrolment_email($user, $supportuser, $subject, $message, $messagehtml, $teacherCC->email);
+    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email);
     return $result;
   }
 
@@ -65,6 +60,9 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
     $site = get_site();
     $course = $DB->get_record("course",array("id"=>$courseid));
+	if(is_int($user)){
+		$user = $DB->get_record("user",array("id"=>$user));
+	}
     $supportuser = core_user::get_support_user();
 
     $data = new stdClass();
@@ -83,13 +81,13 @@ class enrol_manual_pluginITK extends enrol_plugin {
       ", array("cid"=>$courseid));
     $teacherCC = reset($teacherCC);
 
-	$datecourse = $DB->get_record_sql("SELECT d.*, c.currency, l.location as loc FROM {meta_datecourse} d JOIN {meta_currencies} c on d.currencyid=c.id JOIN {meta_locations} l ON d.location = l.id where courseid = :id", array("id"=>$course->id));
+	$datecourse = $DB->get_record_sql("SELECT d.*, c.currency, l.location as loc, m.name as metaname FROM {meta_datecourse} d JOIN {meta_currencies} c on d.currencyid=c.id JOIN {meta_locations} l ON d.location = l.id JOIN {meta_course} m ON d.metaid = m.id where courseid = :id", array("id"=>$course->id));
 
     $a = new stdClass();
     $a->username = $username;
 	$a->firstname = $user->firstname;
 	$a->lastname = $user->lastname;
-    $a->course = $course->fullname;
+    $a->course = $datecourse->metaname;
 	$a->department = $user->department;
 	$a->periodfrom = date("d M Y - h:i A",$datecourse->startdate);
 	$a->periodto = date("d M Y - h:i A",$datecourse->enddate);
@@ -104,11 +102,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
 
     $user->mailformat = 0;  // Always send HTML version as well
-
-    $teacherCC = $DB->get_records_sql("
-      SELECT u.email from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
-      ", array("cid"=>$courseid));
-    $teacherCC = reset($teacherCC);
 	
     //iCal
     $ical = new iCalendar;
@@ -140,7 +133,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     }
     // calendar_add_icalendar_event($ev, $course->id);
     //end iCal
-    $result =  $this->send_enrolment_email($user, $supportuser, $subject, $message, $messagehtml, $teacherCC->email, $file, "event.ics");
+    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email, $file, "event.ics");
     unlink($file);
     return $result;
   }
@@ -381,7 +374,11 @@ function create_new_course($fullname, $shortname, $categoryid, $startdate = 0 , 
   $course->visible = 1;
 
   $courseid = $DB->insert_record('course', $course);
+  $course->id = $courseid;
 
+  $enrolManual = enrol_get_plugin('manual');
+  $instance = $enrolManual->add_default_instance($course);
+  
   $category->coursecount++;
   $DB->update_record('course_categories', $category);
 
@@ -393,12 +390,13 @@ function update_meta_course($metaid, $datecourse, $category){
   
   // if we have a date, and an actual course for it.
   if ($datecourse->courseid) {
-      $meta = $DB->get_record("meta_course",array("id"=>$metaid));
+	
+      $meta = $DB->get_record("meta_course", array("id" => $metaid));
 
       $course = $DB->get_record("course",array("id"=>$datecourse->courseid));
 
       $oldCategory = $DB->get_record('course_categories', array('id'=>$course->category), '*', MUST_EXIST);
-      $newCategory = $DB->get_record('course_categories', array('id'=>$category), '*', MUST_EXIST);
+      $newCategory = $DB->get_record('course_categories', array('id'=> $category ), '*', MUST_EXIST);
 
       //TODO: fix the naming and the category
       $updatedCourse = new stdClass();
@@ -420,7 +418,7 @@ function update_meta_course($metaid, $datecourse, $category){
       }
       //enrol users from the waiting list if we find available seats
       for ($i=0; $i < $datecourse->free_places; $i++) {
-        enrol_waiting_user($datecourse);
+        //enrol_waiting_user($datecourse);
       }
 
   }  
@@ -477,16 +475,21 @@ function enrol_waiting_user($eventData){
 
   //if there is anyone on the waiting list...
   if ($user) {
-    $instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$eventData->courseid));
+    $instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual', 'courseid' => $eventData->courseid));
     $instance = reset($instance);
-
     $enrolPlugin = new enrol_manual_pluginITK();
+	
+	if(!$instance){
+	  $enrolManual = enrol_get_plugin('manual');
+	  $course = $DB->get_record('course', array('id' => $eventData->courseid));
+	  $instance = $enrolManual->add_default_instance($course);
+	}
 
     $enrolPlugin->enrol_user($instance, $user->userid, 5);
 
     $full_user = $DB->get_record("user",array("id"=>$user->userid));
     $enrolPlugin->send_confirmation_email($full_user, $instance->courseid);
-    $DB->delete_records('meta_waitlist',array('courseid'=>$instance->courseid,'userid'=>$user->userid));
+    $DB->delete_records('meta_waitlist', array('courseid'=> $instance->courseid, 'userid' => $user->userid));
   }
 }
 

@@ -94,13 +94,12 @@ if ($id == 0) {
 	}
 	// moodle fucks with this
 	echo "<script> var itk_targets = ". json_encode($data->targetgroup) ."</script>";
-
 	$data->comment = array("text"=>$meta->comment);
 	$data->multiple_dates = array("text"=>$meta->multiple_dates);
 	$data->multipledates = 1;
 	$data->coordinator = $meta->coordinator;
 	$data->provider = $meta->provider;
-	$data->duration['number'] = $meta->duration || 0;
+	$data->duration['number'] = (int) $meta->duration;
 	$data->duration['timeunit'] = $meta->duration_unit;
 	$data->unpublishdate = $meta->unpublishdate;
 	// get the competence from the dates and use it here
