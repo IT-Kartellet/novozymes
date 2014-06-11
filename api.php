@@ -56,6 +56,27 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
 		$instance = reset($instance);
 		
+		$datecourse = $DB->get_record('meta_datecourse', array('courseid' => $enrolCourse));
+		
+		$context = CONTEXT_COURSE::instance($enrolCourse);
+		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
+		$sql = "SELECT u.*, je.* FROM {user} u
+				JOIN ($sql) je ON je.id = u.id";
+		$course_users = $DB->get_records_sql($sql, $params );
+		$enrolled_users = array();
+
+		foreach($course_users as $id => $user){
+			if(user_has_role_assignment($id, 5, $context->id)){
+				$enrolled_users[$id] = $user;
+				//unset($users[$id]);
+			}
+		}
+		
+		if($datecourse->total_places <=  count($enrolled_users)){
+			echo json_encode("full");
+			return;
+		}
+		
 		if(!$instance){
 		  $enrolManual = enrol_get_plugin('manual');
 		  $course = $DB->get_record('course', array('id' => $enrolCourse));
@@ -205,6 +226,7 @@ if ($deleteMeta) {
 
 	//delete courses
 	foreach ($datecourses as $key => $dc) {
+		add_to_log($dc->courseid, 'metacourse', 'Delete datecourse', '', "Metacourse: $deleteMeta", 0, $USER->id);
 		delete_course($dc->courseid, false);
 	}
 	try{
@@ -214,7 +236,7 @@ if ($deleteMeta) {
 		//delete metacourses
 		$DB->delete_records("meta_course",array("id"=>$deleteMeta));
 		//delete logs
-		$DB->delete_records("log",array("module"=>"metacourse", "url"=>"view_metacourse.php?id=$deleteMeta"));
+		//$DB->delete_records("log",array("module"=>"metacourse", "url"=>"view_metacourse.php?id=$deleteMeta"));
 	} catch(Exception $e){
 		//courses have already been deleted by the delete_course hook.
 	}

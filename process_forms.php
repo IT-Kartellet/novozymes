@@ -47,7 +47,7 @@ $unpublish_meta_time = array(	"day"=>$unpublish_meta['day'],
 $umt = implode("-",array($unpublish_meta_time['year'], $unpublish_meta_time['month'], $unpublish_meta_time['day']));
 $umt .= " " . $unpublish_meta_time['hour'] . ":" . $unpublish_meta_time['minute'] . ":00";
 
-global $DB;
+global $DB, $USER;
 
 $datecourses = @$_POST['datecourse'];
 $timestarts = @$_POST['timestart'];
@@ -107,7 +107,7 @@ foreach ($datecourses as $key => $course) {
 	}
 
 	//if we are editing
-	if ($course['id']) {
+	if (@$course['id']) {
 		$dc->id = $course['id'];
 	}
 	$dc->metaid = $metaid;
@@ -261,4 +261,5 @@ foreach ($datecourses as $key => $course) {
 	}
 	//purge_all_caches();
 }
+add_to_log(1, 'metacourse', 'Saved metacourse', '', $name, 0, $USER->id);
 redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've course has been saved", 5);

@@ -21,6 +21,18 @@
 }
 */
  
+ .mform .fitem .felement {
+	margin: 0px !important;
+ }
+  .mform .fitem .fdate_time_selector select{
+	max-width: 120px !important;
+ }
+ .mform .fitem div.fitemtitle {
+	max-width: 200px;
+	width: 170px !important;
+	text-align: left !important;
+ }
+ 
  [class^="icon-"]:before, [class*=" icon-"]:before {
   font-family: "fontello";
   font-style: normal;

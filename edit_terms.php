@@ -6,8 +6,8 @@ require_once('tos_form.php');
 require_once('lib.php');
 
 require_login();
-require_capability('moodle/course:create', context_system::instance());
 
+require_capability('moodle/site:config', context_system::instance());
 
 global $DB;
 $PAGE->set_context(get_system_context());
@@ -65,6 +65,3 @@ if ($mform->is_cancelled()) {
 }
 
 echo $OUTPUT->footer();
-
-
-

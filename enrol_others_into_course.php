@@ -5,6 +5,8 @@ require_once("$CFG->libdir/tablelib.php");
 require_once("$CFG->libdir/moodlelib.php");
 require_once($CFG->dirroot . '/' . $CFG->admin . '/roles/lib.php');
 
+global $DB, $USER, $PAGE, $CFG;
+
 require_login();
 
 $PAGE->set_context(context_system::instance());
@@ -15,6 +17,8 @@ $PAGE->requires->js(new moodle_url('js/enrol.js'));
 $URL = '/moodle/blocks/metacourse/enrol_others_into_course.php';
 
 $courseid = optional_param("courseid",0,PARAM_INT);
+
+add_to_log($courseid, 'metacourse', 'enrol others', $URL, '', 0, $USER->id);
 
 $PAGE->set_title("Enrol others");
 $PAGE->set_heading("Moodle Custom Courses");
@@ -30,8 +34,6 @@ echo $OUTPUT->header();
 
 //used to hide the buttons for adding new courses;
 $teacher = has_capability("moodle/course:create", context_system::instance());
-
-global $DB, $USER, $PAGE, $CFG;
 
 echo html_writer::tag('h1', "Enrol others", array('id' => 'course_header', 'class' => 'main'));
 echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
@@ -51,7 +53,7 @@ $enrolled_users = array();
 foreach($course_users as $id => $user){
 	if(user_has_role_assignment($id, 5, $context->id)){
 		$enrolled_users[$id] = $user;
-		//unset($users[$id]);
+		unset($users[$id]);
 	}
 }
 

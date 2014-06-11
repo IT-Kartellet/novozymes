@@ -327,7 +327,6 @@ if ($metacourse) {
 
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "");
 			$enrolMe->disabled = true;
-			echo "aici";
 			$enrolMe->class = 'enrolMeButton';
 
 			$enrolOthers->disabled = true;

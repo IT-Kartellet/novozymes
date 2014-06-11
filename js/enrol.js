@@ -1,9 +1,7 @@
 (function(){
-	var users = $("#addselect option");
-	var enrolled_users = $("#removeselect option");
-
 	// add input search
 	$("#addselect_searchtext").on("change keyup", function(){
+		var users = $("#addselect option");
 		var filter = $("#addselect_searchtext").val();
 		if (filter == "") {
 			$("#addselect option").remove();
@@ -15,7 +13,7 @@
 					// users.splice(i, 1);
 					filtered_users.push(users[i]);
 				};
-			};
+			};	
 
 			$("#addselect option").remove();
 			$("#addselect").append($(filtered_users));
@@ -25,6 +23,7 @@
 
 	// remove input search
 	$("#removeselect_searchtext").on("change keyup", function(){
+		var enrolled_users = $("#removeselect option");
 		var filter = $("#removeselect_searchtext").val();
 		if (filter == "") {
 			$("#removeselect option").remove();
@@ -64,6 +63,10 @@
 			  			enrolRole: user_role
 			  		},
 			  success: function(e){
+				if(e == "full"){
+					//alert("Course is full and user is not enrolled");
+					//location.reload();
+				}
 			  	//console.log("SUCCESS:", e);
 			  	$(v).appendTo("#removeselect");
 			  },
@@ -71,7 +74,7 @@
 			  	// console.log("ERROR:", e);
 			  }
 			});
-			// console.log("user:", uid, "course:", courseid);
+			 //console.log("user:", uid, "course:", courseid);
 		});
 		// location.reload();
 		return false;

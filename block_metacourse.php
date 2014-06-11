@@ -22,9 +22,7 @@ class block_metacourse extends block_list {
 	 	$this->content->items  = array();
 	 	$this->content->icons  = array();
     
-        $this->content->items[] = html_writer::tag('a',"Grow", array('href'=>'/blocks/metacourse/list_metacourses.php'));
-
-        
+        $this->content->items[] = html_writer::tag('a',"Grow", array('href'=>'/blocks/metacourse/list_metacourses.php'));    
 
 	    return $this->content;
     }
