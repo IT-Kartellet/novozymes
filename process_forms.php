@@ -63,6 +63,7 @@ $meta->name = $name;
 $meta->localname = $localname;
 $iso_lang = $DB->get_record("meta_languages",array('id'=>$localname_lang));
 $meta->localname_lang = $iso_lang->iso;
+
 $meta->purpose = $purpose['text'];
 $meta->target = json_encode(array_keys(array_filter($targetgroup)));
 $meta->target_description = $target_description['text'];
@@ -85,6 +86,7 @@ if ($metaid) {
 	$DB->update_record('meta_course',$meta);
 } else {
 	$metaid = $DB->insert_record('meta_course', $meta);
+	$meta->id = $metaid;
 	// add the custom emails
 	foreach ($custom_emails as $lang => $email) {
 		$em = new stdClass();
@@ -93,6 +95,39 @@ if ($metaid) {
 		$em->text = $email['text'];
 		$DB->insert_record("meta_custom_emails", $em);
 	}
+}
+
+// Save draft area files from all input
+$changed = false;
+foreach (array(
+	'purpose',
+	'target_description',
+	'content',
+	'comment',
+	'cancellation',
+	'lodging'
+) as $input) {
+	$field = $$input;
+	$text = $field['text'];
+
+	$matches = array();
+	if (preg_match('/\/user\/draft\/([0-9]*)\//', $text, $matches)) {
+		$changed = true;
+		$draftid = $matches[1];
+		$meta->{$input} = file_save_draft_area_files(
+		        $draftid, 
+        		$context->id, 
+		        'block_metacourse',
+        		$input, 
+	       		$metaid, 
+		        array('subdirs'=>true), 
+        		$text
+		);
+	}
+}
+
+if ($changed) {
+	$DB->update_record('meta_course', $meta);
 }
 
 foreach ($datecourses as $key => $course) {
