@@ -3,6 +3,21 @@
 require_once($CFG->dirroot.'/calendar/lib.php');
 require_once($CFG->libdir.'/bennu/bennu.inc.php');
 
+
+function block_metacourse_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
+	$fs = get_file_storage();
+
+	$filename = array_pop($args);
+	$itemid = array_pop($args);
+	if (!$file = $fs->get_file($context->id, 'block_metacourse', $filearea, $itemid, '/', $filename) or $file->is_directory()) {
+		send_file_not_found();
+	}
+
+	send_stored_file($file, null, 0, true);
+
+	
+}
+
 class enrol_manual_pluginITK extends enrol_plugin {
 
   public function sendUnenrolMail($userid, $courseid){

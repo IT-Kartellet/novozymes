@@ -129,7 +129,7 @@ if ($metacourse) {
 			case 'purpose':
 				$context = context_system::instance();
 				$course = file_rewrite_pluginfile_urls($course, 'pluginfile.php',
-				$context->id, 'block_metacourse', 'purpose', 0);
+				$context->id, 'block_metacourse', 'purpose', $id);
 				$key = get_string('purpose','block_metacourse');
 				
 				break;
@@ -144,25 +144,45 @@ if ($metacourse) {
 				$course = $targets;
 				break;
 			case 'target_description':
+				$context = context_system::instance();
+                                $course = file_rewrite_pluginfile_urls($course, 'pluginfile.php',
+                                $context->id, 'block_metacourse', 'target_description', $id);
+
 				$key = get_string("target_description", "block_metacourse");
 				break;
 			case 'content':
+				$context = context_system::instance();
+                                $course = file_rewrite_pluginfile_urls($course, 'pluginfile.php',
+                                $context->id, 'block_metacourse', 'content', $id);
+
 				$key = get_string('content','block_metacourse');
 				break;
 			case 'instructors':
 				$key = get_string('instructors','block_metacourse');
 				break;
 			case 'comment':
+				$context = context_system::instance();
+                                $course = file_rewrite_pluginfile_urls($course, 'pluginfile.php',
+                                $context->id, 'block_metacourse', 'comment', $id);
+
 				$key = get_string('comment','block_metacourse');
 				break;	
 			case 'duration':
 				$key = get_string('duration','block_metacourse');
 				break;
 			case 'cancellation':
+				$context = context_system::instance();
+                                $course = file_rewrite_pluginfile_urls($course, 'pluginfile.php',
+                                $context->id, 'block_metacourse', 'cancellation', $id);
+
 				$key = get_string('cancellation','block_metacourse');
 				$cancellation = $course;
 				break;
 			case 'lodging':
+				$context = context_system::instance();
+                                $course = file_rewrite_pluginfile_urls($course, 'pluginfile.php',
+                                $context->id, 'block_metacourse', 'lodging', $id);
+
 				$key = get_string('lodging','block_metacourse');
 				break;
 			case 'coordinator':
