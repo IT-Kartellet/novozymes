@@ -68,6 +68,22 @@ if ($id == 0) {
 	
 	$meta = $DB->get_record("meta_course" ,array("id"=>$id));
 
+	// Rewrite from @@PLUGINFILE to an actual link
+	$context = context_system::instance();
+	foreach (array(
+	        'purpose',
+        	'target_description',
+	        'content',
+        	'comment',
+	        'cancellation',
+        	'lodging'
+	) as $input) {
+	        $text = $meta->{$input};
+
+		$meta->{$input} = file_rewrite_pluginfile_urls($text, 'pluginfile.php',
+                                $context->id, 'block_metacourse', $input, $meta->id);
+	}
+
 	$data = new stdClass();
 	$data->id = $id;
 	$data->name = $meta->name;
