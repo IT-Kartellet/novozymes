@@ -111,7 +111,7 @@ foreach ($datecourses as $key => $course) {
 		$dc->id = $course['id'];
 	}
 	$dc->metaid = $metaid;
-
+	
 	if(is_null($timestarts[$key]['day'])){
 		$dc->startdate = 0;
 		$dc->enddate = 0;
@@ -147,7 +147,7 @@ foreach ($datecourses as $key => $course) {
 							"minute"=>$timeends[$key]['minute']
 		 );
 
-		$publishtime = array(	"day"=>$publishdate[$key]['day'],
+		$publishtime = array("day"=>$publishdate[$key]['day'],
 							"month"=>$publishdate[$key]['month'],
 							"year"=>$publishdate[$key]['year'],
 							"hour"=>$publishdate[$key]['hour'],

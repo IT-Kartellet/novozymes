@@ -144,7 +144,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
     if (empty($user) || empty($user->email)) {
         $nulluser = 'User is null or has no email';
-        error_log($nulluser);
+        
         if (CLI_SCRIPT) {
             mtrace('Error: lib/moodlelib.php email_to_user(): '.$nulluser);
         }
@@ -390,7 +390,6 @@ function update_meta_course($metaid, $datecourse, $category){
   
   // if we have a date, and an actual course for it.
   if ($datecourse->courseid) {
-	
       $meta = $DB->get_record("meta_course", array("id" => $metaid));
 
       $course = $DB->get_record("course",array("id"=>$datecourse->courseid));
