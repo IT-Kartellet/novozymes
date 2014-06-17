@@ -1,7 +1,10 @@
 (function(){
+	var users = $("#addselect option");
+	var enrolled_users = $("#removeselect option");
+	
 	// add input search
 	$("#addselect_searchtext").on("change keyup", function(){
-		var users = $("#addselect option");
+	
 		var filter = $("#addselect_searchtext").val();
 		if (filter == "") {
 			$("#addselect option").remove();
@@ -23,7 +26,7 @@
 
 	// remove input search
 	$("#removeselect_searchtext").on("change keyup", function(){
-		var enrolled_users = $("#removeselect option");
+	
 		var filter = $("#removeselect_searchtext").val();
 		if (filter == "") {
 			$("#removeselect option").remove();
@@ -69,6 +72,10 @@
 				}
 			  	//console.log("SUCCESS:", e);
 			  	$(v).appendTo("#removeselect");
+				users = users.filter(function (i, value) {
+					return $(value).val() !== uid;
+				});
+				enrolled_users.push(v);
 			  },
 			  error: function(e){
 			  	// console.log("ERROR:", e);
@@ -96,6 +103,10 @@
 			  success: function(e){
 			  	// console.log("uid:", uid, "courseid:", courseid, "---", e);
 			  	$(v).appendTo("#addselect");
+				enrolled_users = enrolled_users.filter(function (i, value) {
+					return $(value).val() !== uid;
+				});
+				users.push(v);
 			  },
 			  error: function(e){
 			  	// console.log("uid:", uid, "courseid:", courseid, "---", e);

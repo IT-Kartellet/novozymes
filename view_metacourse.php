@@ -323,7 +323,7 @@ if ($metacourse) {
 				$enrolOthers->disabled = true;
 			}
 		}
-		/// if the user is already enrolled add the unenrol button
+		// if the user is already enrolled add the unenrol button
 		$context = CONTEXT_COURSE::instance($datecourse->courseid);
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
 		$sql = "SELECT u.* FROM {user} u

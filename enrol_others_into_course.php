@@ -40,7 +40,7 @@ echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 
 // select only the ones that allow you;
 // $users = $DB->get_records_sql("select e.id, a.canenrol, a.canbeenrolled, e.firstname, e.lastname from {meta_allow_enrol} a join {user} e on canbeenrolled = e.id where canenrol = :id", array("id"=>$USER->id));
-$users= $DB->get_records_sql("SELECT id, firstname, lastname, username, email from {user} where id <> :guest and deleted <> 1 AND email IS NOT NULL AND firstname IS NOT NULL AND email <> '' AND firstname <> '' ORDER BY username ASC", array("guest"=>1));
+$users= $DB->get_records_sql("SELECT id, firstname, lastname, username, email from {user} where id <> :guest and deleted <> 1 AND firstname IS NOT NULL AND firstname <> '' ORDER BY username ASC", array("guest"=>1));
 
 $context = CONTEXT_COURSE::instance($courseid);
 list($sql, $params) = get_enrolled_sql($context, '', 0, true);

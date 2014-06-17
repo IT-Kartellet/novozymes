@@ -39,7 +39,7 @@ $competence = $meta['meta_competence'];
 //TODO: find a smarter and sober method to transform these dates into unix timestamp
 $unpublish_meta = $meta['meta_unpublishdate'];
 
-$unpublish_meta_time = array(	"day"=>$unpublish_meta['day'],
+$unpublish_meta_time = array("day"=>$unpublish_meta['day'],
 								"month"=>$unpublish_meta['month'],
 								"year"=>$unpublish_meta['year'],
 								"hour"=>$unpublish_meta['hour'],
@@ -83,7 +83,7 @@ $meta->timemodified = time();
 
 //if we are editing
 if ($metaid) {
-	$DB->update_record('meta_course',$meta);
+	$DB->update_record('meta_course', $meta);
 } else {
 	$metaid = $DB->insert_record('meta_course', $meta);
 	$meta->id = $metaid;
@@ -148,6 +148,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->metaid = $metaid;
 	
 	if(is_null($timestarts[$key]['day'])){
+		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "We experienced an error when saving the course. Please try again.", 5);
 		$dc->startdate = 0;
 		$dc->enddate = 0;
 		$dc->publishdate = 0;
@@ -168,14 +169,14 @@ foreach ($datecourses as $key => $course) {
 		$dc->remarks = $course['remarks'];
 
 	} else{
-		$starttime = array(	"day"=>$timestarts[$key]['day'],
+		$starttime = array("day"=>$timestarts[$key]['day'],
 							"month"=>$timestarts[$key]['month'],
 							"year"=>$timestarts[$key]['year'],
 							"hour"=>$timestarts[$key]['hour'],
 							"minute"=>$timestarts[$key]['minute']
 		 );
 
-		$endtime = array(	"day"=>$timeends[$key]['day'],
+		$endtime = array("day"=>$timeends[$key]['day'],
 							"month"=>$timeends[$key]['month'],
 							"year"=>$timeends[$key]['year'],
 							"hour"=>$timeends[$key]['hour'],
@@ -188,7 +189,7 @@ foreach ($datecourses as $key => $course) {
 							"hour"=>$publishdate[$key]['hour'],
 							"minute"=>$publishdate[$key]['minute']
 		 );
-		$unpublishtime = array(	"day"=>$unpublishdate[$key]['day'],
+		$unpublishtime = array("day"=>$unpublishdate[$key]['day'],
 							"month"=>$unpublishdate[$key]['month'],
 							"year"=>$unpublishdate[$key]['year'],
 							"hour"=>$unpublishdate[$key]['hour'],

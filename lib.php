@@ -617,7 +617,6 @@ function create_role_and_provider($provider){
     } catch (Exception $e) {
         echo json_encode($e);
     }
-
 }
 
 
