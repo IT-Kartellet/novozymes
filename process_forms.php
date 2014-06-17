@@ -142,6 +142,12 @@ foreach ($datecourses as $key => $course) {
 	}
 
 	//if we are editing
+	if (@$course['courseid']) {
+		$dc->courseid = $course['courseid'];
+	}
+
+	
+	//if we are editing
 	if (@$course['id']) {
 		$dc->id = $course['id'];
 	}
@@ -277,6 +283,7 @@ foreach ($datecourses as $key => $course) {
 		$datecourseid = $DB->insert_record('meta_datecourse', $dc);
 		//create the course
 		if ($dc->open == 1) {
+		
 			$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
 
 			$created_courseid = create_new_course($courseName,$courseName, $competence, $dc->startdate, $meta->content);
@@ -286,7 +293,8 @@ foreach ($datecourses as $key => $course) {
 
 			// update the datecourse with the course id
 			$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
-			if ($meta->coordinator!=0) {
+			
+			if ($meta->coordinator == 0) {
 				 add_coordinator($meta->coordinator, $created_courseid);
 			}
 			add_coordinator($dc->coordinator, $created_courseid);

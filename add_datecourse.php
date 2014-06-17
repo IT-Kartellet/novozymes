@@ -86,9 +86,8 @@ if ($id == 0) {
 
 	$datecourses = $DB->get_records_sql("SELECT d.*, c.category FROM {meta_datecourse} d left join {course} c on c.id = d.courseid WHERE metaid = :metaid ORDER BY d.id ASC", array("metaid"=>$id));
 	$datecourseNr = count($datecourses);
-
+	
 	$uselessCounter = 0;
-
 	$mform = new datecourse_form("process_forms.php", array('dateCourseNr'=>$datecourseNr, "data"=>$datecourses, 'meta' => serialize($meta)));
 
 	$mform->set_data($datecourses);
