@@ -279,7 +279,7 @@ if ($metacourse) {
 		$lang = $DB->get_record('meta_languages', array ('id'=> $datecourse->lang), 'language');
 		$language =$lang->language;
 		$price = str_replace(array(".",","), '', $datecourse->price);
-		$price = number_format($price);
+		$price = $price;
 		$price .= " " . $datecourse->currency;
 		@$coordinator = strtoupper($cor->username);
 		if (strlen($coordinator)<2) {

@@ -66,7 +66,8 @@ class datecourse_form extends moodleform {
             $mform->addElement('html',"<div class='template'>");
             $mform->addElement('hidden','datecourse['. $key .'][id]', '0');
 			$mform->addElement('hidden','datecourse['. $key .'][courseid]', '0');
-            $mform->addElement('html',"<input type='button' id='removeDateCourse' title='Remove date' value='X'>");
+			$mform->addElement('hidden','datecourse['. $key .'][deleted]', '0');
+            $mform->addElement('html',"<input type='button' id='removeDateCourse' title='Remove date' value='X' class='$key'>");
             $mform->addElement('date_time_selector', 'timestart['. $key .']', "Start", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, "id"=>"timestart"),array("class"=>"timestart"));
             $mform->addElement('date_time_selector', 'timeend['. $key .']', "End", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false),array("class"=>"timeend"));
             $mform->addElement('select', 'datecourse['. $key .'][location]', 'Location', $locations, array("class"=>"location"));
@@ -88,6 +89,7 @@ class datecourse_form extends moodleform {
 
             $mform->setType('datecourse['. $key .'][id]', PARAM_INT);
 			$mform->setType('datecourse['. $key .'][courseid]', PARAM_INT);
+			$mform->setType('datecourse['. $key .'][deleted]', PARAM_INT);
             $mform->setType('datecourse['. $key .'][price]', PARAM_NOTAGS);
             $mform->setType('datecourse['. $key .'][places]', PARAM_NOTAGS);
             $mform->setType('datecourse['. $key .'][remarks]', PARAM_TEXT);

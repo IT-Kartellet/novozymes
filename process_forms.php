@@ -131,13 +131,11 @@ if ($changed) {
 }
 
 foreach ($datecourses as $key => $course) {
-	//TODO:// delete course
-	$dc = new stdClass();
-	if (is_null($course['location']) && is_null($course['language'])) {
-		$toDeleteCourse = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id", array("id"=>$course['id']));
-		$toDeleteCourse = reset($toDeleteCourse);
 
-		delete_course($toDeleteCourse->courseid, false);
+	// Delete a datecourse, which is the same as a Moodle-course. 
+	$dc = new stdClass();
+	if ($course['deleted'] == 1 && $course['courseid'] != 0) {
+		delete_course($course['courseid'], false);
 		continue;
 	}
 
@@ -145,7 +143,6 @@ foreach ($datecourses as $key => $course) {
 	if (@$course['courseid']) {
 		$dc->courseid = $course['courseid'];
 	}
-
 	
 	//if we are editing
 	if (@$course['id']) {
@@ -306,4 +303,4 @@ foreach ($datecourses as $key => $course) {
 	//purge_all_caches();
 }
 add_to_log(1, 'metacourse', 'Saved metacourse', '', $name, 0, $USER->id);
-redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've course has been saved", 5);
+redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id=".$metaid), "You've course has been saved", 5);

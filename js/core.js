@@ -145,53 +145,10 @@
 		var x;
 		var r=confirm("Are you sure you want to remove this date? This could remove course files and data if the course already started.");
 		if (r==true){
-
-			$(this).parent(".template").remove();
-			var templates = $(".template");
-			var count = templates.length;
-
-			$.each(templates, function( index, t ) {
-				var victim = $(t);
-
-				var timestarts = victim.find("select[name*='timestart']");
-				var timeends = victim.find("select[name*='timeend']");
-				var publishdates = victim.find("select[name*='publishdate']");
-				var startenrolments = victim.find("select[name*='startenrolment']");
-				var unpublishdates = victim.find("select[name*='unpublishdate']");
-
-				$.each(timestarts, function(itimestart, timestart){
-					timestart.name = timestart.name.replace(/(\[\d\])/g, "[" + index + "]");
-				});
-
-				$.each(timeends, function(itimestart, timeend){
-					timeend.name = timeend.name.replace(/(\[\d\])/g, "[" + index + "]");
-				});
-
-				$.each(publishdates, function(itimestart, publishdate){
-					publishdate.name = publishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
-				});
-
-				$.each(startenrolments, function(itimestart, startenrolment){
-					startenrolment.name = startenrolment.name.replace(/(\[\d\])/g, "[" + index + "]");
-				});
-
-				$.each(unpublishdates, function(itimestart, unpublishdate){
-					unpublishdate.name = unpublishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
-				});
-
-				victim.find("select.location").attr("name", "datecourse[" + index + "][location]");
-				victim.find("select.country").attr("name", "datecourse[" + index + "][country]");
-				victim.find("select.language").attr("name", "datecourse[" + index + "][language]");
-				victim.find("select.coordinator").attr("name", "datecourse[" + index + "][coordinator]");
-
-
-				victim.find("input.price").attr("name", "datecourse[" + index + "][price]");
-				victim.find("input[name='datecourse[" + (index-1) + "][id]']").attr("name", "datecourse[" + index + "][id]");
-				victim.find("input.noPlaces").attr("name", "datecourse[" + index + "][places]");
-				victim.find("select.category").attr("name", "datecourse[" + index + "][category]");
-				victim.find("select.currency").attr("name", "datecourse[" + index + "][currency]");
-
-			});
+			$(this).parent(".template").hide();
+			
+			var index = $(this).attr('class');
+			$("input[name='datecourse["+ $(this).attr('class') +"][deleted]']").val(1);
 		}
 		
 	});
