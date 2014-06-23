@@ -168,12 +168,13 @@ class metacourse_form extends moodleform {
 
         $mform->addElement('checkbox', 'customemail', get_string('customemail', 'block_metacourse'));
         $mform->addHelpButton('customemail', 'customemail', 'block_metacourse');
+		
         $active_languages = $DB->get_records_sql("SELECT * FROM {meta_languages} where active = 1");
-
 
         foreach ($active_languages as $lang) {
             if ($lang->active == 1) {
-                $mform->addElement('editor', 'custom_email['.$lang->id."]", 'Email - ' . $lang->language,null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+                $mform->addElement('editor', 'custom_email['.$lang->id."]", 'Email - ' . $lang->language ,null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
+				$mform->setDefault('custom_email['.$lang->id.']', array("text" => get_string_manager()->get_string('emailconf', 'block_metacourse', array(), $lang->iso)));
             }
         }
 
