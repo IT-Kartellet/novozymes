@@ -73,15 +73,15 @@
 		//used to duplicate the datecourses;
 
 		var course = $("div.template").last().clone(true, true);
-		course.find("select").val("0");
-		course.find("input").not("#removeDateCourse").val("");
+		//course.find("select").val("0");
+		//course.find("input").not("#removeDateCourse").val("");
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
 		var index = $('.template').length - 1;
 
 		// todo: refactor
 		victim.find('input').not("#removeDateCourse").val("");
-		victim.find('select').val("0");
+		//victim.find('select').val("0");
 		var timestarts = victim.find("select[name*='timestart']");
 		var timeends = victim.find("select[name*='timeend']");
 		var publishdates = victim.find("select[name*='publishdate']");
@@ -124,14 +124,19 @@
 		// update dates
 
 		var today = new Date();
+		
 		var dd = today.getDate();
+		var m = 0;
+		var h = 0; 
+		var mm = today.getMonth()+1; 
 		var mm = today.getMonth()+1; 
 		var yyyy = today.getFullYear();
-
+		
+		victim.find("select[name*='minutes']").val(m);
+		victim.find("select[name*='hour']").val(h);
 		victim.find("select[name*='day']").val(dd);
 		victim.find("select[name*='month']").val(mm);
 		victim.find("select[name*='year']").val(yyyy);
-
 
 	});
 	

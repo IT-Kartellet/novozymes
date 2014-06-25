@@ -108,7 +108,10 @@ class datecourse_form extends moodleform {
 			$mform->addRule('datecourse['. $key .'][location]', get_string('required'), 'required', null, 'client');
 			$mform->addRule('datecourse['. $key .'][coordinator]', get_string('required'), 'required', null, 'client');
 			$mform->addRule('datecourse['. $key .'][country]', get_string('required'), 'required', null, 'client');
-           
+         
+			$mform->addRule('datecourse['. $key .'][timestart]', "Can't be 0", 'nonzero', null, 'client');
+			$mform->addRule('datecourse['. $key .'][timeend]', "Can't be 0", 'nonzero', null, 'client');
+		 
             $key++;
         }
         unset($key);
@@ -126,8 +129,8 @@ class datecourse_form extends moodleform {
             foreach ($data as $key => $dc) {
                 $awesomeData->{'datecourse['. $horribleCounter .'][id]'} = $dc->id;
 				$awesomeData->{'datecourse['. $horribleCounter .'][courseid]'} = $dc->courseid;
-                $awesomeData->{'datecourse['. $horribleCounter .'][timestart]'} = $dc->startdate;
-                $awesomeData->{'datecourse['. $horribleCounter .'][timeend]'} = $dc->enddate;
+				$awesomeData->{'datecourse['. $horribleCounter .'][timestart]'} = ($dc->startdate == 0) ? time() : $dc->startdate;
+                $awesomeData->{'datecourse['. $horribleCounter .'][timeend]'} = ($dc->enddate == 0) ? time() : $dc->enddate;
                 $awesomeData->{'datecourse['. $horribleCounter .'][publishdate]'} = $dc->publishdate;
                 $awesomeData->{'datecourse['. $horribleCounter .'][unpublishdate]'} = $dc->unpublishdate;
                 $awesomeData->{'datecourse['. $horribleCounter .'][startenrolment]'} = $dc->startenrolment;
@@ -148,5 +151,13 @@ class datecourse_form extends moodleform {
         } else {
             $this->set_data(null);
         }
+    }
+	// Perform some extra moodle validation
+    function validation($data, $files) {
+	
+        $errors= array();
+		$errors = parent::validation($data, $files);
+		
+        return $errors;
     }
 }
