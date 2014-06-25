@@ -83,7 +83,7 @@ if ($metacourse) {
 					break;
 			}
 			// Remove text if course is set to 0 minutes. 
-			$timeunit = ($course < 120) ? "" : $timeunit;
+			$timeunit = ($unit <= 0) ? "" : $timeunit;
 			//add the timeunit to the duration strip the s from the end of the timeunit if only one.
 			$unit .= ($unit == 1) ? " ".substr($timeunit, 0, -1) : " $timeunit";
 			$table->data[$table_index][$unit_index] = $unit;

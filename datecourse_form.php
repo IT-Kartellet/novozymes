@@ -127,6 +127,7 @@ class datecourse_form extends moodleform {
 
             $horribleCounter = 0; // he doesn't eat his vegetables
             foreach ($data as $key => $dc) {
+				
                 $awesomeData->{'datecourse['. $horribleCounter .'][id]'} = $dc->id;
 				$awesomeData->{'datecourse['. $horribleCounter .'][courseid]'} = $dc->courseid;
 				$awesomeData->{'datecourse['. $horribleCounter .'][timestart]'} = ($dc->startdate == 0) ? time() : $dc->startdate;
@@ -142,6 +143,7 @@ class datecourse_form extends moodleform {
                 $awesomeData->{'datecourse['. $horribleCounter .'][currency]'} = $dc->currencyid;
                 $awesomeData->{'datecourse['. $horribleCounter .'][places]'} = $dc->total_places;
                 $awesomeData->{'datecourse['. $horribleCounter .'][coordinator]'} = $dc->coordinator;
+				//var_dump($awesomeData->{'datecourse['. $horribleCounter .'][timeend]'});
 
                 $horribleCounter++;
             }

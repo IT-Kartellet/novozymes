@@ -126,9 +126,12 @@ if ($changed) {
 }
 
 foreach ($datecourses as $key => $course) {
+	if(!isset($course['timestart'])){
+		var_dump($course);
+	}
 	// Delete a datecourse, which is the same as a Moodle-course. 
 	$dc = new stdClass();
-	if ($course['deleted'] == 1 && $course['courseid'] != 0) {
+	if (@$course['deleted'] == 1 && $course['courseid'] != 0) {
 		delete_course($course['courseid'], false);
 		continue;
 	}

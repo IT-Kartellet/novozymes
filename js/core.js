@@ -89,23 +89,23 @@
 		var unpublishdates = victim.find("select[name*='unpublishdate']");
 
 		$.each(timestarts, function(itimestart, timestart){
-			timestart.name = timestart.name.replace(/(\[\d\])/g, "[" + index + "]");
+			timestart.name = timestart.name.replace(/\d+/, index);
 		});
 
 		$.each(timeends, function(itimestart, timeend){
-			timeend.name = timeend.name.replace(/(\[\d\])/g, "[" + index + "]");
+			timeend.name = timeend.name.replace(/\d+/, index);
 		});
 
 		$.each(publishdates, function(itimestart, publishdate){
-			publishdate.name = publishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
+			publishdate.name = publishdate.name.replace(/\d+/, index);
 		});
 
 		$.each(startenrolments, function(itimestart, startenrolment){
-			startenrolment.name = startenrolment.name.replace(/(\[\d\])/g, "[" + index + "]");
+			startenrolment.name = startenrolment.name.replace(/\d+/, index);
 		});
 
 		$.each(unpublishdates, function(itimestart, unpublishdate){
-			unpublishdate.name = unpublishdate.name.replace(/(\[\d\])/g, "[" + index + "]");
+			unpublishdate.name = unpublishdate.name.replace(/\d+/, index);
 		});
 
 		victim.find("select.location").attr("name", "datecourse[" + index + "][location]");
