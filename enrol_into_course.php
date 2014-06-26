@@ -86,5 +86,11 @@ if (($courseid != 0 && $userid != 0) || ($datecourseid !=0 && $userid != 0)){
 		}
 	}
 }
-$enrol->send_confirmation_email($user, $courseid);
-redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
+//Send wait list mail or confirmation. 
+if($wait){
+	$enrol->send_waitlist_email($user, $courseid);
+	redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been signed up for the waitlist", 5);
+}else{
+	$enrol->send_confirmation_email($user, $courseid);
+	redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
+}

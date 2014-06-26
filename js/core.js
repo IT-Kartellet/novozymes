@@ -160,7 +160,7 @@
 
 
 	// modal window for the TOS dialog
-	$(document.body).on('click','input[value="Add me to waiting list"]',function(e){
+	$(document.body).on('click','div.addToWaitingList',function(e){
 		e.preventDefault();
 
 		enrolledCourse = $(this);

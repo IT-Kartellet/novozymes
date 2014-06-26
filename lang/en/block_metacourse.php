@@ -94,6 +94,19 @@ Best regards
 {$a->coordinator}
 ';
 
+//Enrolment email
+$string['emailwait'] = '
+Dear {$a->firstname} {$a->lastname},
+ 
+We hearby confirm your request for:
+Title: {$a->course}
+
+You will automatically be contacted when the course has been scheduled. 
+
+Best regards
+{$a->coordinator}
+';
+
 //Cancellation Email
 $string['emailunenrolconf'] = '
 Dear {$a->firstname} {$a->lastname},

@@ -248,7 +248,6 @@ if ($metacourse) {
 		if (!$isTeacher) {
 			// if not published skip it.
 			if ($datecourse->publishdate > time()) {
-			
 				continue;
 			}
 			// you can't be added anymore
@@ -288,6 +287,7 @@ if ($metacourse) {
 
 		$total_places =$datecourse->total_places;
 		
+		//Get all users enrolled in course. 
 		$context = CONTEXT_COURSE::instance($datecourse->courseid);
 		
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
@@ -300,55 +300,50 @@ if ($metacourse) {
 		foreach($course_users as $uid => $user){
 			if(user_has_role_assignment($uid, 5, $context->id)){
 				$enrolled_users[$uid] = $user;
+			}elseif(user_has_role_assignment($uid, 3, $context->id)){
+				$coordinators[$uid] = $user;
 			}
 		}
 		$busy_places = count($enrolled_users);
 
-		if (isset($datecourse->courseid) && @$datecourse->courseid) {
+		if (isset($datecourse->courseid)) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("datecourseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
+			$enrolMe->class = 'enrolMeButton';
+			$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
 		} else {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
+			$enrolMe->class = 'enrolMeButton';
+			$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
 		}
  		
+		//Always add enrol others button
  		$enrolOthers = new single_button(new moodle_url('/blocks/metacourse/enrol_others_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
  		$enrolOthers->class="enrolOthers";
  		$enrolOthers->tooltip = get_string("enrolOthers", "block_metacourse");
- 		$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
+		
 		//if no more places, disable the button
 		if ($busy_places == $total_places) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "");
 			$enrolMe->class = 'addToWaitingList';
+			$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
 			if ($DB->record_exists('meta_waitlist',array('userid'=>$USER->id, 'courseid'=>$datecourse->courseid))) {
 				$enrolMe->disabled = true;
 				$enrolOthers->disabled = true;
 			}
 		}
-		// if the user is already enrolled add the unenrol button
-		$context = CONTEXT_COURSE::instance($datecourse->courseid);
-		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
-		$sql = "SELECT u.* FROM {user} u
-				JOIN ($sql) je ON je.id = u.id";
-		$course_students = $DB->get_records_sql($sql, $params );
 
-		$course_students = array_map(function($arg){
-			return $arg->id;
-		}, $course_students);
-
-		if (in_array($USER->id, $course_students)) {
+		if (in_array($USER->id, $enrolled_users)) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'unEnrolMeButton';
 			$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");
-		} else {
-			$enrolMe->class = 'enrolMeButton';
 		}
 
 		// check if the enrolment is expired
 		if ($datecourse->unpublishdate < time() && $datecourse->unpublishdate != 0) {
-
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "");
-			$enrolMe->disabled = true;
 			$enrolMe->class = 'enrolMeButton';
-
+			$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
+			$enrolMe->disabled = true;
 			$enrolOthers->disabled = true;
 		}
 		if ($datecourse->startenrolment > time()) {

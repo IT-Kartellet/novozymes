@@ -87,12 +87,7 @@ if ($id) {
 
 			echo html_writer::table($table);
 			echo html_writer::end_tag('div');
-		}
-		
+		}	
 	}
-	
 }
-
-
-
 echo $OUTPUT->footer();

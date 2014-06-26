@@ -69,7 +69,90 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email);
     return $result;
   }
+  
+  public function send_waitlist_email($user, $courseid){
+  global $CFG, $DB;
 
+    $site = get_site();
+    $course = $DB->get_record("course",array("id"=>$courseid));
+	if(is_int($user)){
+		$user = $DB->get_record("user",array("id"=>$user));
+	}
+    $supportuser = core_user::get_support_user();
+
+    $data = new stdClass();
+    $data->firstname = fullname($user);
+    $data->sitename  = format_string($site->fullname);
+    $data->admin     = generate_email_signoff();
+
+    $subject = format_string($site->fullname) . ": enrolment confirmation";
+
+    $username = urlencode($user->username);
+    $username = str_replace('.', '%2E', $username); // prevent problems with trailing dots
+    $data->link  = $CFG->wwwroot;
+	
+	$teacherCC = $DB->get_records_sql("
+      SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
+      ", array("cid"=>$courseid));
+    $teacherCC = reset($teacherCC);
+
+	$datecourse = $DB->get_record_sql("SELECT d.*, c.currency, l.location as loc, m.name as metaname FROM {meta_datecourse} d JOIN {meta_currencies} c on d.currencyid=c.id JOIN {meta_locations} l ON d.location = l.id JOIN {meta_course} m ON d.metaid = m.id where courseid = :id", array("id"=>$course->id));
+
+    $a = new stdClass();
+    $a->username = $username;
+	$a->firstname = $user->firstname;
+	$a->lastname = $user->lastname;
+    $a->course = $datecourse->metaname;
+	$a->department = $user->department;
+	$a->periodfrom = date("d M Y - h:i A",$datecourse->startdate);
+	$a->periodto = date("d M Y - h:i A",$datecourse->enddate);
+	$a->currency = $datecourse->currency;
+	$a->price = $datecourse->price;
+	$a->location = $datecourse->loc;
+	$a->coordinator = $teacherCC->firstname." ".$teacherCC->lastname;
+	$a->coordinatorinitials = $teacherCC->username;
+	$a->myhome = $CFG->wwwroot."/my";
+	  
+    $message     = get_string("emailwait", 'block_metacourse', $a);
+    $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
+
+    $user->mailformat = 0;  // Always send HTML version as well
+	
+    //iCal
+    $ical = new iCalendar;
+    $ical->add_property('method', 'PUBLISH');
+
+    $ev = new iCalendar_event;
+    $ev->add_property('uid', $course->id.'@'.'novozymes.it-kartellet.dk');
+    $ev->add_property('summary', $course->fullname);
+    $ev->add_property('description', clean_param($course->summary, PARAM_NOTAGS));
+    $ev->add_property('class', 'PUBLIC'); 
+    $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
+    $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
+    $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
+    $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
+    
+    $ical->add_component($ev);
+    
+    $serialized = $ical->serialize();
+
+    $file = $CFG->dataroot . "/" . time() . ".ics";
+
+    $fh = fopen($file, "w+");
+    fwrite($fh, $serialized);
+    fclose($fh);
+
+    if(empty($serialized)) {
+        // TODO
+        die('bad serialization');
+    }
+    // calendar_add_icalendar_event($ev, $course->id);
+    //end iCal
+    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email, $file, "event.ics");
+    unlink($file);
+    return $result;
+  }
+  
   public function send_confirmation_email($user, $courseid) {
     global $CFG, $DB;
 
