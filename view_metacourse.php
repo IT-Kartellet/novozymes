@@ -205,9 +205,9 @@ if ($metacourse) {
 	}
 
 	// gets all the views
-	$nr_of_views = $DB->get_records_sql("SELECT * FROM {log} l where module = :module and url like :url", array("module"=>"metacourse","url"=>"%$id"));
-	$nr_of_views = count($nr_of_views);
 	if ($isTeacher) {
+		$nr_of_views = $DB->get_records_sql("SELECT * FROM {log} l where module = :module and url like :url", array("module"=>"metacourse","url"=>"%$id"));
+		$nr_of_views = count($nr_of_views);
 		$table->data[] = array(get_string('nrviews','block_metacourse'), $nr_of_views);
 	}
 
@@ -256,7 +256,7 @@ if ($metacourse) {
 			}
 		}
 		if(is_null($datecourse->courseid)){
-			continue;
+			continue; // For some reason this datecourse is not assigned to a moodle course
 		}
 		// get coordinator
 		$cor = $DB->get_records_sql("SELECT username FROM {user} where id = :id", array("id"=>$datecourse->coordinator));
@@ -332,7 +332,7 @@ if ($metacourse) {
 			}
 		}
 
-		if (in_array($USER->id, $enrolled_users)) {
+		if (array_key_exists($USER->id, $enrolled_users)) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'unEnrolMeButton';
 			$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");

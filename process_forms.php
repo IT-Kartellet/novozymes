@@ -106,6 +106,7 @@ foreach (array(
 	$text = $field['text'];
 
 	$matches = array();
+	// Only if new files were uploaded, that need to be moved from the draft area
 	if (preg_match('/\/user\/draft\/([0-9]*)\//', $text, $matches)) {
 		$changed = true;
 		$draftid = $matches[1];
@@ -121,6 +122,7 @@ foreach (array(
 	}
 }
 
+// Some of the texts were changed because we moved files from draft to permanent storage
 if ($changed) {
 	$DB->update_record('meta_course', $meta);
 }

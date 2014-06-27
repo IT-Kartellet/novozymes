@@ -94,7 +94,7 @@ class datecourse_form extends moodleform {
             $mform->setType('datecourse['. $key .'][places]', PARAM_NOTAGS);
             $mform->setType('datecourse['. $key .'][remarks]', PARAM_TEXT);
 
-            // No fields should be required. 
+            // All fields except remark are required.
             $mform->addRule('datecourse['. $key .'][places]', "Needs to be a number", 'numeric', null, 'client');
             $mform->addRule('datecourse['. $key .'][places]', get_string('required'), 'required', null, 'client');
             $mform->addRule('datecourse['. $key .'][price]', get_string('required'), 'required', null, 'client');

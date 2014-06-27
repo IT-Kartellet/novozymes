@@ -95,6 +95,7 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		}
 		echo json_encode("done, $role");
 	} catch (Exception $e) {
+		http_response_code(500);
 		echo json_encode($e);
 	}
 }
@@ -115,6 +116,7 @@ if ($unenrolGuy && $enrolCourse) {
 		$DB->set_field("user_enrolments", "status", 1, array("enrolid"=>$instance->id, "userid"=>$unenrolGuy));
 		echo json_encode("done");
 	} catch (Exception $e) {
+		http_response_code(500);
 		echo json_encode($e);
 	}
 }
@@ -283,6 +285,7 @@ if ($saveTemplate) {
 
 		echo json_encode("Course template was saved");
 	} catch (Exception $e) {
+		http_response_code(500);
 		echo "Error. Please try again";
 	}
 
@@ -293,6 +296,7 @@ if ($getTemplate != 0) {
 	if ($return) {
 		echo json_encode($return);
 	} else {
+		http_response_code(404);
 		echo json_encode("1234");
 	}
 }

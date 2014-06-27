@@ -1,7 +1,6 @@
  <?php
 
 //not used anywhere for the moment;
- 
 require_once('../../config.php');
 require_once("$CFG->libdir/formslib.php");
 require_once('metacourse_form.php');
@@ -16,7 +15,6 @@ $id = optional_param('id', -1, PARAM_INT);
 $PAGE->set_context(get_system_context());
 $PAGE->set_pagelayout('admin');
 $URL = '/moodle/blocks/metacourse/edit_metacourse.php';
-
 // default id, just see the list of courses
 if ($id == -1) {
 	$PAGE->set_title("List of current courses");
