@@ -60,15 +60,8 @@ if ($id) {
 	echo html_writer::end_tag('div');
 
 	// waiting users
-
-	
 	if ($datecourse) {
-		$waiting_users = $DB->get_records_sql("
-			select *
-			from {meta_waitlist} mw 
-			join {user} u 
-			on mw.userid = u.id
-			where mw.courseid = :courseid", array("courseid"=>$datecourse->courseid));
+		$waiting_users = get_users_on_waitinglist($datecourse->courseid);
 		if (count($waiting_users) > 0) {
 			echo html_writer::tag('h1', 'Waiting list', array('id' => 'course_header', 'class' => 'main'));
 
