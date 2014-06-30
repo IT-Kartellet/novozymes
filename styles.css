@@ -20,7 +20,18 @@
   }
 }
 */
- 
+
+#addcontrols img.spinner {
+  position: relative;
+  top: -56px;
+  left: -50px;
+} 
+#removecontrols img.spinner {
+  position: relative;
+  top: -36px;
+  left: 5px;
+} 
+
  .mform .fitem .felement {
 	margin: 0px !important;
  }

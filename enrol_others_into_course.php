@@ -47,6 +47,11 @@ list($sql, $params) = get_enrolled_sql($context, '', 0, true);
 $sql = "SELECT u.*, je.* FROM {user} u
 		JOIN ($sql) je ON je.id = u.id";
 $course_users = $DB->get_records_sql($sql, $params );
+$datecourse = $DB->get_record('meta_datecourse', array(
+	'courseid' => $courseid,
+));
+
+$waiting_users = get_users_on_waitinglist($courseid);
 
 $enrolled_users = array();
 
@@ -57,9 +62,26 @@ foreach($course_users as $id => $user){
 	}
 }
 
+foreach($waiting_users as $id => $user){
+	unset($users[$id]);
+}
+
 $not_enrolled_users = $users;
 
+
+$table = new html_table();
+$table->id = 'enrol_info';
+$table->tablealign = "center";
+
+$table->data[] = array('Seats', $datecourse->total_places);
+$table->data[] = array('Currently enrolled', count($enrolled_users));
+$table->data[] = array('Waiting list', count($waiting_users));
+
+echo html_writer::table($table);
+
 ?>
+
+
 <span>Select user role: &nbsp; </span>
 <select name="user_role_enrol" id="enrol_role">
 	<option value="student" id='enrol_student'>Employee</option>
@@ -73,7 +95,9 @@ $not_enrolled_users = $users;
     <tr>
       <td id="existingcell">
           <p><label for="removeselect">Enrolled users</label></p>
-          <?php output_users_for_enrolment($enrolled_users); ?>
+          <?php output_users_for_enrolment($enrolled_users, 'remove', 15); ?>
+          <p><label for="waitingselect">Waiting users</label></p>
+    	  <?php output_users_for_enrolment($waiting_users, 'waiting', 4); ?>
           <div class="search_filter">
 				<label for="removeselect_searchtext">Search</label>
 				<input type="text" name="removeselect_searchtext" id="removeselect_searchtext" size="15" value="">
@@ -92,7 +116,7 @@ $not_enrolled_users = $users;
       </td>
       <td id="potentialcell">
           <p><label for="addselect">Users not enrolled</label></p>
-          <?php output_users_for_enrolment($not_enrolled_users, true); ?>
+          <?php output_users_for_enrolment($not_enrolled_users, 'add'); ?>
           <div class="search_filter">
 				<label for="addselect_searchtext">Search</label>
 				<input type="text" name="addselect_searchtext" id="addselect_searchtext" size="15" value="">
@@ -110,28 +134,12 @@ echo html_writer::end_tag('div');
 
 echo $OUTPUT->footer();
 
-function output_users_for_enrolment($users, $add = false, $teacher = false){
-	global $USER;
-	if ($add) {
-		echo "<div class='userselector' id='add_select_wrapper' >";
-		echo "<select name='addselect[]' id='addselect' multiple='multiple' size='20' >";
+function output_users_for_enrolment($users, $action, $size = 22) {
+	echo "<div class='userselector' id='{$action}_select_wrapper' >";
+	echo "<select name='{$action}select[]' id='{$action}select' multiple='multiple' size='$size' >";
 
-		foreach ($users as $id => $user) {
-			echo "<option value='". $id ."'> $user->firstname $user->lastname ($user->email) </option>";
-		}
-		echo "</select></div>";
-	} else {
-		echo "<div class='userselector' id='remove_select_wrapper' >";
-		echo "<select name='removeselect[]' id='removeselect' multiple='multiple' size='20' >";
-
-		foreach ($users as $id => $user) {
-			if(!$teacher){
-				echo "<option value='". $id ."'> $user->firstname $user->lastname ($user->email) </option>";
-			}elseif($USER->id == $id){
-				echo "<option value='". $id ."'> $user->firstname $user->lastname ($user->email) </option>";
-			}
-		}
-		echo "</select></div>";
+	foreach ($users as $id => $user) {
+		echo "<option value='". $id ."'> $user->firstname $user->lastname ($user->email) </option>";
 	}
+	echo "</select></div>";
 }
-

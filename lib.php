@@ -774,3 +774,15 @@ function get_courses_in_category($category_id, $competence_id){
     }
     return $result;
 }
+
+function get_users_on_waitinglist($courseid) {
+    global $DB;
+    return $DB->get_records_sql(
+        "SELECT *
+         FROM {meta_waitlist} mw 
+         JOIN {user} u 
+         ON mw.userid = u.id
+         WHERE mw.courseid = :courseid", 
+         array("courseid"=>$courseid)
+    );
+}

@@ -20,7 +20,12 @@ if ($courseid != 0 && $userid != 0) {
  
  	//check if on waiting list
  	//delete from waiting list
-	//TODO
+	$DB->delete_records('meta_waitlist', array(
+		'courseid' => $courseid,
+		'userid' => $userid,
+		'nodates' => 0,
+	));
+
  	//disable enrolment
 	$DB->set_field("user_enrolments", "status", 1, array("enrolid"=>$instance->id, "userid"=>$userid));
 	$enrol = new enrol_manual_pluginITK();

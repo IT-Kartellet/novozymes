@@ -72,8 +72,18 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 			}
 		}
 		
-		if($datecourse->total_places <=  count($enrolled_users)){
-			echo json_encode("full");
+		if($datecourse->total_places <=  count($enrolled_users)) {
+			$waitRecord = new stdClass();
+			$waitRecord->userid = $enrolGuy;
+			$waitRecord->courseid = $enrolCourse;
+			$waitRecord->timestart = 0;
+			$waitRecord->timeend = 0;
+			$waitRecord->timecreated = time();
+			$DB->insert_record('meta_waitlist', $waitRecord);
+			echo json_encode(array(
+				'action' => 'enrol',
+				'status' => 'waitlist',
+			));
 			return;
 		}
 		
@@ -93,8 +103,13 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		if ($sendEmail) {
 			$enrol->send_confirmation_email($enrolUser, $enrolCourse);
 		}
-		echo json_encode("done, $role");
+		echo json_encode(array(
+			'action' => 'enrol',
+			'status' => 'done',
+			'role' => $role,
+		));
 	} catch (Exception $e) {
+		http_response_code(500);
 		echo json_encode($e);
 	}
 }
@@ -104,17 +119,19 @@ if ($unenrolGuy && $enrolCourse) {
 	try {
 		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
 		$instance = reset($instance);
-		$user = $DB->get_record("user", array("id"=>$unenrolGuy));
+		
+		$DB->delete_records('meta_waitlist', array(
+			'courseid' => $enrolCourse,
+			'userid' => $unenrolGuy,
+			'nodates' => 0,
+		));
 
-	 
-		// 	//check if on waiting list
-		// 	//delete from waiting list
-			//TODO
+		$enrolments = enrol_get_plugin('manual');
+		$enrolments->unenrol_user($instance, $unenrolGuy);
 
-		// 	//disable enrolment
-		$DB->set_field("user_enrolments", "status", 1, array("enrolid"=>$instance->id, "userid"=>$unenrolGuy));
 		echo json_encode("done");
 	} catch (Exception $e) {
+		http_response_code(500);
 		echo json_encode($e);
 	}
 }
@@ -283,6 +300,7 @@ if ($saveTemplate) {
 
 		echo json_encode("Course template was saved");
 	} catch (Exception $e) {
+		http_response_code(500);
 		echo "Error. Please try again";
 	}
 
@@ -293,6 +311,7 @@ if ($getTemplate != 0) {
 	if ($return) {
 		echo json_encode($return);
 	} else {
+		http_response_code(404);
 		echo json_encode("1234");
 	}
 }
