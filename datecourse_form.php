@@ -16,7 +16,10 @@ class datecourse_form extends moodleform {
 		$mform->setType('meta', PARAM_RAW);
 		
         @$numberOfDates = ($this->_customdata['dateCourseNr'])? $this->_customdata['dateCourseNr'] : 1;
-		
+
+        //timezones
+        $timezones = array("-11", "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "UTC", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10", "+11", "+12");
+
         //get locations from the database
         $locations = $DB->get_records_sql("SELECT * FROM {meta_locations} order by location asc");        
         $locations = array_map(function ($arg){
@@ -70,6 +73,7 @@ class datecourse_form extends moodleform {
             $mform->addElement('html',"<input type='button' id='removeDateCourse' title='Remove date' value='X' class='$key'>");
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][timestart]', "Start", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, "id"=>"timestart"),array("class"=>"timestart"));
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][timeend]', "End", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false),array("class"=>"timeend"));
+            $mform->addElement('select', 'datecourse['. $key .'][timezone]', "Time zone", $timezones, array("class"=>"timezone"));
             $mform->addElement('select', 'datecourse['. $key .'][location]', 'Location', $locations, array("class"=>"location"));
             $mform->addElement('select', 'datecourse['. $key .'][country]', 'Where', $countries, array("class"=>"country"));
             $mform->addElement('html', "<div class='fitem'><div class='felement'> <a href='#' class='anotherLocation' > + another location </a></div></div>");
