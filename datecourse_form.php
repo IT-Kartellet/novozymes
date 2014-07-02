@@ -18,7 +18,7 @@ class datecourse_form extends moodleform {
         @$numberOfDates = ($this->_customdata['dateCourseNr'])? $this->_customdata['dateCourseNr'] : 1;
 
         //timezones
-        $timezones = array("-11", "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "UTC", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10", "+11", "+12");
+        $timezones = array("-11", "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10", "+11", "+12");
 
         //get locations from the database
         $locations = $DB->get_records_sql("SELECT * FROM {meta_locations} order by location asc");        
@@ -73,7 +73,7 @@ class datecourse_form extends moodleform {
             $mform->addElement('html',"<input type='button' id='removeDateCourse' title='Remove date' value='X' class='$key'>");
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][timestart]', "Start", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, "id"=>"timestart"),array("class"=>"timestart"));
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][timeend]', "End", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false),array("class"=>"timeend"));
-            $mform->addElement('select', 'datecourse['. $key .'][timezone]', "Time zone", $timezones, array("class"=>"timezone"));
+            $mform->addElement('select', 'datecourse['. $key .'][timezone]', "Time zone", $timezones, array("class"=>"timezone"))->setSelected('11');;
             $mform->addElement('select', 'datecourse['. $key .'][location]', 'Location', $locations, array("class"=>"location"));
             $mform->addElement('select', 'datecourse['. $key .'][country]', 'Where', $countries, array("class"=>"country"));
             $mform->addElement('html', "<div class='fitem'><div class='felement'> <a href='#' class='anotherLocation' > + another location </a></div></div>");
@@ -97,6 +97,7 @@ class datecourse_form extends moodleform {
             $mform->setType('datecourse['. $key .'][price]', PARAM_NOTAGS);
             $mform->setType('datecourse['. $key .'][places]', PARAM_NOTAGS);
             $mform->setType('datecourse['. $key .'][remarks]', PARAM_TEXT);
+            $mform->setType('datecourse['. $key .'][timezone]', PARAM_TEXT);
 
             // All fields except remark are required.
             $mform->addRule('datecourse['. $key .'][places]', "Needs to be a number", 'numeric', null, 'client');
@@ -104,6 +105,7 @@ class datecourse_form extends moodleform {
             $mform->addRule('datecourse['. $key .'][price]', get_string('required'), 'required', null, 'client');
             $mform->addRule('datecourse['. $key .'][timestart]', get_string('required'), 'required', null, 'client');
             $mform->addRule('datecourse['. $key .'][timeend]', get_string('required'), 'required', null, 'client');
+            $mform->addRule('datecourse['. $key .'][timezone]', get_string('required'), 'required', null, 'client');
             $mform->addRule('datecourse['. $key .'][publishdate]', get_string('required'), 'required', null, 'client');
             $mform->addRule('datecourse['. $key .'][startenrolment]', get_string('required'), 'required', null, 'client');
 			$mform->addRule('datecourse['. $key .'][unpublishdate]', get_string('required'), 'required', null, 'client');
@@ -139,6 +141,7 @@ class datecourse_form extends moodleform {
                 $awesomeData->{'datecourse['. $horribleCounter .'][publishdate]'} = $dc->publishdate;
                 $awesomeData->{'datecourse['. $horribleCounter .'][unpublishdate]'} = $dc->unpublishdate;
                 $awesomeData->{'datecourse['. $horribleCounter .'][startenrolment]'} = $dc->startenrolment;
+                $awesomeData->{'datecourse['. $horribleCounter .'][timezone]'} = $dc->timezone;
                 $awesomeData->{'datecourse['. $horribleCounter .'][location]'} = $dc->location;
                 $awesomeData->{'datecourse['. $horribleCounter .'][country]'} = $dc->country;
                 $awesomeData->{'datecourse['. $horribleCounter .'][language]'} = $dc->lang;
