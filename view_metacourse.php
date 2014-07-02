@@ -295,8 +295,8 @@ if ($metacourse) {
 				JOIN ($sql) je ON je.id = u.id";
 		$course_users = $DB->get_records_sql($sql, $params );
 
-		$enrolled_users = array();
 
+		$enrolled_users = array();
 		foreach($course_users as $uid => $user){
 			if(user_has_role_assignment($uid, 5, $context->id)){
 				$enrolled_users[$uid] = $user;
@@ -306,46 +306,27 @@ if ($metacourse) {
 		}
 		$busy_places = count($enrolled_users);
 
-		if (isset($datecourse->courseid)) {
-			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("datecourseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
-			$enrolMe->class = 'enrolMeButton';
-			$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
+		if (array_key_exists($USER->id, $enrolled_users)) {
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
+			$enrolMe->class = 'unEnrolMeButton';
+			$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");
 		} else {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'enrolMeButton';
 			$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
 		}
- 		
+
 		//Always add enrol others button
  		$enrolOthers = new single_button(new moodle_url('/blocks/metacourse/enrol_others_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
  		$enrolOthers->class="enrolOthers";
  		$enrolOthers->tooltip = get_string("enrolOthers", "block_metacourse");
-		
-		//if no more places, disable the button
-		if ($busy_places == $total_places) {
-			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "");
-			$enrolMe->class = 'addToWaitingList';
-			$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
-			if ($DB->record_exists('meta_waitlist',array('userid'=>$USER->id, 'courseid'=>$datecourse->courseid))) {
-				$enrolMe->disabled = true;
-				$enrolOthers->disabled = true;
-			}
-		}
-
-		if (array_key_exists($USER->id, $enrolled_users)) {
-			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
-			$enrolMe->class = 'unEnrolMeButton';
-			$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");
-		}
 
 		// check if the enrolment is expired
 		if ($datecourse->unpublishdate < time() && $datecourse->unpublishdate != 0) {
-			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "wait"=>1)), "");
-			$enrolMe->class = 'enrolMeButton';
-			$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
 			$enrolMe->disabled = true;
 			$enrolOthers->disabled = true;
 		}
+
 		if ($datecourse->startenrolment > time()) {
 			$action = "You can't enrol yet";
 		} else {
@@ -378,7 +359,7 @@ if ($metacourse) {
 		<h1><?php echo get_string('tostitle','block_metacourse') ?></h1>
         <div id='tos_content'><?php echo get_string('toscontent','block_metacourse') ?></div>
         <div id='cmd'>
-        	<input type='checkbox' name='accept'><?php echo get_string('tosaccept','block_metacourse') ?> <span id='waitingSpan' style='display:none'><? echo get_string('tosacceptwait','block_metacourse') ?></span>
+        	<input type='checkbox' id="accept" name='accept'><label for="accept"><?php echo get_string('tosaccept','block_metacourse') ?></label><span id='waitingSpan' style='display:none'><? echo get_string('tosacceptwait','block_metacourse') ?></span>
         	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','enrol_self') ?>' >
         	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>
@@ -391,7 +372,7 @@ if ($metacourse) {
 		<h1><?php echo get_string('cancellation','block_metacourse') ?></h1>
         <div id='tos_content'><?php echo $cancellation; ?></div>
         <div id='cmd'>
-        	<input type='checkbox' name='accept_unenrol'> <?php echo get_string('agreecancel','block_metacourse') ?>
+        	<input type='checkbox' id="accept_unenrol" name='accept_unenrol'><label for="accept_unenrol"><?php echo get_string('agreecancel','block_metacourse') ?></label>
         	<input id='accept_unenrol' type='button' name='submit' 'title'='unenrol' value='<?php echo get_string('unenrolme','block_metacourse') ?>' >
         	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>
