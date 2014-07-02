@@ -306,11 +306,24 @@ if ($metacourse) {
 		}
 		$busy_places = count($enrolled_users);
 
-		if (array_key_exists($USER->id, $enrolled_users)) {
+		$waiting = $DB->get_record('meta_waitlist', array(
+			'courseid' => $datecourse->courseid,
+			'userid' => $USER->id,
+			'nodates' => 0,
+		));
+
+		if ($waiting || array_key_exists($USER->id, $enrolled_users)) {
+			// already enrolled
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'unEnrolMeButton';
 			$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");
+		} else if ($busy_places >= $total_places) { 
+			// waiting list
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
+			$enrolMe->class = 'addToWaitingList';
+			$enrolMe->tooltip = get_string("addtowaitinglist", "block_metacourse");
 		} else {
+			// regular enrol
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'enrolMeButton';
 			$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
