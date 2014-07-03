@@ -203,6 +203,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->publishdate = date_timestamp_get(date_create($pd));
 	$dc->unpublishdate = date_timestamp_get(date_create($upd));
 	$dc->startenrolment = date_timestamp_get(date_create($ste));
+    $dc->timezone = $course['timezone'];
 	$dc->location = $course['location'];
 	$dc->country = $course['country'];
 	$dc->lang = $course['language'];

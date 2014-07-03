@@ -69,7 +69,7 @@ Course fees will be charged you department immediately after the course.
 $string['emailconf'] = '
 Dear {$a->firstname} {$a->lastname},
  
-We hearby confirm that you have been signed up for:
+We hereby confirm that you have been signed up for:
 Title: {$a->course}
 Dates: {$a->periodfrom} - {$a->periodto}
 Price: {$a->currency} {$a->price} - If no amount is stated there is no fee. (Except for language courses in Danish)
