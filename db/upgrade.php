@@ -1,3 +1,4 @@
+
 <?php
 
 function xmldb_block_metacourse_upgrade($oldversion = 0) {
@@ -95,6 +96,20 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2014041409, 'metacourse');
     }
 
+    if ($oldversion < 2014070301) {
+
+        // Define field timezone to be added to meta_datecourse.
+        $table = new xmldb_table('meta_datecourse');
+        $field = new xmldb_field('timezone', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, '0', 'enddate');
+
+        // Conditionally launch add field timezone.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Label savepoint reached.
+        upgrade_block_savepoint(true, 2014070301, 'metacourse');
+    }
 
 
     return $result;

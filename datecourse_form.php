@@ -19,7 +19,7 @@ class datecourse_form extends moodleform {
 
         //timezones
         $timezones = array("-11" => "-11", "-10" => "-10", "-9" => "-9", "-8" => "-8", "-7" => "-7", "-6" => "-6", "-5" => "-5", "-4" => "-4", "-3" => "-3",
-            "-2" => "-2", "-1" => "-1", "0" => "0", "+1" => "+1", "+2" => "+2", "+3" => "+3", "+4" => "+4", "+5" => "+5", "+6" => "+6", "+7" => "+7",
+            "-2" => "-2", "-1" => "-1", "+0" => "0", "+1" => "+1", "+2" => "+2", "+3" => "+3", "+4" => "+4", "+5" => "+5", "+6" => "+6", "+7" => "+7",
             "+8" => "+8", "+9" => "+9", "+10" => "+10", "+11" => "+11", "+12" => "+12");
 
         //get locations from the database
@@ -68,14 +68,22 @@ class datecourse_form extends moodleform {
 
         $key = $this->number;
         while($key <= $numberOfDates-1) {
+            @$data = $this->_customdata['data'][$key+1];
+            if (isset($data->timezone)) {
+                $timezone = $data->timezone;
+            } else {
+                $timezone = 0;
+            }
+
             $mform->addElement('html',"<div class='template'>");
             $mform->addElement('hidden','datecourse['. $key .'][id]', '0');
 			$mform->addElement('hidden','datecourse['. $key .'][courseid]', '0');
 			$mform->addElement('hidden','datecourse['. $key .'][deleted]', '0');
             $mform->addElement('html',"<input type='button' id='removeDateCourse' title='Remove date' value='X' class='$key'>");
-            $mform->addElement('date_time_selector', 'datecourse['. $key .'][timestart]', "Start", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, "id"=>"timestart"),array("class"=>"timestart"));
-            $mform->addElement('date_time_selector', 'datecourse['. $key .'][timeend]', "End", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false),array("class"=>"timeend"));
-            $mform->addElement('select', 'datecourse['. $key .'][timezone]', "Time zone", $timezones, array("class"=>"timezone"))->setSelected("0");;
+            $mform->addElement('date_time_selector', 'datecourse['. $key .'][timestart]', "Start", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, "id"=>"timestart", 'timezone' => $timezone),array("class"=>"timestart"));
+            $mform->addElement('date_time_selector', 'datecourse['. $key .'][timeend]', "End", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone),array("class"=>"timeend"));
+            $mform->addElement('select', 'datecourse['. $key .'][timezone]', "Time zone", $timezones, array("class"=>"timezone"))->setSelected("0");
+            $mform->addHelpButton('datecourse['. $key .'][timezone]', 'timezone', 'block_metacourse');
             $mform->addElement('select', 'datecourse['. $key .'][location]', 'Location', $locations, array("class"=>"location"));
             $mform->addElement('select', 'datecourse['. $key .'][country]', 'Where', $countries, array("class"=>"country"));
             $mform->addElement('html', "<div class='fitem'><div class='felement'> <a href='#' class='anotherLocation' > + another location </a></div></div>");
@@ -85,9 +93,9 @@ class datecourse_form extends moodleform {
             $mform->addElement('text', 'datecourse['. $key .'][places]', 'No. of places',array("class"=>"noPlaces"));
             $mform->addElement('select', 'datecourse['. $key .'][coordinator]', 'Coordinator', $coordinators, array("class"=>"coordinator"));
             $mform->setDefault('coordinator', $USER->id);
-            $mform->addElement('date_time_selector', 'datecourse['. $key .'][publishdate]', "Publish date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false), array("class"=>"publishdate"));
-            $mform->addElement('date_time_selector', 'datecourse['. $key .'][startenrolment]', "Start enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false), array("class"=>"startenrolment"));
-            $mform->addElement('date_time_selector', 'datecourse['. $key .'][unpublishdate]', "End enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false),array("class"=>"unpublishdate"));
+            $mform->addElement('date_time_selector', 'datecourse['. $key .'][publishdate]', "Publish date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone), array("class"=>"publishdate"));
+            $mform->addElement('date_time_selector', 'datecourse['. $key .'][startenrolment]', "Start enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone), array("class"=>"startenrolment"));
+            $mform->addElement('date_time_selector', 'datecourse['. $key .'][unpublishdate]', "End enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone),array("class"=>"unpublishdate"));
             $mform->addElement('text', 'datecourse['. $key .'][remarks]', 'Remarks',array("class"=>"date_remarks"));
             //$mform->addElement('advcheckbox', "datecourse_no_dates[".$key."]", "No dates", null, array('group' => 1), false);
 

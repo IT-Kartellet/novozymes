@@ -183,28 +183,28 @@ foreach ($datecourses as $key => $course) {
 							"hour"=>$course['startenrolment']['hour'],
 							"minute"=>$course['startenrolment']['minute']
 	 );
-	
+
 	//format the times
 	$ts = implode("-",array($starttime['year'], $starttime['month'], $starttime['day']));
-	$ts .= " " . $starttime['hour'] . ":" . $starttime['minute'] . ":00";
+	$ts .= " " . $starttime['hour'] . ":" . $starttime['minute'] . $course['timezone'];
 	$te = implode("-",array($endtime['year'], $endtime['month'], $endtime['day']));
-	$te .= " " . $endtime['hour'] . ":" . $endtime['minute'] . ":00";
+	$te .= " " . $endtime['hour'] . ":" . $endtime['minute'] . $course['timezone'];
 	$pd = implode("-",array($publishtime['year'], $publishtime['month'], $publishtime['day']));
-	$pd .= " " . $publishtime['hour'] . ":" . $publishtime['minute'] . ":00";
+	$pd .= " " . $publishtime['hour'] . ":" . $publishtime['minute'] . $course['timezone'];
 
 	$upd = implode("-",array($unpublishtime['year'], $unpublishtime['month'], $unpublishtime['day']));
-	$upd .= " " . $unpublishtime['hour'] . ":" . $unpublishtime['minute'] . ":00";
+	$upd .= " " . $unpublishtime['hour'] . ":" . $unpublishtime['minute'] . $course['timezone'];
 
 	$ste = implode("-",array($startenrolmenttime['year'], $startenrolmenttime['month'], $startenrolmenttime['day']));
-	$ste .= " " . $startenrolmenttime['hour'] . ":" . $startenrolmenttime['minute'] . ":00";
-
+	$ste .= " " . $startenrolmenttime['hour'] . ":" . $startenrolmenttime['minute'] . $course['timezone'];
+	
 	$dc->startdate = date_timestamp_get(date_create($ts));
 	$dc->enddate = date_timestamp_get(date_create($te));
 	$dc->publishdate = date_timestamp_get(date_create($pd));
 	$dc->unpublishdate = date_timestamp_get(date_create($upd));
 	$dc->startenrolment = date_timestamp_get(date_create($ste));
-    $dc->timezone = $course['timezone'];
-	$dc->location = $course['location'];
+	$dc->timezone = $course['timezone'];
+    $dc->location = $course['location'];
 	$dc->country = $course['country'];
 	$dc->lang = $course['language'];
 	$dc->category = $competence;

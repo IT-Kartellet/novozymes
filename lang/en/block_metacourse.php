@@ -141,3 +141,6 @@ $string['multipledates_help'] = 'Will your course be held on multiple dates?';
 $string['customemail_help'] = 'Do you want the user to receive a custom "Welcome email" when they get enrolled into a course?'; 
 $string['unpublishdate'] = 'Unpublish date'; 
 $string['unpublishdate_help'] = 'When do you want the course not to be shown to student anymore?'; 
+
+$string['timezone'] = 'Timezone?';
+$string['timezone_help'] = 'The timezone for the place where the course is held. Remember to account for daylight saving time (DST). For example if the course is held in Denmark (timezone = +1), and DST is active, you have to select +2, since DST adds one hour.';
