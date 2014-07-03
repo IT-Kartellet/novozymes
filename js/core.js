@@ -69,67 +69,35 @@
 	});
 	
 	$(document.body).on("click","#addDateCourse",function(){
-
 		//used to duplicate the datecourses;
-
 		var course = $("div.template").last().clone(true, true);
-		//course.find("select").val("0");
-		//course.find("input").not("#removeDateCourse").val("");
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
 		var index = $('.template').length - 1;
 
-		// todo: refactor
 		victim.find('input').not("#removeDateCourse").val("");
-		//victim.find('select').val("0");
-		var timestarts = victim.find("select[name*='timestart']");
-		var timeends = victim.find("select[name*='timeend']");
-		var publishdates = victim.find("select[name*='publishdate']");
-		var startenrolments = victim.find("select[name*='startenrolment']");
-		var unpublishdates = victim.find("select[name*='unpublishdate']");
 
-		$.each(timestarts, function(itimestart, timestart){
-			timestart.name = timestart.name.replace(/\d+/, index);
+		// Get all input elements"
+		var elements = victim.find("select, input:not(#removeDateCourse)");
+		
+		$.each(elements, function(ix, element) {
+			$label = $('label[for="' + element.id + '"]', victim); // make sure the correct element is focused when clicking the label
+			$label.attr('for', $label.attr('for').replace(/\d+/, index));
+
+			element.name = element.name.replace(/\d+/, index); // Update the element itself
+			element.id = element.id.replace(/\d+/, index);
+			
+			$wrapper = $(element).closest('.fitem'); // And the id of the wrapper
+			$wrapper[0].id = $wrapper[0].id.replace(/\d+/, index);
 		});
-
-		$.each(timeends, function(itimestart, timeend){
-			timeend.name = timeend.name.replace(/\d+/, index);
-		});
-
-		$.each(publishdates, function(itimestart, publishdate){
-			publishdate.name = publishdate.name.replace(/\d+/, index);
-		});
-
-		$.each(startenrolments, function(itimestart, startenrolment){
-			startenrolment.name = startenrolment.name.replace(/\d+/, index);
-		});
-
-		$.each(unpublishdates, function(itimestart, unpublishdate){
-			unpublishdate.name = unpublishdate.name.replace(/\d+/, index);
-		});
-
-		victim.find("select.location").attr("name", "datecourse[" + index + "][location]");
-		victim.find("select.country").attr("name", "datecourse[" + index + "][country]");
-		victim.find("select.language").attr("name", "datecourse[" + index + "][language]");
-		victim.find("select.coordinator").attr("name", "datecourse[" + index + "][coordinator]");
-
-
-		victim.find("input.price").attr("name", "datecourse[" + index + "][price]");
-		victim.find("input[name='datecourse[" + (index-1) + "][id]']").attr("name", "datecourse[" + index + "][id]");
-		victim.find("input.noPlaces").attr("name", "datecourse[" + index + "][places]");
-		victim.find("select.category").attr("name", "datecourse[" + index + "][category]");
-		victim.find("select.currency").attr("name", "datecourse[" + index + "][currency]");
-
 
 		// update dates
-
 		var today = new Date();
 		
 		var dd = today.getDate();
 		var m = 0;
 		var h = 0; 
-		var mm = today.getMonth()+1; 
-		var mm = today.getMonth()+1; 
+		var mm = today.getMonth()+1;
 		var yyyy = today.getFullYear();
 		
 		victim.find("select[name*='minutes']").val(m);
@@ -137,9 +105,7 @@
 		victim.find("select[name*='day']").val(dd);
 		victim.find("select[name*='month']").val(mm);
 		victim.find("select[name*='year']").val(yyyy);
-
 	});
-	
 
 	// don't screw this up
 	$(document.body).on("click","#removeDateCourse",function(){

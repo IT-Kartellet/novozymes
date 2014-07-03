@@ -69,7 +69,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email);
     return $result;
   }
-  
+ 
   public function send_waitlist_email($user, $courseid){
   global $CFG, $DB;
 
@@ -129,6 +129,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $ev->add_property('class', 'PUBLIC'); 
     $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
     $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
+
     $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
     $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
     
