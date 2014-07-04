@@ -67,14 +67,17 @@ class datecourse_form extends moodleform {
         $mform->addElement('html',"<div id='wrapper'>");
 
         $key = $this->number;
+		
+		// The data here is keyed by course id, reset it to zero based for easy indexing while we iterate
+		@$data = array_values($this->_customdata['data']);
         while($key <= $numberOfDates-1) {
-            @$data = $this->_customdata['data'][$key+1];
-            if (isset($data->timezone)) {
-                $timezone = $data->timezone;
+            @$course_data = $data[$key];
+            if (isset($course_data->timezone)) {
+                $timezone = $course_data->timezone;
             } else {
                 $timezone = 0;
             }
-
+			
             $mform->addElement('html',"<div class='template'>");
             $mform->addElement('hidden','datecourse['. $key .'][id]', '0');
 			$mform->addElement('hidden','datecourse['. $key .'][courseid]', '0');
