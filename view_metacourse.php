@@ -266,7 +266,11 @@ if ($metacourse) {
 			$start = "-";
 			$end = "-";
 		} else{
-			$start = date("d M Y - h:i A",$datecourse->startdate);
+			if (!$isTeacher) {
+				$start = date("d M Y - h:i A",$datecourse->startdate);
+			}else {
+				$start = "<a href='/course/view.php?id=$datecourse->courseid'>".date("d M Y - h:i A",$datecourse->startdate)."</a>";
+			}
 			$end = date("d M Y - h:i A",$datecourse->enddate);
 		}
 
