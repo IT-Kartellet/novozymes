@@ -201,7 +201,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
 
     $user->mailformat = 0;  // Always send HTML version as well
-	
     //iCal
     $ical = new iCalendar;
     $ical->add_property('method', 'PUBLISH');
@@ -433,7 +432,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
         $mail->AddReplyTo($values[0], $values[1]);
     }
 
-    if ($mail->Send()) {
+    $send = $mail->Send();
+    if ($send) {
         set_send_count($user);
         if (!empty($mail->SMTPDebug)) {
             echo '</pre>';
