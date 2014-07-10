@@ -39,7 +39,6 @@ $total_places = reset($total_places);
 $total_places = $total_places->total_places;
 
 if ($total_places - $busy_places > 0) {
-
 	$current_enrolment = $DB->get_records_sql("
 		SELECT u.id as userid, e.id as enrolid FROM {user} u 
 		JOIN {user_enrolments} ue ON ue.userid = u.`id`
@@ -67,7 +66,12 @@ if ($total_places - $busy_places > 0) {
 		$DB->insert_record("meta_tos_accept", $accept);
 	}
 
-	$wait = false;
+	if (is_enrolled($context, $user)) {
+		$enrol->send_confirmation_email($user, $courseid);
+		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
+	} else {
+		add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "Tried to enrol $userid into course $courseid, but somehow that failed");
+	}
 } else {
 	$waitRecord = new stdClass();
 	$waitRecord->userid = $userid;
@@ -78,13 +82,7 @@ if ($total_places - $busy_places > 0) {
 	$DB->insert_record('meta_waitlist', $waitRecord);
 
 	$wait = true;
-}
 
-//Send wait list mail or confirmation. 
-if($wait){
 	$enrol->send_waitlist_email($user, $courseid);
 	redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been signed up for the waitlist", 5);
-}else{
-	$enrol->send_confirmation_email($user, $courseid);
-	redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
 }

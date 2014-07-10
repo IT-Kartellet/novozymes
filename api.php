@@ -62,18 +62,10 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$context = CONTEXT_COURSE::instance($enrolCourse);
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
 		$sql = "SELECT u.*, je.* FROM {user} u
-				JOIN ($sql) je ON je.id = u.id";
-		$course_users = $DB->get_records_sql($sql, $params );
-		$enrolled_users = array();
-
-		foreach($course_users as $id => $user){
-			if(user_has_role_assignment($id, 5, $context->id)){
-				$enrolled_users[$id] = $user;
-				//unset($users[$id]);
-			}
-		}
+				JOIN ($sql AND eu1_e.roleid = 5) je ON je.id = u.id";
+		$students = $DB->get_records_sql($sql, $params);
 		
-		if($datecourse->total_places <=  count($enrolled_users)) {
+		if ($enrolRole === 'student' && $datecourse->total_places <= count($students)) {
 			$waitRecord = new stdClass();
 			$waitRecord->userid = $enrolGuy;
 			$waitRecord->courseid = $enrolCourse;
@@ -102,7 +94,13 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$enrol->enrol_user($instance, $enrolGuy, $role);
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
 		if ($sendEmail) {
-			$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+			if (is_enrolled($context, $user)) {
+				$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+				redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
+			} else {
+				add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "Tried to enrol $enrolGuy into course $enrolCourse, but somehow that failed");
+			}
+			
 		}
 		echo json_encode(array(
 			'action' => 'enrol',
