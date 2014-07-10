@@ -566,7 +566,7 @@ function add_coordinator($user_id, $course_id) {
 function enrol_waiting_user($eventData){
   global $DB;
   //get the first user on the waiting list
-  $user = $DB->get_records_sql("SELECT * FROM {meta_waitlist} order by timecreated asc");
+  $user = $DB->get_records_sql("SELECT * FROM {meta_waitlist} WHERE courseid = :courseid order by timecreated asc", array('courseid' => $eventData->courseid));
   $user = reset($user);
 
   $enrolmentEnd = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where courseid = :courseid and unpublishdate > :time", array("courseid" => $eventData->courseid, "time"=>time()));

@@ -2,6 +2,7 @@
 
 require_once('../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
+require_once("$CFG->libdir/filelib.php");
 require_once('lib.php');
 
 require_login();
@@ -126,6 +127,7 @@ if ($unenrolGuy && $enrolCourse) {
 			'nodates' => 0,
 		));
 
+		$PAGE->set_context(context_course::instance($enrolCourse)); // Needed in send mail
 		$enrolments = enrol_get_plugin('manual');
 		$enrolments->unenrol_user($instance, $unenrolGuy);
 
@@ -321,24 +323,28 @@ if ($exportExcel) {
 
 	$courses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id ", array("id"=> $courseid));
 
+	$users = array();
 	foreach ($courses as $key => $course) {
 		$context = context_course::instance($course->courseid);
 
-		$query = 'select u.id as id, firstname, lastname, picture, imagealt, email from {role_assignments} as a, {user} as u where contextid=' . $context->id . ' and roleid=5 and a.userid=u.id';
-		$rs = $DB->get_recordset_sql( $query ); 
-		foreach( $rs as $r ) { 
-         file_put_contents("C:\\xampp\htdocs\moodle\\enrolled_users.xls", $r->firstname . "\t" . $r->lastname ."\t" .$r->email . "\n", FILE_APPEND);
-		}
+		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
+		$sql = "SELECT u.id, u.firstname, u.lastname, u.email FROM {user} u
+				JOIN ($sql) je ON je.id = u.id";
+		$course_users = $DB->get_records_sql($sql, $params);
+		$users += $course_users;
 	}
-	$file_url = "C:\\xampp\htdocs\moodle\\enrolled_users.xls";
-	header("Content-Type:   application/vnd.ms-excel; charset=utf-8");
-	header("Content-Disposition: attachment; filename=enrolled_users.xls");  //File name extension was wrong
-	header("Expires: 0");
-	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-	header("Cache-Control: private",false);
-    ob_clean();
-    flush();
-    readfile($file_url);
-    unlink($file_url);
-    exit;
+
+	// Sort by firstname, lastname
+	usort($users, function ($u1, $u2) {
+		if ($u1->firstname === $u2->firstname) {
+			return $u1->lastname > $u2->lastname;
+		}
+		return $u1->firstname > $u2->firstname;
+	});
+
+	$file = $CFG->tempdir . '\\enrolled_users' . uniqid() . '.xls';
+	foreach ($users as $user) { 
+		file_put_contents($file, $user->firstname . "\t" . $user->lastname ."\t" .$user->email . "\n", FILE_APPEND);
+	}
+	send_temp_file($file, 'enrolled_users.xls');
 }
