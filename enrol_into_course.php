@@ -71,6 +71,7 @@ if ($total_places - $busy_places > 0) {
 		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
 	} else {
 		add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "Tried to enrol $userid into course $courseid, but somehow that failed");
+		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "There was problem with your enrolment", 5);
 	}
 } else {
 	$waitRecord = new stdClass();

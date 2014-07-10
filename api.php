@@ -107,6 +107,7 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 				redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
 			} else {
 				add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "Tried to enrol $enrolGuy into course $enrolCourse, but somehow that failed");
+				redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "There was problem with your enrolment", 5);
 			}
 			
 		}
