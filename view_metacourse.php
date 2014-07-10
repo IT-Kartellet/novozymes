@@ -274,8 +274,6 @@ if ($metacourse) {
 			$end = date("d M Y - h:i A",$datecourse->enddate);
 		}
 
-		$start = html_writer::link('/course/view.php?id=' . $datecourse->courseid, $start);
-
 		//replace id with location
 		$loc = $DB->get_record('meta_locations', array ('id'=> $datecourse->location), 'location');
 		$location = $loc->location;
