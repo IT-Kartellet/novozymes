@@ -52,6 +52,10 @@ $string['coursedates'] = 'Course dates';
 $string['youareenrolled'] = 'You are enrolled'; 
 $string['expiredenrolment'] = 'Enrolment ended'; 
 $string['addtowaitinglist'] = 'Add me to waiting list'; 
+$string['enrol_waitinglist_title'] = 'Waiting list terms title';
+$string['enrol_waitinglist_contents'] = 'Waiting list terms contents';
+$string['enrol_waitinglist_tos'] = 'Waiting list TOS';
+
 $string['tostitle'] = 'Terms of agreement'; 
 $string['tosaccept'] = 'I accept the terms of agreement'; 
 $string['cancellationaccept'] = 'If cancelling later than 5 weeks prior to the course your department will be charged the full amount.'; 

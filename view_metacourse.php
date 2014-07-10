@@ -376,7 +376,7 @@ if ($metacourse) {
 		<h1><?php echo get_string('tostitle','block_metacourse') ?></h1>
         <div id='tos_content'><?php echo get_string('toscontent','block_metacourse') ?></div>
         <div id='cmd'>
-        	<input type='checkbox' id="accept" name='accept'><label for="accept"><?php echo get_string('tosaccept','block_metacourse') ?></label><span id='waitingSpan' style='display:none'><? echo get_string('tosacceptwait','block_metacourse') ?></span>
+        	<input type='checkbox' id="accept" name='accept'><label for="accept"><?php echo get_string('tosaccept','block_metacourse') ?></label>
         	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','enrol_self') ?>' >
         	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>
@@ -391,6 +391,19 @@ if ($metacourse) {
         <div id='cmd'>
         	<input type='checkbox' id="accept_unenrol" name='accept_unenrol'><label for="accept_unenrol"><?php echo get_string('agreecancel','block_metacourse') ?></label>
         	<input id='accept_unenrol' type='button' name='submit' 'title'='unenrol' value='<?php echo get_string('unenrolme','block_metacourse') ?>' >
+        	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
+        </div>
+		<div id='lean_close'></div>
+    </div>
+</div>
+
+<div id='lean_background_waiting'>
+	<div id='lean_overlay'>
+		<h1><?php echo get_string('enrol_waitinglist_title','block_metacourse') ?></h1>
+        <div id='tos_content'><?php echo get_string('enrol_waitinglist_contents','block_metacourse') ?></div>
+        <div id='cmd'>
+        	<input type='checkbox' id="accept" name='accept'><label for="accept"><?php echo get_string('enrol_waitinglist_tos','block_metacourse') ?></label>
+        	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','enrol_self') ?>' >
         	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>
 		<div id='lean_close'></div>

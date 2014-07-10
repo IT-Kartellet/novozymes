@@ -213,7 +213,9 @@ div.who_enrol {
 }
 
 
-#lean_background {
+#lean_background,
+#lean_background_unenrol,
+#lean_background_waiting {
   margin: auto;
   position: fixed;
   top: 0; left: 0; bottom: 0; right: 0;
@@ -224,16 +226,6 @@ div.who_enrol {
   display: none;
 }
 
-#lean_background_unenrol {
-  margin: auto;
-  position: fixed;
-  top: 0; left: 0; bottom: 0; right: 0;
-  z-index:4031;
-  height:100%;
-  width:100%;
-  background-color: rgba(33,33,33,0.7);
-  display: none;
-}
 
 #tos_content{
   height: 70%;
