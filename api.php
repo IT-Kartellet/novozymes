@@ -60,11 +60,15 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$datecourse = $DB->get_record('meta_datecourse', array('courseid' => $enrolCourse));
 		
 		$context = CONTEXT_COURSE::instance($enrolCourse);
+		$PAGE->set_context($context);
+		
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
 		$sql = "SELECT u.*, je.* FROM {user} u
 				JOIN ($sql AND eu1_e.roleid = 5) je ON je.id = u.id";
 		$students = $DB->get_records_sql($sql, $params);
 		
+		$enrol = new enrol_manual_pluginITK();
+
 		if ($enrolRole === 'student' && $datecourse->total_places <= count($students)) {
 			$waitRecord = new stdClass();
 			$waitRecord->userid = $enrolGuy;
@@ -73,6 +77,11 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 			$waitRecord->timeend = 0;
 			$waitRecord->timecreated = time();
 			$DB->insert_record('meta_waitlist', $waitRecord);
+
+			if ($sendEmail) {
+				$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
+			}
+
 			echo json_encode(array(
 				'action' => 'enrol',
 				'status' => 'waitlist',
@@ -88,7 +97,6 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		  $instance = reset($instance);
 		}
 		
-		$enrol = new enrol_manual_pluginITK();
 		$role = ($enrolRole == 'teacher') ? 3 : 5;
 		$enrolUser = $DB->get_record("user", array("id"=>$enrolGuy));
 		$enrol->enrol_user($instance, $enrolGuy, $role);
