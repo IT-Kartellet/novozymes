@@ -22,17 +22,8 @@ $user = $DB->get_record("user", array("id"=>$userid), '*', MUST_EXIST);
 //check if we still have places
 list($sql, $params) = get_enrolled_sql($context, '', 0, true);
 $sql = "SELECT u.*, je.* FROM {user} u
-		JOIN ($sql) je ON je.id = u.id";
-$course_users = $DB->get_records_sql($sql, $params );
-
-$enrolled_users = array();
-
-$busy_places = 0;
-foreach($course_users as $id => $course_user){
-	if(user_has_role_assignment($id, 5, $context->id)){
-		$busy_places++;
-	}
-}
+		JOIN ($sql AND eu1_e.roleid = 5) je ON je.id = u.id";
+$busy_places = count($DB->get_records_sql($sql, $params));
 
 $total_places = $DB->get_records_sql("SELECT total_places from {meta_datecourse} where courseid = :cid", array("cid"=>$courseid));
 $total_places = reset($total_places);
