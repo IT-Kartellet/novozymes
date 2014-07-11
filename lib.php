@@ -201,7 +201,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
 
     $user->mailformat = 0;  // Always send HTML version as well
-	
     //iCal
     $ical = new iCalendar;
     $ical->add_property('method', 'PUBLISH');
@@ -433,7 +432,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
         $mail->AddReplyTo($values[0], $values[1]);
     }
 
-    if ($mail->Send()) {
+    $send = $mail->Send();
+    if ($send) {
         set_send_count($user);
         if (!empty($mail->SMTPDebug)) {
             echo '</pre>';
@@ -566,7 +566,7 @@ function add_coordinator($user_id, $course_id) {
 function enrol_waiting_user($eventData){
   global $DB;
   //get the first user on the waiting list
-  $user = $DB->get_records_sql("SELECT * FROM {meta_waitlist} order by timecreated asc");
+  $user = $DB->get_records_sql("SELECT * FROM {meta_waitlist} WHERE courseid = :courseid order by timecreated asc", array('courseid' => $eventData->courseid));
   $user = reset($user);
 
   $enrolmentEnd = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where courseid = :courseid and unpublishdate > :time", array("courseid" => $eventData->courseid, "time"=>time()));

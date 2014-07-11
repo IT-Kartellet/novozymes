@@ -2,6 +2,7 @@
 
 require_once('../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
+require_once("$CFG->libdir/filelib.php");
 require_once('lib.php');
 
 require_login();
@@ -59,20 +60,16 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$datecourse = $DB->get_record('meta_datecourse', array('courseid' => $enrolCourse));
 		
 		$context = CONTEXT_COURSE::instance($enrolCourse);
+		$PAGE->set_context($context);
+		
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
 		$sql = "SELECT u.*, je.* FROM {user} u
-				JOIN ($sql) je ON je.id = u.id";
-		$course_users = $DB->get_records_sql($sql, $params );
-		$enrolled_users = array();
-
-		foreach($course_users as $id => $user){
-			if(user_has_role_assignment($id, 5, $context->id)){
-				$enrolled_users[$id] = $user;
-				//unset($users[$id]);
-			}
-		}
+				JOIN ($sql AND eu1_e.roleid = 5) je ON je.id = u.id";
+		$students = $DB->get_records_sql($sql, $params);
 		
-		if($datecourse->total_places <=  count($enrolled_users)) {
+		$enrol = new enrol_manual_pluginITK();
+
+		if ($enrolRole === 'student' && $datecourse->total_places <= count($students)) {
 			$waitRecord = new stdClass();
 			$waitRecord->userid = $enrolGuy;
 			$waitRecord->courseid = $enrolCourse;
@@ -80,6 +77,11 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 			$waitRecord->timeend = 0;
 			$waitRecord->timecreated = time();
 			$DB->insert_record('meta_waitlist', $waitRecord);
+
+			if ($sendEmail) {
+				$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
+			}
+
 			echo json_encode(array(
 				'action' => 'enrol',
 				'status' => 'waitlist',
@@ -95,13 +97,19 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		  $instance = reset($instance);
 		}
 		
-		$enrol = new enrol_manual_pluginITK();
 		$role = ($enrolRole == 'teacher') ? 3 : 5;
 		$enrolUser = $DB->get_record("user", array("id"=>$enrolGuy));
 		$enrol->enrol_user($instance, $enrolGuy, $role);
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
 		if ($sendEmail) {
-			$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+			if (is_enrolled($context, $user)) {
+				$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+				redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
+			} else {
+				add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "Tried to enrol $enrolGuy into course $enrolCourse, but somehow that failed");
+				redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "There was problem with your enrolment", 5);
+			}
+			
 		}
 		echo json_encode(array(
 			'action' => 'enrol',
@@ -126,6 +134,7 @@ if ($unenrolGuy && $enrolCourse) {
 			'nodates' => 0,
 		));
 
+		$PAGE->set_context(context_course::instance($enrolCourse)); // Needed in send mail
 		$enrolments = enrol_get_plugin('manual');
 		$enrolments->unenrol_user($instance, $unenrolGuy);
 
@@ -321,24 +330,28 @@ if ($exportExcel) {
 
 	$courses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id ", array("id"=> $courseid));
 
+	$users = array();
 	foreach ($courses as $key => $course) {
 		$context = context_course::instance($course->courseid);
 
-		$query = 'select u.id as id, firstname, lastname, picture, imagealt, email from {role_assignments} as a, {user} as u where contextid=' . $context->id . ' and roleid=5 and a.userid=u.id';
-		$rs = $DB->get_recordset_sql( $query ); 
-		foreach( $rs as $r ) { 
-         file_put_contents("C:\\xampp\htdocs\moodle\\enrolled_users.xls", $r->firstname . "\t" . $r->lastname ."\t" .$r->email . "\n", FILE_APPEND);
-		}
+		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
+		$sql = "SELECT u.id, u.firstname, u.lastname, u.email FROM {user} u
+				JOIN ($sql) je ON je.id = u.id";
+		$course_users = $DB->get_records_sql($sql, $params);
+		$users += $course_users;
 	}
-	$file_url = "C:\\xampp\htdocs\moodle\\enrolled_users.xls";
-	header("Content-Type:   application/vnd.ms-excel; charset=utf-8");
-	header("Content-Disposition: attachment; filename=enrolled_users.xls");  //File name extension was wrong
-	header("Expires: 0");
-	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-	header("Cache-Control: private",false);
-    ob_clean();
-    flush();
-    readfile($file_url);
-    unlink($file_url);
-    exit;
+
+	// Sort by firstname, lastname
+	usort($users, function ($u1, $u2) {
+		if ($u1->firstname === $u2->firstname) {
+			return $u1->lastname > $u2->lastname;
+		}
+		return $u1->firstname > $u2->firstname;
+	});
+
+	$file = $CFG->tempdir . '\\enrolled_users' . uniqid() . '.xls';
+	foreach ($users as $user) { 
+		file_put_contents($file, $user->firstname . "\t" . $user->lastname ."\t" .$user->email . "\n", FILE_APPEND);
+	}
+	send_temp_file($file, 'enrolled_users.xls');
 }

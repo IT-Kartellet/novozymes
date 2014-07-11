@@ -27,8 +27,8 @@ if ($courseid != 0 && $userid != 0) {
 	));
 
  	//disable enrolment
-	$DB->set_field("user_enrolments", "status", 1, array("enrolid"=>$instance->id, "userid"=>$userid));
 	$enrol = new enrol_manual_pluginITK();
+	$enrol->unenrol_user($instance, $user->id);
 	$enrol->sendUnenrolMail($userid, $courseid);
 }
 redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been unenrolled", 5);

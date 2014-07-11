@@ -32,17 +32,9 @@ if ($id) {
 	if ($datecourse) {
 		$context = CONTEXT_COURSE::instance($datecourse->courseid);
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
-		$sql = "SELECT u.*, je.* FROM {user} u
-				JOIN ($sql) je ON je.id = u.id";
-		$course_users = $DB->get_records_sql($sql, $params );
-
-		$enrolled_users = array();
-
-		foreach($course_users as $id => $user){
-			if(user_has_role_assignment($id, 5, $context->id)){
-				$enrolled_users[$id] = $user;
-			}
-		}
+		$sql = "SELECT u.* FROM {user} u
+				JOIN ($sql AND eu1_e.roleid = 5) je ON je.id = u.id";
+		$students = $DB->get_records_sql($sql, $params );
 
 		$table = new html_table();
 		$table->id = "meta_table";
@@ -50,7 +42,7 @@ if ($id) {
 		$table->tablealign = "center";
 		$table->head = array('Fullname', 'Username', 'Email', 'City', 'Country', 'Last access');
 
-		foreach ($enrolled_users as $key => $user) {
+		foreach ($students as $key => $user) {
 			$table->data[] = array($user->firstname ." ". $user->lastname, $user->username, $user->email, $user->city, $user->country, date("j/m/Y - h:i A",$user->lastaccess));
 		}
 
