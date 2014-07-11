@@ -332,6 +332,10 @@ if ($exportExcel) {
 
 	$users = array();
 	foreach ($courses as $key => $course) {
+		if(is_null($course->courseid)){
+			echo "Error. Please save this course before exporting";
+			exit;
+		}
 		$context = context_course::instance($course->courseid);
 
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
