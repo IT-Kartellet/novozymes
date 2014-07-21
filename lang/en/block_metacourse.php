@@ -17,6 +17,7 @@ $string['action'] = 'Action';
 $string['signup'] = 'Sign up'; 
 $string['enrolme'] = 'Enrol me'; 
 $string['enrolOthers'] = 'Enrol others'; 
+$string['enrolOthers-wait'] = 'Sign up others for waiting list'; 
 $string['unenrolme'] = 'Confirm'; 
 $string['unenrolmebutton'] = 'Cancel my signup'; 
 $string['customemail'] = 'Custom email'; 

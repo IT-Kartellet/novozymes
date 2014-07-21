@@ -336,7 +336,13 @@ if ($metacourse) {
 		//Always add enrol others button
  		$enrolOthers = new single_button(new moodle_url('/blocks/metacourse/enrol_others_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
  		$enrolOthers->class="enrolOthers";
- 		$enrolOthers->tooltip = get_string("enrolOthers", "block_metacourse");
+ 		
+		//Set one tooltip if waiting list and another without waiting list. 
+		if($busy_places >= $total_places){
+			$enrolOthers->tooltip = get_string("enrolOthers-wait", "block_metacourse");			
+		}else{
+			$enrolOthers->tooltip = get_string("enrolOthers", "block_metacourse");
+		}
 
 		// check if the enrolment is expired
 		if ($datecourse->unpublishdate < time() && $datecourse->unpublishdate != 0) {
