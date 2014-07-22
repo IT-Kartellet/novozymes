@@ -68,7 +68,6 @@ foreach($waiting_users as $id => $user){
 
 $not_enrolled_users = $users;
 
-
 $table = new html_table();
 $table->id = 'enrol_info';
 $table->tablealign = "center";

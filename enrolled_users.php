@@ -31,10 +31,19 @@ if ($id) {
 	
 	if ($datecourse) {
 		$context = CONTEXT_COURSE::instance($datecourse->courseid);
+	
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
-		$sql = "SELECT u.* FROM {user} u
-				JOIN ($sql AND eu1_e.roleid = 5) je ON je.id = u.id";
-		$students = $DB->get_records_sql($sql, $params );
+		$sql = "SELECT u.*, je.* FROM {user} u
+		JOIN ($sql) je ON je.id = u.id";
+		$course_users = $DB->get_records_sql($sql, $params );
+		$students = array();
+
+		foreach($course_users as $id => $user){
+			if(user_has_role_assignment($id, 5, $context->id)){
+				$students[$id] = $user;
+				
+			}
+		}
 
 		$table = new html_table();
 		$table->id = "meta_table";

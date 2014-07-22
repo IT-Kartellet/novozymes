@@ -64,8 +64,16 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
 		$sql = "SELECT u.*, je.* FROM {user} u
-				JOIN ($sql AND eu1_e.roleid = 5) je ON je.id = u.id";
-		$students = $DB->get_records_sql($sql, $params);
+		JOIN ($sql) je ON je.id = u.id";
+		$course_users = $DB->get_records_sql($sql, $params );
+		$students = array();
+
+		foreach($course_users as $id => $user){
+			if(user_has_role_assignment($id, 5, $context->id)){
+				$students[$id] = $user;
+				
+			}
+		}
 		
 		$enrol = new enrol_manual_pluginITK();
 
