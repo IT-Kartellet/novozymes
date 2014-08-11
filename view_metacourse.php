@@ -395,7 +395,7 @@ if ($metacourse) {
 		<h1><?php echo get_string('cancellation','block_metacourse') ?></h1>
         <div id='tos_content'><?php echo $cancellation; ?></div>
         <div id='cmd'>
-        	<input type='checkbox' id="accept_unenrol" name='accept_unenrol'><label for="accept_unenrol"><?php echo get_string('agreecancel','block_metacourse') ?></label>
+        	<input type='checkbox' id='chck_unenroll' name='accept_unenrol'><label for="chck_unenroll"><?php echo get_string('agreecancel','block_metacourse') ?></label>
         	<input id='accept_unenrol' type='button' name='submit' 'title'='unenrol' value='<?php echo get_string('unenrolme','block_metacourse') ?>' >
         	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>

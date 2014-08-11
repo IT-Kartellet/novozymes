@@ -20,10 +20,14 @@ $instance = reset($instance);
 $user = $DB->get_record("user", array("id"=>$userid), '*', MUST_EXIST);
 
 //check if we still have places
+/*
 list($sql, $params) = get_enrolled_sql($context, '', 0, true);
 $sql = "SELECT u.*, je.* FROM {user} u
 		JOIN ($sql AND eu1_e.roleid = 5) je ON je.id = u.id";
 $busy_places = count($DB->get_records_sql($sql, $params));
+*/
+list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($courseid);
+$busy_places = count($enrolled_users);
 
 $total_places = $DB->get_records_sql("SELECT total_places from {meta_datecourse} where courseid = :cid", array("cid"=>$courseid));
 $total_places = reset($total_places);
@@ -57,7 +61,7 @@ if ($total_places - $busy_places > 0) {
 		$DB->insert_record("meta_tos_accept", $accept);
 	}
 
-	if (is_enrolled($context, $user)) {
+	if (is_user_enrolled($userid, $courseid)) {
 		$enrol->send_confirmation_email($user, $courseid);
 		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
 	} else {

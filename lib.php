@@ -71,7 +71,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
   }
  
   public function send_waitlist_email($user, $courseid){
-  global $CFG, $DB;
+	global $CFG, $DB;
 
     $site = get_site();
     $course = $DB->get_record("course",array("id"=>$courseid));
@@ -786,4 +786,62 @@ function get_users_on_waitinglist($courseid) {
          WHERE mw.courseid = :courseid", 
          array("courseid"=>$courseid)
     );
+}
+
+function is_user_enrolled($userid, $courseid){
+    global $DB;
+
+    $enrol = $DB->get_records_sql("SELECT e.courseid, ue.userid FROM {enrol} e
+        JOIN {user_enrolments} ue ON e.id = ue.enrolid
+        WHERE e.courseid = :courseid  AND ue.userid = :userid",
+        array('userid' => $userid, 'courseid' => $courseid));
+
+    return !empty($enrol);
+}
+
+//newly added function that returns enrolled, not enrolled and waitlist users
+function get_datecourse_users($courseid){
+
+    global $DB;
+
+    $metacourse = $DB->get_records_sql("SELECT mp.role as providerid, mc.coordinator as metacoordinatorid, md.coordinator as datecoordinatorid FROM {meta_course} mc
+                                        JOIN {meta_datecourse} md ON md.metaid = mc.id
+                                        JOIN {meta_providers} mp ON mp.id = mc.provider
+                                        WHERE md.courseid = :courseid", array('courseid' => $courseid));
+    $metacourse = reset($metacourse);
+    $providerid = $metacourse->providerid;
+    $metacoordinatorid = $metacourse->metacoordinatorid;
+    $datecoordinatorid = $metacourse->datecoordinatorid;
+
+    $enrolled_users = $DB->get_records_sql("SELECT ue.userid, u.firstname, u.lastname, u.username, u.email
+            FROM {user_enrolments} ue
+            JOIN {enrol} e ON e.id = ue.enrolid
+            JOIN {user} u ON ue.userid = u.id
+            WHERE e.courseid = :courseid
+            AND u.id <> :metacoordinatorid
+            AND u.id <> :datecoordinatorid",
+        array('courseid' => $courseid, 'metacoordinatorid' => $metacoordinatorid, 'datecoordinatorid' => $datecoordinatorid));
+
+    $where = " u.id NOT IN($metacoordinatorid,$datecoordinatorid,";
+
+    foreach($enrolled_users as $key => $user){
+        $where .= $user->userid . ",";
+    }
+
+    $waiting_users = get_users_on_waitinglist($courseid);
+
+    foreach($waiting_users as $waiting_user){
+        $where .= $waiting_user->id . ",";
+    }
+
+    $where = substr($where, 0, -1);
+    $where .= ") AND ";
+
+    $not_enrolled_users = $DB->get_records_sql("SELECT u.id, u.firstname, u.lastname, u.username, u.email FROM {user} u
+                                        JOIN {role_assignments} ra ON u.id = ra.userid
+                                        JOIN {role} r on r.id = ra.roleid
+                                        WHERE $where ra.roleid = :roleid AND u.id <> :guest and u.deleted <> 1 AND u.firstname IS NOT NULL AND u.firstname <> ''
+                                        ORDER BY u.username ASC", array("guest"=>1, 'roleid' => $providerid));
+
+    return array($enrolled_users, $not_enrolled_users, $waiting_users);
 }

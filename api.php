@@ -62,6 +62,7 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$context = CONTEXT_COURSE::instance($enrolCourse);
 		$PAGE->set_context($context);
 		
+		/*
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
 		$sql = "SELECT u.*, je.* FROM {user} u
 		JOIN ($sql) je ON je.id = u.id";
@@ -74,10 +75,13 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 				
 			}
 		}
+		*/
 		
+		list($students, $not_enrolled_users) = get_datecourse_users($enrolCourse);
+	
 		$enrol = new enrol_manual_pluginITK();
 
-		if ($enrolRole === 'student' && $datecourse->total_places <= count($students)) {
+		if ($enrolRole === 'student' && $datecourse->total_places <= count($students) -1) {
 			$waitRecord = new stdClass();
 			$waitRecord->userid = $enrolGuy;
 			$waitRecord->courseid = $enrolCourse;
@@ -110,7 +114,7 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$enrol->enrol_user($instance, $enrolGuy, $role);
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
 		if ($sendEmail) {
-			if (is_enrolled($context, $user)) {
+			if (is_user_enrolled($enrolGuy, $enrolCourse)) {
 				$enrol->send_confirmation_email($enrolUser, $enrolCourse);
 				redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
 			} else {
