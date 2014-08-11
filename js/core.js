@@ -153,6 +153,10 @@
 	});
 
 	$(document.body).on('click','#accept_enrol', function(e){
+		var $this = $(this);
+		$this.prop('disabled', true);
+		$this.siblings('input[name="cancel"]').prop('disabled', true);
+
 		enrolledCourse.closest('form').submit();
 	});
 
@@ -195,11 +199,6 @@
 		
 	});
 
-	$(document.body).on('click','#accept_unenrol', function(e){
-		enrolledCourse.closest('form').submit();
-	});
-
-
 	$(document.body).on('click','#lean_background_unenrol input[name="cancel"]', function(){
 		$('#lean_background_unenrol').hide();
 		$('#lean_background_unenrol input[name="accept_unenrol"]').prop('checked',false);
@@ -230,6 +229,10 @@
 	});
 
 	$(document.body).on('click','#accept_unenrol', function(e){
+		var $this = $(this);
+		$this.prop('disabled', true);
+		$this.siblings('input[name="cancel"]').prop('disabled', true);
+
 		enrolledCourse.closest('form').submit();
 	});
 
