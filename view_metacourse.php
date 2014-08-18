@@ -266,12 +266,17 @@ if ($metacourse) {
 			$start = "-";
 			$end = "-";
 		} else{
-			if (!$isTeacher) {
-				$start = date("d M Y - h:i A",$datecourse->startdate);
-			}else {
-				$start = "<a href='/course/view.php?id=$datecourse->courseid'>".date("d M Y - h:i A",$datecourse->startdate)."</a>";
+			$timezone = new DateTimeZone($datecourse->timezone);
+			$start = new DateTime(null, $timezone);
+			$start->setTimestamp($datecourse->startdate);
+			$start = $start->format("d M Y - h:i A");
+			if ($isTeacher) {
+				$start = "<a href='/course/view.php?id=$datecourse->courseid'>".$start."</a>";
 			}
-			$end = date("d M Y - h:i A",$datecourse->enddate);
+			
+			$end = new DateTime(null, $timezone);
+			$end->setTimestamp($datecourse->enddate);
+			$end = $end->format("d M Y - h:i A");
 		}
 
 		//replace id with location
