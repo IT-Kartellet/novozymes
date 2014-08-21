@@ -266,25 +266,12 @@ if ($metacourse) {
 			$start = "-";
 			$end = "-";
 		} else{
-			// http://stackoverflow.com/questions/11820718/convert-utc-offset-to-timezone-or-date
-			$dstInEffect = date('I', $datecourse->startdate) == '1';
-			$timezoneName = timezone_name_from_abbr(null, $datecourse->timezone * 3600, $dstInEffect); // At first, try to get the timezone with adjustment for DST
-			
-			if($timezoneName === false) {
-				$timezoneName = timezone_name_from_abbr(null, $datecourse->timezone * 3600, false); // If that fails, fall back to ignoring DST
-			}
-			
-			$timezone = new DateTimeZone($timezoneName);
-			$start = new DateTime(null, $timezone);
-			$start->setTimestamp($datecourse->startdate);
-			$start = $start->format("d M Y - h:i A");
+			$start = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
 			if ($isTeacher) {
 				$start = "<a href='/course/view.php?id=$datecourse->courseid'>".$start."</a>";
 			}
-			
-			$end = new DateTime(null, $timezone);
-			$end->setTimestamp($datecourse->enddate);
-			$end = $end->format("d M Y - h:i A");
+
+			$end = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
 		}
 
 		//replace id with location
