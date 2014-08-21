@@ -18,6 +18,33 @@ function block_metacourse_pluginfile($course, $cm, $context, $filearea, array $a
 	
 }
 
+function format_date_with_tz($timestamp, $offset) {
+    $oldtimezone = date_default_timezone_get();
+
+    // http://stackoverflow.com/questions/11820718/convert-utc-offset-to-timezone-or-date
+    // First lets get the timezone matching the offset
+    $tz = timezone_name_from_abbr(null, $offset * 3600, false);
+    
+    // Set that as the default, in order to figure out if DST is in effect for that offset
+    date_default_timezone_set($tz);
+    $dstInEffect = date('I', $timestamp) == '1';
+    $timezoneName = timezone_name_from_abbr(null, $offset * 3600, $dstInEffect); // At first, try to get the timezone with adjustment for DST
+    
+    if ($timezoneName === false) {
+        $timezoneName = timezone_name_from_abbr(null, $offset * 3600, false); // If that fails, fall back to ignoring DST
+    }
+
+    // And then reset to the original timezone
+    date_default_timezone_set($oldtimezone);
+    
+    $timezone = new DateTimeZone($timezoneName);
+    $date = new DateTime(null, $timezone);
+    $date->setTimestamp($timestamp);
+    $date = $date->format("d M Y - h:i A");
+
+    return $date;
+}
+
 class enrol_manual_pluginITK extends enrol_plugin {
 
   public function sendUnenrolMail($userid, $courseid){
