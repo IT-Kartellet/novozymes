@@ -80,6 +80,8 @@ if ($total_places - $busy_places > 0) {
 
 	$wait = true;
 
+	add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "$userid successfully added to the waiting list. Email sent? 1");
+
 	$enrol->send_waitlist_email($user, $courseid);
 	redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been signed up for the waitlist", 5);
 }

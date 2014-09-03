@@ -76,12 +76,12 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 			}
 		}
 		*/
-		
+			
 		list($students, $not_enrolled_users) = get_datecourse_users($enrolCourse);
 	
 		$enrol = new enrol_manual_pluginITK();
 
-		if ($enrolRole === 'student' && $datecourse->total_places <= count($students) -1) {
+		if ($enrolRole === 'student' && $datecourse->total_places <= count($students)) {
 			$waitRecord = new stdClass();
 			$waitRecord->userid = $enrolGuy;
 			$waitRecord->courseid = $enrolCourse;
@@ -89,6 +89,8 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 			$waitRecord->timeend = 0;
 			$waitRecord->timecreated = time();
 			$DB->insert_record('meta_waitlist', $waitRecord);
+
+			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully added to the waiting list. Email sent? $sendEmail");
 
 			if ($sendEmail) {
 				$enrol->send_waitlist_email($enrolGuy, $enrolCourse);

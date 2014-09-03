@@ -616,8 +616,15 @@ function enrol_waiting_user($eventData){
 
   $enrolmentEnd = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where courseid = :courseid and unpublishdate > :time", array("courseid" => $eventData->courseid, "time"=>time()));
 
-  //if there is anyone on the waiting list...
-  if ($user) {
+  list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($eventData->courseid);
+  $busy_places = count($enrolled_users);
+
+  $total_places = $DB->get_field_sql("SELECT total_places from {meta_datecourse} where courseid = :cid", array("cid"=>$eventData->courseid));
+
+  if ($user && //if there is anyone on the waiting list...
+    $enrolmentEnd && // the course is still active
+    $busy_places < $total_places // and there's still space
+  ) {
     $instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual', 'courseid' => $eventData->courseid));
     $instance = reset($instance);
     $enrolPlugin = new enrol_manual_pluginITK();
@@ -633,6 +640,8 @@ function enrol_waiting_user($eventData){
     $full_user = $DB->get_record("user",array("id"=>$user->userid));
     $enrolPlugin->send_confirmation_email($full_user, $instance->courseid);
     $DB->delete_records('meta_waitlist', array('courseid'=> $instance->courseid, 'userid' => $user->userid));
+
+    add_to_log($eventData->courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/lib.php', "$user->id successfully moved from waiting list to course. Email sent? 1");
   }
 }
 
