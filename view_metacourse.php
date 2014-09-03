@@ -261,7 +261,7 @@ if ($metacourse) {
 		// get coordinator
 		$cor = $DB->get_records_sql("SELECT username FROM {user} where id = :id", array("id"=>$datecourse->coordinator));
 		$cor = reset($cor);
-
+		
 		if ($datecourse->startdate == 0) {
 			$start = "-";
 			$end = "-";

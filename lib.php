@@ -18,8 +18,26 @@ function block_metacourse_pluginfile($course, $cm, $context, $filearea, array $a
 	
 }
 
+function format_tz_offset($offset) {
+    if (strstr($offset, ':30')) {
+        // Convert from xx:30 to xx.5 so we can multiply by it
+        // 30 minutes = 0.5 hour. I hope we do something smarter before we have to take :45 offsets into account ...
+        $offset = intval($offset);
+
+        if ($offset >= 0) {
+            $offset += .5;
+        } else {
+            $offset -= .5;
+        }
+    }
+
+    return $offset;
+}
+
 function format_date_with_tz($timestamp, $offset) {
     $oldtimezone = date_default_timezone_get();
+
+    $offset = format_tz_offset($offset);
 
     // http://stackoverflow.com/questions/11820718/convert-utc-offset-to-timezone-or-date
     // First lets get the timezone matching the offset
@@ -79,8 +97,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
 	$a->lastname = $user->lastname;
     $a->course = $datecourse->metaname;
 	$a->department = $user->department;
-	$a->periodfrom = date("d M Y - h:i A",$datecourse->startdate);
-	$a->periodto = date("d M Y - h:i A",$datecourse->enddate);
+	$a->periodfrom = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
+    $a->periodto = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
 	$a->currency = $datecourse->currency;
 	$a->price = $datecourse->price;
 	$a->location = $datecourse->loc;
@@ -131,8 +149,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
 	$a->lastname = $user->lastname;
     $a->course = $datecourse->metaname;
 	$a->department = $user->department;
-	$a->periodfrom = date("d M Y - h:i A",$datecourse->startdate);
-	$a->periodto = date("d M Y - h:i A",$datecourse->enddate);
+	$a->periodfrom = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
+    $a->periodto = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
 	$a->currency = $datecourse->currency;
 	$a->price = $datecourse->price;
 	$a->location = $datecourse->loc;
@@ -215,8 +233,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
 	$a->lastname = $user->lastname;
     $a->course = $datecourse->metaname;
 	$a->department = $user->department;
-	$a->periodfrom = date("d M Y - h:i A",$datecourse->startdate);
-	$a->periodto = date("d M Y - h:i A",$datecourse->enddate);
+	$a->periodfrom = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
+    $a->periodto = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
 	$a->currency = $datecourse->currency;
 	$a->price = $datecourse->price;
 	$a->location = $datecourse->loc;

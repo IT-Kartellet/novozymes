@@ -19,7 +19,7 @@ class datecourse_form extends moodleform {
 
         //timezones
         $timezones = array("-11" => "-11", "-10" => "-10", "-9" => "-9", "-8" => "-8", "-7" => "-7", "-6" => "-6", "-5" => "-5", "-4" => "-4", "-3" => "-3",
-            "-2" => "-2", "-1" => "-1", "+0" => "0", "+1" => "+1", "+2" => "+2", "+3" => "+3", "+4" => "+4", "+5" => "+5", "+6" => "+6", "+7" => "+7",
+            "-2" => "-2", "-1" => "-1", "+0" => "0", "+1" => "+1", "+2" => "+2", "+3" => "+3", "+4" => "+4", "+5" => "+5", "+5:30" => "+5:30", "+6" => "+6", "+7" => "+7",
             "+8" => "+8", "+9" => "+9", "+10" => "+10", "+11" => "+11", "+12" => "+12");
 
         //get locations from the database
@@ -77,6 +77,9 @@ class datecourse_form extends moodleform {
             } else {
                 $timezone = 0;
             }
+
+            // Datetimeselector needs 5.5 as format, not 5:30
+            $timezone = format_tz_offset($timezone);
 			
             $mform->addElement('html',"<div class='template'>");
             $mform->addElement('hidden','datecourse['. $key .'][id]', '0');
