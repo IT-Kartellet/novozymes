@@ -2,6 +2,8 @@
 
 /* TRANSLATABLE */
 
+$string['deleted_all_courses_error'] = 'You attempted to save a metacourse with no dates attached. Please go back and make sure that at least one date is added to the course.';
+
 $string['pluginname'] = 'Metacourse';
 $string['modulename'] = 'Metacourse';
 $string['name'] = 'Metacourse';

@@ -127,6 +127,18 @@ if ($changed) {
 	$DB->update_record('meta_course', $meta);
 }
 
+$count_deleted = array_reduce($datecourses, function ($acc, $datecourse) {
+	if (@$datecourse['deleted'] == 1) {
+		$acc++;
+	} 
+	return $acc;
+}, 0);
+
+if ($count_deleted === count($datecourses)) {
+	// Print an error message and die here
+	print_error('deleted_all_courses_error', 'block_metacourse', $CFG->wwwroot . "blocks/metacourse/add_metacourse.php?id=$metaid");
+}
+
 foreach ($datecourses as $key => $course) {
 	if(!isset($course['timestart'])){
 		var_dump($course);

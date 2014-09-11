@@ -653,24 +653,12 @@ function update_metacourse($eventData){
 function delete_metacourse($eventData){
   global $DB;
   $courseid = $eventData->id;
-  try{
-    $datecourses = $DB->get_records_sql("SELECT id, metaid FROM {meta_datecourse} where courseid = :courseid",array("courseid"=>$courseid));
-    $datecourse = reset($datecourses);
-    //supress the warning, as sometimes the datecourse can be deleted without deleting the course first
-    @$metaid = $datecourse->metaid;
-
+  try {
     $DB->delete_records("meta_datecourse",array("courseid"=>$courseid));
     $DB->delete_records("meta_waitlist",array("courseid"=>$courseid));
     $DB->delete_records("meta_tos_accept",array("courseid"=>$courseid));
-
-    $otherCourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :meta", array("meta"=>$metaid));
-
-    if (count($otherCourses) == 0) {
-        $DB->delete_records("meta_course",array("id"=>$metaid));
-    }
-
   } catch(Exception $e){
-        add_to_log(1, 'metacourse_err', 'course_deleted_error', "", json_encode($e), 0, $USER->id);
+    add_to_log(1, 'metacourse_err', 'course_deleted_error', "", json_encode($e), 0, $USER->id);
   }
 }
 
