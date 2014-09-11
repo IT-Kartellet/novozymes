@@ -8,7 +8,7 @@ require_once('lib.php');
 
 require_login();
 
-$id = optional_param('id', 0, PARAM_INT);
+$id = required_param('id', PARAM_INT);
 
 $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('admin');
@@ -26,19 +26,14 @@ $isTeacher = has_capability("moodle/course:create", context_system::instance());
 echo $OUTPUT->header();
 global $DB, $USER;
 
-$titles = [];
-$titles['purpose'] = get_string('purpose', 'block_metacourse'); 
-
 $metacourse = $DB->get_records_sql("
 	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.lodging, c.coordinator, c.multiple_dates, p.provider, c.contact, c.timemodified
 	FROM {meta_course} c join {meta_providers} p on c.provider = p.id where c.id = :id", array("id"=>$id));
 $metacourse = reset($metacourse);
 
 $cancellation = "";
-
 // default id, just see the list of courses
 if ($metacourse) {
-
 	$table = new html_table();
 	$table->id = "view_meta_table";
 	$table->width = "100%";
@@ -206,8 +201,7 @@ if ($metacourse) {
 
 	// gets all the views
 	if ($isTeacher) {
-		$nr_of_views = $DB->get_records_sql("SELECT * FROM {log} l where module = :module and url like :url", array("module"=>"metacourse","url"=>"%$id"));
-		$nr_of_views = count($nr_of_views);
+		$nr_of_views = $DB->count_records_select('log', "module = :module and url like :url", array("module"=>"metacourse","url"=>"%$id"));
 		$table->data[] = array(get_string('nrviews','block_metacourse'), $nr_of_views);
 	}
 
@@ -220,15 +214,7 @@ if ($metacourse) {
 	echo html_writer::table($table);
 
 	echo html_writer::tag('h1', get_string('coursedates','block_metacourse'), array('id' => 'course_header', 'class' => 'main'));
-	$datecourses = $DB->get_records_sql("SELECT d.*, c.currency FROM {meta_datecourse} d join {meta_currencies} c on d.currencyid=c.id where metaid = :id", array("id"=>$id));
-
-	// sort datecourses after date
-	$ads = usort($datecourses, function($d1, $d2){
-		if ($d1->startdate == $d2->startdate) {
-			return 0;
-		}
-		return ($d1->startdate < $d2->startdate) ? -1 : 1;
-	});
+	$datecourses = $DB->get_records_sql("SELECT d.*, c.currency FROM {meta_datecourse} d join {meta_currencies} c on d.currencyid=c.id where metaid = :id ORDER BY startdate ASC", array("id"=>$id));
 
 	$date_table = new html_table();
 	$date_table->id = "view_date_table";
