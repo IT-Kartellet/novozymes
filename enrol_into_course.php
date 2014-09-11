@@ -63,7 +63,7 @@ if ($total_places - $busy_places > 0) {
 
 	if (is_user_enrolled($userid, $courseid)) {
 		$enrol->send_confirmation_email($user, $courseid);
-		add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', '$userid successfully enrolled');
+		add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "$userid successfully enrolled");
 		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
 	} else {
 		add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "Tried to enrol $userid into course $courseid, but somehow that failed");
@@ -79,6 +79,8 @@ if ($total_places - $busy_places > 0) {
 	$DB->insert_record('meta_waitlist', $waitRecord);
 
 	$wait = true;
+
+	add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "$userid successfully added to the waiting list. Email sent? 1");
 
 	$enrol->send_waitlist_email($user, $courseid);
 	redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been signed up for the waitlist", 5);

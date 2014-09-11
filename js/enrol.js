@@ -88,10 +88,12 @@
 						$waiting.html(parseInt($waiting.html(), 10) + 1);
 						$(v).appendTo("#waitingselect");
 						waiting_users.push(v);
-					} else {
+					} else if (response.status === "done") {
 						$enrolled.html(parseInt($enrolled.html(), 10) + 1);
 						$(v).appendTo("#removeselect");
 						enrolled_users.push(v);
+					} else {
+						alert('There was a problem with the enrolment');
 					}
 
 					spinner.hide();

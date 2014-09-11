@@ -76,12 +76,12 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 			}
 		}
 		*/
-		
+			
 		list($students, $not_enrolled_users) = get_datecourse_users($enrolCourse);
 	
 		$enrol = new enrol_manual_pluginITK();
 
-		if ($enrolRole === 'student' && $datecourse->total_places <= count($students) -1) {
+		if ($enrolRole === 'student' && $datecourse->total_places <= count($students)) {
 			$waitRecord = new stdClass();
 			$waitRecord->userid = $enrolGuy;
 			$waitRecord->courseid = $enrolCourse;
@@ -89,6 +89,8 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 			$waitRecord->timeend = 0;
 			$waitRecord->timecreated = time();
 			$DB->insert_record('meta_waitlist', $waitRecord);
+
+			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully added to the waiting list. Email sent? $sendEmail");
 
 			if ($sendEmail) {
 				$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
@@ -113,21 +115,26 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$enrolUser = $DB->get_record("user", array("id"=>$enrolGuy));
 		$enrol->enrol_user($instance, $enrolGuy, $role);
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
-		if ($sendEmail) {
-			if (is_user_enrolled($enrolGuy, $enrolCourse)) {
+		
+		if (is_user_enrolled($enrolGuy, $enrolCourse)) {
+			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully enrolled. Email sent? $sendEmail");
+			if ($sendEmail) {
 				$enrol->send_confirmation_email($enrolUser, $enrolCourse);
-				redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
-			} else {
-				add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "Tried to enrol $enrolGuy into course $enrolCourse, but somehow that failed");
-				redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "There was problem with your enrolment", 5);
 			}
+			echo json_encode(array(
+				'action' => 'enrol',
+				'status' => 'done',
+				'role' => $role,
+			));
+		} else {
+			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Tried to enrol $enrolGuy into course $enrolCourse, but somehow that failed");
 			
+			echo json_encode(array(
+				'action' => 'enrol',
+				'status' => 'error',
+				'role' => $role,
+			));
 		}
-		echo json_encode(array(
-			'action' => 'enrol',
-			'status' => 'done',
-			'role' => $role,
-		));
 	} catch (Exception $e) {
 		http_response_code(500);
 		echo json_encode($e);
@@ -149,6 +156,8 @@ if ($unenrolGuy && $enrolCourse) {
 		$PAGE->set_context(context_course::instance($enrolCourse)); // Needed in send mail
 		$enrolments = enrol_get_plugin('manual');
 		$enrolments->unenrol_user($instance, $unenrolGuy);
+
+		add_to_log($enrolCourse, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Unenrolled $unenrolGuy from $enrolCourse");
 
 		echo json_encode("done");
 	} catch (Exception $e) {
