@@ -103,10 +103,12 @@ Best regards
 $string['emailwait'] = '
 Dear {$a->firstname} {$a->lastname},
  
-We hearby confirm your request for:
-Title: {$a->course}
+We hereby confirm that you have been added to a waiting list.
 
-You will automatically be contacted when the course has been scheduled. 
+Title: {$a->course}
+Dates: {$a->periodfrom} - {$a->periodto}
+
+When a seat becomes available you will automatically be signed up for the course and you will receive an email confirming this.
 
 Best regards
 {$a->coordinator}
