@@ -111,6 +111,36 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2014070301, 'metacourse');
     }
 
+    if ($oldversion < 2014091605) {
+        $table = new xmldb_table('meta_views_log');
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('metaid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('user', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_index('views_count_idx', XMLDB_INDEX_NOTUNIQUE, array('metaid'));
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Upgrade all old log views
+        $old_logs = $DB->get_records('log', array('module' => 'metacourse', 'action' => 'view'));
+ 
+        foreach ($old_logs as $entry) {
+            $metaid = str_replace('view_metacourse.php?id=', '', $entry->url);
+            $DB->insert_record('meta_views_log', array(
+                'metaid' => $metaid,
+                'user' => $entry->userid,
+                'timestamp' => $entry->time,
+            ));
+        }
+
+        // Label savepoint reached.
+        upgrade_block_savepoint(true, 2014091605, 'metacourse');
+    }
 
     return $result;
 }

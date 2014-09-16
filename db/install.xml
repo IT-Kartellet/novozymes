@@ -246,5 +246,19 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="meta_views_log" COMMENT="stores metacourse views">
+      <FIELDs>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="metaid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="user" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDs>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+       <INDEXES>
+        <INDEX NAME="views_count_idx" UNIQUE="false" FIELDS="metaid"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

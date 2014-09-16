@@ -201,7 +201,7 @@ if ($metacourse) {
 
 	// gets all the views
 	if ($isTeacher) {
-		$nr_of_views = $DB->count_records_select('log', "module = :module and url like :url", array("module"=>"metacourse","url"=>"%$id"));
+		$nr_of_views = $DB->count_records('meta_views_log', array("metaid"=>$id));
 		$table->data[] = array(get_string('nrviews','block_metacourse'), $nr_of_views);
 	}
 
@@ -405,20 +405,17 @@ if ($metacourse) {
 }
 
 if (!$isTeacher) {
+	// Add to the regular moodle log so we can easily monitor meta course views.
+	add_to_log(0, 'metacourse', 'view', "view_metacourse.php?id=$id");
+	
+	// And add a record to our own metacourse view log, to optimize performance when counting the number of views
 	$log_record = new stdClass();
-	$log_record->time = time();
-	$log_record->userid = $USER->id;
-	$log_record->ip = "0:0:0:0:0:0:0:1";
-	$log_record->course = 0;
-	$log_record->module = 'metacourse';
-	$log_record->cmid = 0;
-	$log_record->action = 'view';
-	$log_record->url = "view_metacourse.php?id=$id";
-	$log_record->info = 1;
+	$log_record->timestamp = time();
+	$log_record->user = $USER->id;
+	$log_record->metaid = $id;
 	try {
-		$DB->insert_record('log',$log_record);
-	} catch (Exception $e) {
-	}
+		$DB->insert_record('meta_views_log', $log_record);
+	} catch (Exception $e) { }
 }
 
 echo $OUTPUT->footer();
