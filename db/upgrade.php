@@ -111,7 +111,7 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2014070301, 'metacourse');
     }
 
-    if ($oldversion < 2014091605) {
+    if ($oldversion < 2014091606) {
         $table = new xmldb_table('meta_views_log');
 
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -126,20 +126,36 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
             $dbman->create_table($table);
         }
 
-        // Upgrade all old log views
-        $old_logs = $DB->get_records('log', array('module' => 'metacourse', 'action' => 'view'));
- 
-        foreach ($old_logs as $entry) {
-            $metaid = str_replace('view_metacourse.php?id=', '', $entry->url);
-            $DB->insert_record('meta_views_log', array(
-                'metaid' => $metaid,
-                'user' => $entry->userid,
-                'timestamp' => $entry->time,
-            ));
-        }
+        /* 
+            DO THIS IN A SEPARATE SCRIPT, ON A SITE WITH A LOT OF LOG ENTRIES THIS WILL TIME OUT AND LEAVE THE SITE IN MAINTENANCE MODE WHILE UPDATING - BAD, MKAY!
+       
+            <?php
+            define('CLI_SCRIPT', true);
+
+            require(dirname(__FILE__).'/config.php'); // global moodle config file.
+
+            // Upgrade all old log views
+            $old_logs = $DB->get_records('log', array('module' => 'metacourse', 'action' => 'view'));
+
+            $i = 0;
+            foreach ($old_logs as $entry) {
+                $i++;
+                if ($i % 1000 === 0) {
+                    echo $i . "\n";
+                }
+
+                $metaid = str_replace('view_metacourse.php?id=', '', $entry->url);
+                $DB->insert_record('meta_views_log', array(
+                    'metaid' => $metaid,
+                    'user' => $entry->userid,
+                    'timestamp' => $entry->time,
+                ));
+            }
+            ?>
+        */
 
         // Label savepoint reached.
-        upgrade_block_savepoint(true, 2014091605, 'metacourse');
+        upgrade_block_savepoint(true, 2014091606, 'metacourse');
     }
 
     return $result;
