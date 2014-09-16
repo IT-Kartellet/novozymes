@@ -50,6 +50,9 @@ $course_users = $DB->get_records_sql($sql, $params );
 $datecourse = $DB->get_record('meta_datecourse', array(
 	'courseid' => $courseid,
 ));
+$metacourse = $DB->get_record('meta_course', array('id' => $datecourse->metaid));
+
+$isCoordinator = $metacourse->coordinator === $USER->id || $datecourse->coordinator === $USER->id;
 
 $waiting_users = get_users_on_waitinglist($courseid);
 
@@ -108,10 +111,12 @@ echo html_writer::table($table);
               <input name="add" id="add" type="submit" value="<?php echo $OUTPUT->larrow().'&nbsp;'.get_string('add'); ?>" title="<?php print_string('add'); ?>" /><br />
               <input type="hidden" id="courseID" value = "<?php echo $courseid ?>" />
           </div>
-          <div id="removecontrols">
-              <input name="remove" id="remove" type="submit" value="<?php echo get_string('remove').'&nbsp;'.$OUTPUT->rarrow(); ?>" title="<?php print_string('remove'); ?>" />
-              <input type="hidden" id="courseID" value = "<?php echo $courseid ?>" />
-          </div>
+          <?php if ($isCoordinator): ?>
+            <div id="removecontrols">
+                <input name="remove" id="remove" type="submit" value="<?php echo get_string('remove').'&nbsp;'.$OUTPUT->rarrow(); ?>" title="<?php print_string('remove'); ?>" />
+                <input type="hidden" id="courseID" value = "<?php echo $courseid ?>" />
+            </div>
+          <?php endif; ?>
       </td>
       <td id="potentialcell">
           <p><label for="addselect">Users not enrolled</label></p>
