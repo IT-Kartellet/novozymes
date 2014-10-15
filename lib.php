@@ -855,7 +855,7 @@ function get_datecourse_users($courseid){
     $metacoordinatorid = $metacourse->metacoordinatorid;
     $datecoordinatorid = $metacourse->datecoordinatorid;
 
-    $enrolled_users = $DB->get_records_sql("SELECT ue.userid, u.firstname, u.lastname, u.username, u.email
+    $enrolled_users = $DB->get_records_sql("SELECT ue.userid, u.*
             FROM {user_enrolments} ue
             JOIN {enrol} e ON e.id = ue.enrolid
             JOIN {user} u ON ue.userid = u.id
