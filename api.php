@@ -394,8 +394,8 @@ if ($exportExcel) {
 	$users_to_write = array();
 	foreach ($users as $user) {
 		$users_to_write[] = array(
-			'First name' => @$user->firstname,
-			'Last name' => @$user->lastname,
+			'First name' => @iconv('UTF-8', 'Windows-1252', $user->firstname),
+			'Last name' => @iconv('UTF-8', 'Windows-1252', $user->lastname),
 			'Initials' => @$user->email,
 			'Department' => @$user->department,
 			'Business area' => @$user->institution,
