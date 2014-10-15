@@ -384,7 +384,7 @@ if ($exportExcel) {
 
 	require_once "lib/excel.class.php"; 
 	$filename = $CFG->tempdir . '/enrolled_users' . uniqid() . '.xls';
-	$fp = fopen("xlsfile:/" . $filename, "wb"); 
+	$fp = fopen("xlsfile://" . $filename, "wb"); 
 	if (!is_resource($fp)) 
 	{ 
     	die("Cannot open $filename"); 

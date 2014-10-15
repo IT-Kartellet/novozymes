@@ -71,8 +71,7 @@ class xlsStream
      */ 
     function stream_open($path, $mode, $options, &$opened_path) 
     { 
-        $url = parse_url($path); 
-        $this->xlsfilename = '/' . $url['host'] . $url['path']; 
+        $this->xlsfilename = str_replace('xlsfile://', '', $path);
         $this->position = 0; 
         $this->mode = $mode; 
 
