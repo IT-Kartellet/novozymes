@@ -349,34 +349,89 @@ if ($getTemplate != 0) {
 if ($exportExcel) {
 	$courseid = $exportExcel;
 
-	$courses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id ", array("id"=> $courseid));
+	// only shows courses from the current year
+	$year_start = strtotime("01-01-" . date("Y"));
+	
+	$metacourse = $DB->get_record('meta_course', array('id' => $courseid));
+	$datecourses = $DB->get_records_sql(
+		"SELECT meta.*, currency.currency FROM {meta_datecourse} meta 
+		LEFT JOIN  {meta_currencies} currency ON meta.currencyid = currency.id 
+		WHERE metaid = :id AND meta.startdate > :year_start ORDER BY meta.startdate ASC", 
+		array("id"=> $courseid, "year_start" => $year_start)
+	);
+	
+	// Find the next upcomming course
+	$upcomming_course = null;
+	foreach ($datecourses as $key => $course ) {
+		if ($course->startdate > time()) {
+			$upcomming_course = $course;
+			
+			unset($datecourses[$key]);
+			break;
+		}	
+	}
+	
+	if ($upcomming_course) {
+		// And add it to the beginning of the sequence so its output first
+		array_unshift($datecourses, $upcomming_course);
+	}
 
 	$users = array();
-	foreach ($courses as $key => $course) {
+	foreach ($datecourses as $key => $course) {
 		if(is_null($course->courseid)){
 			echo "Error. Please save this course before exporting";
 			exit;
 		}
 		$context = context_course::instance($course->courseid);
 
-		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
-		$sql = "SELECT u.id, u.firstname, u.lastname, u.email FROM {user} u
-				JOIN ($sql) je ON je.id = u.id";
-		$course_users = $DB->get_records_sql($sql, $params);
-		$users += $course_users;
-	}
+		list($enrolled_users) = get_datecourse_users($course->courseid);
+		
+		// Sort by firstname, lastname
+		usort($enrolled_users, function ($u1, $u2) {
+			if ($u1->firstname === $u2->firstname) {
+				return $u1->lastname > $u2->lastname;
+			}
+			return $u1->firstname > $u2->firstname;
+		});
 
-	// Sort by firstname, lastname
-	usort($users, function ($u1, $u2) {
-		if ($u1->firstname === $u2->firstname) {
-			return $u1->lastname > $u2->lastname;
+		foreach ($enrolled_users as $user) {
+			$user->startdate = $course->startdate;
+			$user->enddate = $course->enddate;
+			$user->timezone = $course->timezone;
+			$user->price = $course->price . ' ' . $course->currency;
+
+			$users[] = $user;
 		}
-		return $u1->firstname > $u2->firstname;
-	});
 
-	$file = $CFG->tempdir . '\\enrolled_users' . uniqid() . '.xls';
-	foreach ($users as $user) { 
-		file_put_contents($file, $user->firstname . "\t" . $user->lastname ."\t" .$user->email . "\n", FILE_APPEND);
+		$users[] = new stdClass();
 	}
-	send_temp_file($file, 'enrolled_users.xls');
+
+	require_once "lib/excel.class.php"; 
+	$filename = $CFG->tempdir . '/enrolled_users' . uniqid() . '.xls';
+	$fp = fopen("xlsfile://" . $filename, "wb"); 
+	if (!is_resource($fp)) 
+	{ 
+    	die("Cannot open $filename"); 
+	} 
+	
+	// Convert headers to upper case and user objects to arrays
+	$users_to_write = array();
+	foreach ($users as $user) {
+		$users_to_write[] = array(
+			'First name' => @iconv('UTF-8', 'Windows-1252', $user->firstname),
+			'Last name' => @iconv('UTF-8', 'Windows-1252', $user->lastname),
+			'Initials' => @$user->email,
+			'Department' => @$user->department,
+			'Business area' => @$user->institution,
+			'Country' => @$user->country,
+			'Start date' => !empty($user->startdate) ? format_date_with_tz($user->startdate, $user->timezone) : '',
+			'End date' => !empty($user->enddate) ? format_date_with_tz($user->enddate, $user->timezone): '',
+			'Price' => !empty($user->price) ? $user->price: '',
+		);
+	}
+
+	fwrite($fp, serialize($users_to_write)); 
+	fclose($fp); 
+
+	send_temp_file($filename, str_replace(' ',	'_', $metacourse->name) . '_enrolled_users.xls');
 }
