@@ -75,6 +75,7 @@ class xlsStream
 			
         $this->xlsfilename = $url['host'] . $url['path']; 
 		$this->xlsfilename = str_replace("xlsfile://", '', $path);
+
         $this->position = 0; 
         $this->mode = $mode; 
 
@@ -83,7 +84,6 @@ class xlsStream
         //@TODO: test for invalid mode and trigger error if required 
 
         // open underlying resource 
-		var_dump($this->xlsfilename);
         $this->fp = @fopen($this->xlsfilename, $this->mode); 
         if (is_resource($this->fp)) 
         { 

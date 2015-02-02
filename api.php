@@ -349,8 +349,32 @@ if ($getTemplate != 0) {
 if ($exportExcel) {
 	$courseid = $exportExcel;
 
+	// only shows courses from the current year
+	$year_start = strtotime("01-01-" . date("Y"));
+	
 	$metacourse = $DB->get_record('meta_course', array('id' => $courseid));
-	$datecourses = $DB->get_records_sql("SELECT meta.*, currency.currency FROM {meta_datecourse} meta LEFT JOIN  {meta_currencies} currency ON meta.currencyid = currency.id WHERE metaid = :id ", array("id"=> $courseid));
+	$datecourses = $DB->get_records_sql(
+		"SELECT meta.*, currency.currency FROM {meta_datecourse} meta 
+		LEFT JOIN  {meta_currencies} currency ON meta.currencyid = currency.id 
+		WHERE metaid = :id AND meta.startdate > :year_start ORDER BY meta.startdate ASC", 
+		array("id"=> $courseid, "year_start" => $year_start)
+	);
+	
+	// Find the next upcomming course
+	$upcomming_course = null;
+	foreach ($datecourses as $key => $course ) {
+		if ($course->startdate > time()) {
+			$upcomming_course = $course;
+			
+			unset($datecourses[$key]);
+			break;
+		}	
+	}
+	
+	if ($upcomming_course) {
+		// And add it to the beginning of the sequence so its output first
+		array_unshift($datecourses, $upcomming_course);
+	}
 
 	$users = array();
 	foreach ($datecourses as $key => $course) {
@@ -375,16 +399,13 @@ if ($exportExcel) {
 			$user->enddate = $course->enddate;
 			$user->timezone = $course->timezone;
 			$user->price = $course->price . ' ' . $course->currency;
-
 			$users[] = $user;
 		}
-
-		$users[] = new stdClass();
 	}
 
 	require_once "lib/excel.class.php"; 
 	$filename = $CFG->tempdir . '/enrolled_users' . uniqid() . '.xls';
-	$fp = fopen("xlsfile://" . str_replace('\\', '/', $filename), "wb"); 
+	$fp = fopen("xlsfile://" . $filename, "wb"); 
 	if (!is_resource($fp)) 
 	{ 
     	die("Cannot open $filename"); 
@@ -394,8 +415,8 @@ if ($exportExcel) {
 	$users_to_write = array();
 	foreach ($users as $user) {
 		$users_to_write[] = array(
-			'First name' => @$user->firstname,
-			'Last name' => @$user->lastname,
+			'First name' => @iconv('UTF-8', 'Windows-1252', $user->firstname),
+			'Last name' => @iconv('UTF-8', 'Windows-1252', $user->lastname),
 			'Initials' => @$user->email,
 			'Department' => @$user->department,
 			'Business area' => @$user->institution,
