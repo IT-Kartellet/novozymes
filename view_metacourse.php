@@ -263,7 +263,8 @@ if ($metacourse) {
 		//replace id with location
 		$loc = $DB->get_record('meta_locations', array ('id'=> $datecourse->location), 'location');
 		$location = $loc->location;
-
+		
+	
 		//replace id with language
 		$lang = $DB->get_record('meta_languages', array ('id'=> $datecourse->lang), 'language');
 		$language =$lang->language;
