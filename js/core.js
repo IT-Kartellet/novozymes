@@ -36,9 +36,9 @@
 
 		  	$(elem).prop('checked', true);
 
-		  };
+		  }
 		});
-	};
+	}
 
 	$(document.body).on("click","form[action='add_datecourse.php'] input[id='id_submitbutton']",function(){
 		// var list = $('input.checkboxgroup1');
@@ -52,7 +52,7 @@
 		if (!target_checked) {
 			alert("Please select at least one target.");
 			return false;
-		};
+		}
 	
 	});	
 
@@ -67,7 +67,7 @@
 			parent.html(itk_course_template.html());
 		}
 	});
-	
+
 	$(document.body).on("click","#addDateCourse",function(){
 		//used to duplicate the datecourses;
 		var course = $("div.template").last().clone(true, true);
@@ -79,27 +79,29 @@
 
 		// Get all input elements"
 		var elements = victim.find("select, input:not(#removeDateCourse)");
-		
+
 		$.each(elements, function(ix, element) {
 			$label = $('label[for="' + element.id + '"]', victim); // make sure the correct element is focused when clicking the label
 			$label.attr('for', $label.attr('for').replace(/\d+/, index));
 
 			element.name = element.name.replace(/\d+/, index); // Update the element itself
 			element.id = element.id.replace(/\d+/, index);
-			
+
 			$wrapper = $(element).closest('.fitem'); // And the id of the wrapper
 			$wrapper[0].id = $wrapper[0].id.replace(/\d+/, index);
 		});
 
+		victim.find('#removeDateCourse').attr('class', 'none');
+
 		// update dates
 		var today = new Date();
-		
+
 		var dd = today.getDate();
 		var m = 0;
-		var h = 0; 
+		var h = 0;
 		var mm = today.getMonth()+1;
 		var yyyy = today.getFullYear();
-		
+
 		victim.find("select[name*='minutes']").val(m);
 		victim.find("select[name*='hour']").val(h);
 		victim.find("select[name*='day']").val(dd);
@@ -112,16 +114,17 @@
 		if ($("div.template").length < 2) {
 			alert("You cannot remove this. Select the 'No dates' checkbox if you don't need any dates.");
 			return false;
-		};
-		var x;
-		var r=confirm("Are you sure you want to remove this date? This could remove course files and data if the course already started.");
-		if (r==true){
-			$(this).parent(".template").hide();
-			
-			var index = $(this).attr('class');
-			$("input[name='datecourse["+ $(this).attr('class') +"][deleted]']").val(1);
 		}
-		
+
+		if (confirm("Are you sure you want to remove this date? This could remove course files and data if the course already started.")) {
+			var klass = $(this).attr('class');
+
+			$(this).parent(".template").remove();
+
+			if (klass !== 'none') {
+				$("input[name='datecourse["+ klass +"][deleted]']").val(1);
+			}
+		}
 	});
 
 
@@ -136,7 +139,7 @@
 		$("#waitingSpan").show();
 		if (!$('#lean_background input[name="accept"]').is(":checked")) {
 			$('#lean_background input[name="submit"]').prop('disabled',true);
-		};
+		}
 	});
 
 	//enrol me
@@ -149,7 +152,7 @@
 		$("#lean_background").show();
 		if (!$('#lean_background input[name="accept"]').is(":checked")) {
 			$('#lean_background input[name="submit"]').prop('disabled',true);
-		};
+		}
 	});
 
 	$(document.body).on('click','#accept_enrol', function(e){
