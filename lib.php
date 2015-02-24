@@ -42,14 +42,24 @@ function format_date_with_tz($timestamp, $offset) {
     // http://stackoverflow.com/questions/11820718/convert-utc-offset-to-timezone-or-date
     // First lets get the timezone matching the offset
     $tz = timezone_name_from_abbr(null, $offset * 3600, false);
-    
+
+    if ($tz === false) {
+        // Perhaps there is no timezone matching that offset - lets try with DST on ..
+        $tz = timezone_name_from_abbr(null, $offset * 3600, true);
+    }
+
     // Set that as the default, in order to figure out if DST is in effect for that offset
     date_default_timezone_set($tz);
+
     $dstInEffect = date('I', $timestamp) == '1';
-    $timezoneName = timezone_name_from_abbr(null, $offset * 3600, $dstInEffect); // At first, try to get the timezone with adjustment for DST
+    $timezoneName = timezone_name_from_abbr("", $offset * 3600, $dstInEffect); // At first, try to get the timezone with adjustment for DST
     
-    if ($timezoneName === false) {
-        $timezoneName = timezone_name_from_abbr(null, $offset * 3600, false); // If that fails, fall back to ignoring DST
+	if ($timezoneName === false) {
+        $timezoneName = timezone_name_from_abbr("", $offset * 3600, false); // If that fails, fall back to ignoring DST
+    }
+	
+	if ($timezoneName === false) {
+        $timezoneName = $tz;
     }
 
     // And then reset to the original timezone

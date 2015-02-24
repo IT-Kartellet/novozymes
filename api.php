@@ -349,8 +349,32 @@ if ($getTemplate != 0) {
 if ($exportExcel) {
 	$courseid = $exportExcel;
 
+	// only shows courses from the current year
+	$year_start = strtotime("01-01-" . date("Y"));
+	
 	$metacourse = $DB->get_record('meta_course', array('id' => $courseid));
-	$datecourses = $DB->get_records_sql("SELECT meta.*, currency.currency FROM {meta_datecourse} meta LEFT JOIN  {meta_currencies} currency ON meta.currencyid = currency.id WHERE metaid = :id ", array("id"=> $courseid));
+	$datecourses = $DB->get_records_sql(
+		"SELECT meta.*, currency.currency FROM {meta_datecourse} meta 
+		LEFT JOIN  {meta_currencies} currency ON meta.currencyid = currency.id 
+		WHERE metaid = :id AND meta.startdate > :year_start ORDER BY meta.startdate ASC", 
+		array("id"=> $courseid, "year_start" => $year_start)
+	);
+	
+	// Find the next upcomming course
+	$upcomming_course = null;
+	foreach ($datecourses as $key => $course ) {
+		if ($course->startdate > time()) {
+			$upcomming_course = $course;
+			
+			unset($datecourses[$key]);
+			break;
+		}	
+	}
+	
+	if ($upcomming_course) {
+		// And add it to the beginning of the sequence so its output first
+		array_unshift($datecourses, $upcomming_course);
+	}
 
 	$users = array();
 	foreach ($datecourses as $key => $course) {
@@ -375,11 +399,8 @@ if ($exportExcel) {
 			$user->enddate = $course->enddate;
 			$user->timezone = $course->timezone;
 			$user->price = $course->price . ' ' . $course->currency;
-
 			$users[] = $user;
 		}
-
-		$users[] = new stdClass();
 	}
 
 	require_once "lib/excel.class.php"; 
