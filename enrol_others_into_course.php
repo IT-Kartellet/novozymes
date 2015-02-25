@@ -88,7 +88,7 @@ echo html_writer::table($table);
 <select name="user_role_enrol" id="enrol_role">
 	<option value="student" id='enrol_student'>Employee</option>
 	<option value="teacher" id='enrol_teacher'>Teacher</option>
-</select> 
+</select>
 
 <form id="assignform" method="post" ><div>
   <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
@@ -111,7 +111,7 @@ echo html_writer::table($table);
               <input name="add" id="add" type="submit" value="<?php echo $OUTPUT->larrow().'&nbsp;'.get_string('add'); ?>" title="<?php print_string('add'); ?>" /><br />
               <input type="hidden" id="courseID" value = "<?php echo $courseid ?>" />
           </div>
-          <?php if ($isCoordinator): ?>
+          <?php if ($isCoordinator || is_siteadmin($USER)): ?>
             <div id="removecontrols">
                 <input name="remove" id="remove" type="submit" value="<?php echo get_string('remove').'&nbsp;'.$OUTPUT->rarrow(); ?>" title="<?php print_string('remove'); ?>" />
                 <input type="hidden" id="courseID" value = "<?php echo $courseid ?>" />

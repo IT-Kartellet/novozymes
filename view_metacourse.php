@@ -275,7 +275,6 @@ if ($metacourse) {
 		if (strlen($coordinator)<2) {
 			$coordinator = "-";
 		}
-
 		$total_places =$datecourse->total_places;
 		
 		//Get all users enrolled in course. 
