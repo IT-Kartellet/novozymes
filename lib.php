@@ -79,8 +79,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
    global $CFG, $DB;
 
     $site = get_site();
-    $course = $DB->get_record("course", array("id" => $courseid));
-	$user = $DB->get_record("user", array("id" => $userid));
+    $user = $DB->get_record("user", array("id" => $userid));
 
     $subject = format_string($site->fullname) . ": cancellation confirmation";
 

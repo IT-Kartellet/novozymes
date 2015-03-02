@@ -116,7 +116,7 @@
 			return false;
 		}
 
-		if (confirm("Are you sure you want to remove this date? This could remove course files and data if the course already started.")) {
+		if (confirm("Please note – that this will delete the date from all files – including the participants ”My courses” file.")) {
 			var klass = $(this).attr('class');
 
 			$(this).parent(".template").remove();
