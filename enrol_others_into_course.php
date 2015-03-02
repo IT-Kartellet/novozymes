@@ -130,7 +130,7 @@ echo html_writer::table($table);
     </tr>
   </table>
 </div></form>
-<span>Send enrolment email: </span><input type="checkbox" id="sendEmail" />
+<span>Send signup email: </span><input type="checkbox" id="sendEmail" />
 
 <?php
 
