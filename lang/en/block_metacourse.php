@@ -131,6 +131,18 @@ Best regards
 {$a->coordinator}
 ';
 
+$string['emailunenrolwaitconf'] = '
+Dear {$a->firstname} {$a->lastname},
+
+We have received your cancellation from the waiting list for:
+Title: {$a->course}
+Dates: {$a->periodfrom} - {$a->periodto}
+Price: {$a->currency} {$a->price} - If no amount is stated there is no fee. (Except for language courses in Danish)
+
+Best regards
+{$a->coordinator}
+';
+
 // help buttons
 $string["name"] = "Name";
 $string["meta_name"] = "The name of the course must be in English";

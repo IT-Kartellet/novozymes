@@ -75,25 +75,18 @@ function format_date_with_tz($timestamp, $offset) {
 
 class enrol_manual_pluginITK extends enrol_plugin {
 
-  public function sendUnenrolMail($userid, $courseid){
+  public function sendUnenrolMail($userid, $courseid, $waiting = false) {
    global $CFG, $DB;
 
     $site = get_site();
     $course = $DB->get_record("course", array("id" => $courseid));
 	$user = $DB->get_record("user", array("id" => $userid));
-    //$supportuser = core_user::get_support_user();
-
-    $data = new stdClass();
-    $data->firstname = fullname($user);
-    $data->sitename  = format_string($site->fullname);
-    $data->admin     = generate_email_signoff();
 
     $subject = format_string($site->fullname) . ": cancellation confirmation";
 
     $username = urlencode($user->username);
     $username = str_replace('.', '%2E', $username); // prevent problems with trailing dots
-    $data->link  = $CFG->wwwroot;
-	
+
 	$teacherCC = $DB->get_records_sql("
       SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
       ", array("cid"=>$courseid));
@@ -115,16 +108,20 @@ class enrol_manual_pluginITK extends enrol_plugin {
 	$a->coordinator = $teacherCC->firstname." ".$teacherCC->lastname;
 	$a->coordinatorinitials = $teacherCC->username;
 	$a->myhome = $CFG->wwwroot."/my";
-	  
-    $message     = get_string("emailunenrolconf", 'block_metacourse', $a);
-    $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
+
+    if ($waiting) {
+        $message = get_string("emailunenrolwaitconf", 'block_metacourse', $a);
+    } else {
+        $message = get_string("emailunenrolconf", 'block_metacourse', $a);
+    }
+    $messagehtml = text_to_html($message, false, false, true);
 
     $user->mailformat = 0;  // Always send HTML version as well
-	
-    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email);
+
+    $result = $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email);
     return $result;
   }
- 
+
   public function send_waitlist_email($user, $courseid){
 	global $CFG, $DB;
 
@@ -140,7 +137,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $data->sitename  = format_string($site->fullname);
     $data->admin     = generate_email_signoff();
 
-    $subject = format_string($site->fullname) . ": enrolment confirmation";
+    $subject = format_string($site->fullname) . ": Enrolment for waiting list confirmation";
 
     $username = urlencode($user->username);
     $username = str_replace('.', '%2E', $username); // prevent problems with trailing dots
