@@ -569,12 +569,12 @@ function update_meta_course($metaid, $datecourse, $category){
         $DB->set_field('course_categories', 'coursecount', $oldCategory->coursecount - 1, array('id'=>$oldCategory->id));
         $DB->set_field('course_categories', 'coursecount', $newCategory->coursecount + 1, array('id'=>$newCategory->id));
       }
-      //enrol users from the waiting list if we find available seats
-      for ($i=0; $i < $datecourse->free_places; $i++) {
-        //enrol_waiting_user($datecourse);
-      }
 
-  }  
+      //enrol users from the waiting list if we find available seats
+      do {
+        $user_enrolled = enrol_waiting_user($datecourse);
+      } while ($user_enrolled);
+  }
 }
 
 // enrols a coordinator in a course with a teacher role
@@ -638,7 +638,7 @@ function enrol_waiting_user($eventData){
     $instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual', 'courseid' => $eventData->courseid));
     $instance = reset($instance);
     $enrolPlugin = new enrol_manual_pluginITK();
-	
+
 	if(!$instance){
 	  $enrolManual = enrol_get_plugin('manual');
 	  $course = $DB->get_record('course', array('id' => $eventData->courseid));
@@ -652,7 +652,11 @@ function enrol_waiting_user($eventData){
     $DB->delete_records('meta_waitlist', array('courseid'=> $instance->courseid, 'userid' => $user->userid));
 
     add_to_log($eventData->courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/lib.php', "$user->id successfully moved from waiting list to course. Email sent? 1");
+
+    return true;
   }
+
+  return false;
 }
 
 function update_metacourse($eventData){
