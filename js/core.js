@@ -70,7 +70,7 @@
 	
 	$(document.body).on("click","#addDateCourse",function(){
 		//used to duplicate the datecourses;
-		var course = $("div.template").last().clone(true, true);
+		var course = $("div.template").first().clone(true, true);
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
 		var index = $('.template').length - 1;
@@ -116,7 +116,11 @@
 		var x;
 		var r=confirm("Are you sure you want to remove this date? This could remove course files and data if the course already started.");
 		if (r==true){
+			//$(this).parent(".template").hide();
+			/*ADDED*/
+			$(this).parent(".template").children().not('#removeDateCourse').remove();
 			$(this).parent(".template").hide();
+			/*ADDED*/
 			
 			var index = $(this).attr('class');
 			$("input[name='datecourse["+ $(this).attr('class') +"][deleted]']").val(1);

@@ -141,7 +141,7 @@ if ($count_deleted === count($datecourses)) {
 
 foreach ($datecourses as $key => $course) {
 	if(!isset($course['timestart'])){
-		var_dump($course);
+		//var_dump($course);
 	}
 	// Delete a datecourse, which is the same as a Moodle-course. 
 	$dc = new stdClass();
