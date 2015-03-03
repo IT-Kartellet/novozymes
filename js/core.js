@@ -74,8 +74,6 @@
 		var course = $("div.template").last().clone(true, true);
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
-		alert("Count deleted: " + countDeleted);
-		alert("Count template: " + ($('.template').length - 1));
 		var index = $('.template').length - 1 + countDeleted;
 
 		victim.find('input').not("#removeDateCourse").val("");
