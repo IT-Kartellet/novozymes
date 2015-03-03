@@ -1,5 +1,6 @@
 (function(){
-
+	//Used as a counter of deleted courses
+	var countDeleted = 0;
 	var enrolledCourse;
 	var calendarInput = $('input[name*=calendar]');
 	var itk_course_template = $("div.template").last().clone();
@@ -73,7 +74,9 @@
 		var course = $("div.template").last().clone(true, true);
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
-		var index = $('.template').length - 1;
+		alert("Count deleted: " + countDeleted);
+		alert("Count template: " + ($('.template').length - 1));
+		var index = $('.template').length - 1 + countDeleted;
 
 		victim.find('input').not("#removeDateCourse").val("");
 
@@ -124,6 +127,7 @@
 			if (klass !== 'none') {
 				$("input[name='datecourse["+ klass +"][deleted]']").val(1);
 			}
+			countDeleted++;
 		}
 	});
 
