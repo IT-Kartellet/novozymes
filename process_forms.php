@@ -140,14 +140,15 @@ if ($count_deleted === count($datecourses)) {
 }
 
 foreach ($datecourses as $key => $course) {
-	if(!isset($course['timestart'])){
-		//var_dump($course);
-	}
 	// Delete a datecourse, which is the same as a Moodle-course. 
 	$dc = new stdClass();
 	if (@$course['deleted'] == 1 && $course['courseid'] != 0) {
 		delete_course($course['courseid'], false);
 		continue;
+	}
+	
+	if(!isset($course['timestart'])){
+		var_dump($course);
 	}
 
 	//if we are editing
@@ -209,7 +210,7 @@ foreach ($datecourses as $key => $course) {
 
 	$ste = implode("-",array($startenrolmenttime['year'], $startenrolmenttime['month'], $startenrolmenttime['day']));
 	$ste .= " " . $startenrolmenttime['hour'] . ":" . $startenrolmenttime['minute'] . $course['timezone'];
-	
+
 	$dc->startdate = date_timestamp_get(date_create($ts));
 	$dc->enddate = date_timestamp_get(date_create($te));
 	$dc->publishdate = date_timestamp_get(date_create($pd));
@@ -241,14 +242,12 @@ foreach ($datecourses as $key => $course) {
 	if (@$dc->id) {
 		if(@is_null($dc->courseid)){
 			$courseName = $meta->name."-".$dc->lang."-".$dc->id;
-			//echo $courseName."\n";
+
 			if($mCourse = $DB->get_record('course', array('fullname' => $courseName))){
 				$dc->courseid = $mCourse->id;
-				//echo $dc->courseid;
 			}else{
 				$created_courseid = create_new_course($courseName,$courseName, $competence, $dc->startdate, $meta->content);
 				$dc->courseid = $created_courseid;
-				//echo $dc->courseid;
 			}
 		}
 		$DB->update_record('meta_datecourse', $dc);
@@ -257,7 +256,7 @@ foreach ($datecourses as $key => $course) {
 
 		update_meta_course($metaid, $dc, $competence);
 		$updatedCourseId = $DB->get_record('meta_datecourse', array('id'=>$dc->id));
-		//var_dump($updatedCourseId);
+
 		if ($meta->coordinator != 0) {
 		//	 add_coordinator($meta->coordinator, $updatedCourseId->courseid);	
 		}
@@ -266,11 +265,9 @@ foreach ($datecourses as $key => $course) {
 		//go and add people from the waiting list
 	} else {
 		// else insert and create new courses
-		
 		$datecourseid = $DB->insert_record('meta_datecourse', $dc);
 		//create the course
 		if ($dc->open == 1) {
-		
 			$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
 
 			$created_courseid = create_new_course($courseName,$courseName, $competence, $dc->startdate, $meta->content);
@@ -280,7 +277,7 @@ foreach ($datecourses as $key => $course) {
 
 			// update the datecourse with the course id
 			$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
-			
+
 			if ($meta->coordinator == 0) {
 				 add_coordinator($meta->coordinator, $created_courseid);
 			}
@@ -290,7 +287,6 @@ foreach ($datecourses as $key => $course) {
 			add_label($created_courseid, $meta);
 		}
 	}
-	//purge_all_caches();
 }
 add_to_log(1, 'metacourse', 'Saved metacourse', '', $name, 0, $USER->id);
-redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id=".$metaid), "You've course has been saved", 5);
+redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id=".$metaid), "Your course has been saved", 5);

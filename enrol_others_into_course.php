@@ -20,7 +20,7 @@ $courseid = optional_param("courseid",0,PARAM_INT);
 
 add_to_log($courseid, 'metacourse', 'enrol others', $URL, '', 0, $USER->id);
 
-$PAGE->set_title("Enrol others");
+$PAGE->set_title("Sign others up");
 $PAGE->set_heading("Moodle Custom Courses");
 $PAGE->set_url($CFG->wwwroot."/blocks/metacourse/enrol_others_into_course.php");
 $PAGE->navbar->add("List of courses", new moodle_url('/blocks/metacourse/list_metacourses.php'));
@@ -28,14 +28,14 @@ $PAGE->navbar->add("List of courses", new moodle_url('/blocks/metacourse/list_me
 $refferal = htmlentities($_SERVER["HTTP_REFERER"]);
 $murl = explode("/blocks/", $refferal);
 $PAGE->navbar->add("View course", new moodle_url('/blocks/'. $murl[1]));
-$PAGE->navbar->add("Enrol others", new moodle_url('/blocks/metacourse/enrol_others_into_course.php?courseid='.$courseid));
+$PAGE->navbar->add("Sign others up", new moodle_url('/blocks/metacourse/enrol_others_into_course.php?courseid='.$courseid));
 
 echo $OUTPUT->header();
 
 //used to hide the buttons for adding new courses;
 $teacher = has_capability("moodle/course:create", context_system::instance());
 
-echo html_writer::tag('h1', "Enrol others", array('id' => 'course_header', 'class' => 'main'));
+echo html_writer::tag('h1', "Sign others up", array('id' => 'course_header', 'class' => 'main'));
 echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 
 // select only the ones that allow you;
@@ -76,7 +76,7 @@ $table->id = 'enrol_info';
 $table->tablealign = "center";
 
 $table->data[] = array('Seats', $datecourse->total_places);
-$table->data[] = array('Currently enrolled', count($enrolled_users));
+$table->data[] = array('Currently signed up', count($enrolled_users));
 $table->data[] = array('Waiting list', count($waiting_users));
 
 echo html_writer::table($table);
@@ -88,7 +88,7 @@ echo html_writer::table($table);
 <select name="user_role_enrol" id="enrol_role">
 	<option value="student" id='enrol_student'>Employee</option>
 	<option value="teacher" id='enrol_teacher'>Teacher</option>
-</select> 
+</select>
 
 <form id="assignform" method="post" ><div>
   <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
@@ -96,7 +96,7 @@ echo html_writer::table($table);
   <table id="assigningrole" summary="" class="admintable roleassigntable generaltable" cellspacing="0">
     <tr>
       <td id="existingcell">
-          <p><label for="removeselect">Enrolled users</label></p>
+          <p><label for="removeselect">Signed up users</label></p>
           <?php output_users_for_enrolment($enrolled_users, 'remove', 15); ?>
           <p><label for="waitingselect">Waiting users</label></p>
     	  <?php output_users_for_enrolment($waiting_users, 'waiting', 4); ?>
@@ -108,18 +108,18 @@ echo html_writer::table($table);
       </td>
       <td id="buttonscell">
           <div id="addcontrols">
-              <input name="add" id="add" type="submit" value="<?php echo $OUTPUT->larrow().'&nbsp;'.get_string('add'); ?>" title="<?php print_string('add'); ?>" /><br />
+              <input name="add" id="add" type="submit" value="<?php echo $OUTPUT->larrow().'&nbsp;'.get_string('signup', 'block_metacourse'); ?>" title="<?php print_string('signup', 'block_metacourse'); ?>" /><br />
               <input type="hidden" id="courseID" value = "<?php echo $courseid ?>" />
           </div>
-          <?php if ($isCoordinator): ?>
+          <?php if ($isCoordinator || is_siteadmin($USER)): ?>
             <div id="removecontrols">
-                <input name="remove" id="remove" type="submit" value="<?php echo get_string('remove').'&nbsp;'.$OUTPUT->rarrow(); ?>" title="<?php print_string('remove'); ?>" />
+                <input name="remove" id="remove" type="submit" value="<?php echo get_string('cancel').'&nbsp;'.$OUTPUT->rarrow(); ?>" title="<?php print_string('cancel'); ?>" />
                 <input type="hidden" id="courseID" value = "<?php echo $courseid ?>" />
             </div>
           <?php endif; ?>
       </td>
       <td id="potentialcell">
-          <p><label for="addselect">Users not enrolled</label></p>
+          <p><label for="addselect">Users not signed up</label></p>
           <?php output_users_for_enrolment($not_enrolled_users, 'add'); ?>
           <div class="search_filter">
 				<label for="addselect_searchtext">Search</label>
@@ -130,7 +130,7 @@ echo html_writer::table($table);
     </tr>
   </table>
 </div></form>
-<span>Send enrolment email: </span><input type="checkbox" id="sendEmail" />
+<span>Send signup email: </span><input type="checkbox" id="sendEmail" />
 
 <?php
 

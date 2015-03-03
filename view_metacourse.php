@@ -275,7 +275,6 @@ if ($metacourse) {
 		if (strlen($coordinator)<2) {
 			$coordinator = "-";
 		}
-
 		$total_places =$datecourse->total_places;
 		
 		//Get all users enrolled in course. 
@@ -370,7 +369,7 @@ if ($metacourse) {
         <div id='tos_content'><?php echo get_string('toscontent','block_metacourse') ?></div>
         <div id='cmd'>
         	<input type='checkbox' id="accept" name='accept'><label for="accept"><?php echo get_string('tosaccept','block_metacourse') ?></label>
-        	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','enrol_self') ?>' >
+        	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','block_metacourse') ?>' >
         	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>
 		<div id='lean_close'></div>
@@ -396,7 +395,7 @@ if ($metacourse) {
         <div id='tos_content'><?php echo get_string('enrol_waitinglist_contents','block_metacourse') ?></div>
         <div id='cmd'>
         	<input type='checkbox' id="accept" name='accept'><label for="accept"><?php echo get_string('enrol_waitinglist_tos','block_metacourse') ?></label>
-        	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','enrol_self') ?>' >
+        	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','block_metacourse') ?>' >
         	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>
 		<div id='lean_close'></div>

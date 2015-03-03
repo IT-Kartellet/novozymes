@@ -54,14 +54,18 @@ $getTemplate = optional_param("getTemplate", 0, PARAM_INT);
 
 if ($enrolGuy && $enrolCourse && $enrolRole) {
 	try {
-		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
+		$role = ($enrolRole == 'teacher') ? 3 : 5;
+
+		$instance = $DB->get_records('enrol', array('status' => 0, 'enrol'=>'manual','courseid'=>$enrolCourse, 'roleid' => $role));
 		$instance = reset($instance);
 		
 		$datecourse = $DB->get_record('meta_datecourse', array('courseid' => $enrolCourse));
 		
 		$context = CONTEXT_COURSE::instance($enrolCourse);
 		$PAGE->set_context($context);
-		
+
+		$course = $DB->get_record('course', array('id' => $enrolCourse));
+
 		/*
 		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
 		$sql = "SELECT u.*, je.* FROM {user} u
@@ -102,20 +106,26 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 			));
 			return;
 		}
-		
-		if(!$instance){
-		  $enrolManual = enrol_get_plugin('manual');
-		  $course = $DB->get_record('course', array('id' => $enrolCourse));
-		  $instance = $enrolManual->add_default_instance($course);
-		  $instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
-		  $instance = reset($instance);
+
+		if (!$instance) {
+			$instance = new stdClass();
+			$instance->enrol          = 'manual';
+			$instance->status         = ENROL_INSTANCE_ENABLED;
+			$instance->courseid       = $course->id;
+			$instance->enrolstartdate = 0;
+			$instance->enrolenddate   = 0;
+			$instance->roleid         = $role;
+			$instance->timemodified   = time();
+			$instance->timecreated    = $instance->timemodified;
+			$instance->sortorder      = $DB->get_field('enrol', 'COALESCE(MAX(sortorder), -1) + 1', array('courseid'=>$course->id));
+
+			$instance->id = $DB->insert_record('enrol', $instance);
 		}
-		
-		$role = ($enrolRole == 'teacher') ? 3 : 5;
+
 		$enrolUser = $DB->get_record("user", array("id"=>$enrolGuy));
 		$enrol->enrol_user($instance, $enrolGuy, $role);
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
-		
+
 		if (is_user_enrolled($enrolGuy, $enrolCourse)) {
 			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully enrolled. Email sent? $sendEmail");
 			if ($sendEmail) {
@@ -128,7 +138,7 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 			));
 		} else {
 			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Tried to enrol $enrolGuy into course $enrolCourse, but somehow that failed");
-			
+
 			echo json_encode(array(
 				'action' => 'enrol',
 				'status' => 'error',
@@ -408,7 +418,7 @@ if ($exportExcel) {
 	$fp = fopen("xlsfile://" . $filename, "wb"); 
 	if (!is_resource($fp)) 
 	{ 
-    	die("Cannot open $filename"); 
+		die("Cannot open $filename"); 
 	} 
 	
 	// Convert headers to upper case and user objects to arrays

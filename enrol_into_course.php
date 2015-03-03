@@ -29,9 +29,9 @@ $busy_places = count($DB->get_records_sql($sql, $params));
 list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($courseid);
 $busy_places = count($enrolled_users);
 
-$total_places = $DB->get_records_sql("SELECT total_places from {meta_datecourse} where courseid = :cid", array("cid"=>$courseid));
-$total_places = reset($total_places);
-$total_places = $total_places->total_places;
+$datecourse = $DB->get_record('meta_datecourse', array('courseid' => $courseid));
+
+$total_places = intval($datecourse->total_places);
 
 if ($total_places - $busy_places > 0) {
 	$current_enrolment = $DB->get_records_sql("
@@ -64,10 +64,10 @@ if ($total_places - $busy_places > 0) {
 	if (is_user_enrolled($userid, $courseid)) {
 		$enrol->send_confirmation_email($user, $courseid);
 		add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "$userid successfully enrolled");
-		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been enrolled", 5);
+		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$datecourse->metaid}"), "You've been signed up", 5);
 	} else {
 		add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "Tried to enrol $userid into course $courseid, but somehow that failed");
-		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "There was problem with your enrolment", 5);
+		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$datecourse->metaid}"), "There was problem with your signup", 5);
 	}
 } else {
 	$waitRecord = new stdClass();
@@ -83,5 +83,5 @@ if ($total_places - $busy_places > 0) {
 	add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "$userid successfully added to the waiting list. Email sent? 1");
 
 	$enrol->send_waitlist_email($user, $courseid);
-	redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been signed up for the waitlist", 5);
+	redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$datecourse->metaid}"), "You've been signed up for the waitlist", 5);
 }

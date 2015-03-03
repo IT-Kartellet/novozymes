@@ -17,9 +17,9 @@ $string['coursedates'] = 'Course dates';
 $string['location'] = 'Location'; 
 $string['action'] = 'Action'; 
 $string['signup'] = 'Sign up'; 
-$string['enrolme'] = 'Enrol me'; 
-$string['enrolOthers'] = 'Enrol others'; 
-$string['enrolOthers-wait'] = 'Sign up others for waiting list'; 
+$string['enrolme'] = 'Sign me up'; 
+$string['enrolOthers'] = 'Sign others up'; 
+$string['enrolOthers-wait'] = 'Sign others up for waiting list'; 
 $string['unenrolme'] = 'Confirm'; 
 $string['unenrolmebutton'] = 'Cancel my signup'; 
 $string['customemail'] = 'Custom email'; 
@@ -54,7 +54,7 @@ $string['nrparticipants'] = 'Enrolled';
 $string['coursedates'] = 'Course dates';
 $string['youareenrolled'] = 'You are enrolled'; 
 $string['expiredenrolment'] = 'Enrolment ended'; 
-$string['addtowaitinglist'] = 'Add me to waiting list'; 
+$string['addtowaitinglist'] = 'Sign me up on the waiting list'; 
 $string['enrol_waitinglist_title'] = 'Waiting list terms title';
 $string['enrol_waitinglist_contents'] = 'Waiting list terms contents';
 $string['enrol_waitinglist_tos'] = 'Waiting list TOS';
@@ -126,6 +126,18 @@ Dates: {$a->periodfrom} - {$a->periodto}
 Price: {$a->currency} {$a->price} - If no amount is stated there is no fee. (Except for language courses in Danish)
 
 If your cancellation exceeds the cancellation deadline your department will be required to pay the full course feed. The cancellation policy can be seen in the course description. 
+
+Best regards
+{$a->coordinator}
+';
+
+$string['emailunenrolwaitconf'] = '
+Dear {$a->firstname} {$a->lastname},
+
+We have received your cancellation from the waiting list for:
+Title: {$a->course}
+Dates: {$a->periodfrom} - {$a->periodto}
+Price: {$a->currency} {$a->price} - If no amount is stated there is no fee. (Except for language courses in Danish)
 
 Best regards
 {$a->coordinator}

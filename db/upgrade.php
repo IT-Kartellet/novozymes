@@ -158,5 +158,27 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2014091606, 'metacourse');
     }
 
+
+    if ($oldversion < 2015022501) {
+        // Add spanish lang
+        $spanish = $DB->get_record('meta_languages', array('iso' => 'es'));
+
+        if ($spanish) {
+            $spanish->active = 1;
+            $DB->update_record('meta_languages', $spanish);
+        } else {
+            $DB->insert_record('meta_languages', array('language' => 'Spanish', 'iso' => 'es', 'active' => 1));
+        }
+
+        // Change name of WE Representatives category to OH&S Representatives
+        $representatives = $DB->get_record('meta_category', array('name' => 'WE Representatives'));
+        if ($representatives) {
+            $representatives->name = 'OH&S Representatives';
+            $DB->update_record('meta_category', $representatives);
+        }
+
+        upgrade_block_savepoint(true, 2015022501, 'metacourse');
+    }
+
     return $result;
 }

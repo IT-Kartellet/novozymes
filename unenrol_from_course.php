@@ -17,8 +17,14 @@ if ($courseid != 0 && $userid != 0) {
 	$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$courseid));
 	$instance = reset($instance);
 	$user = $DB->get_record("user", array("id"=>$userid));
- 
+
  	//check if on waiting list
+ 	$waiting = $DB->record_exists('meta_waitlist', array(
+		'courseid' => $courseid,
+		'userid' => $userid,
+		'nodates' => 0,
+	));
+
  	//delete from waiting list
 	$DB->delete_records('meta_waitlist', array(
 		'courseid' => $courseid,
@@ -29,8 +35,8 @@ if ($courseid != 0 && $userid != 0) {
  	//disable enrolment
 	$enrol = new enrol_manual_pluginITK();
 	$enrol->unenrol_user($instance, $user->id);
-	$enrol->sendUnenrolMail($userid, $courseid);
+	$enrol->sendUnenrolMail($userid, $courseid, $waiting);
 
 	add_to_log($courseid, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/unenrol_from_course.php', "Unenrolled $userid from $courseid");
 }
-redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "You've been unenrolled", 5);
+redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "Your signup has beeen removed", 5);
