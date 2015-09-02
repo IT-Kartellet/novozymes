@@ -12,6 +12,11 @@ require_login();
 require_capability('moodle/course:create', $context);
 $PAGE->set_context($context);
 
+$prev_form = new datecourse_form("process_forms.php");
+if ($prev_form->is_cancelled()) {
+  	redirect('/blocks/metacourse/list_metacourses.php', 'Your action was canceled!');
+}
+
 //Get all info about meta course.
 $meta = optional_param('meta',"",PARAM_RAW);
 $meta = unserialize($meta);

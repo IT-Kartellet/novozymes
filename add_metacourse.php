@@ -11,7 +11,6 @@ $id = optional_param('id', 0, PARAM_INT);
 
 $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('admin');
-$URL = '/moodle/blocks/metacourse/list_metacourses.php';
 $PAGE->requires->jquery();
 
 //we have to set these before starting the output
@@ -44,18 +43,7 @@ if ($id == 0) {
 	$data->cancellation = array("text"=>get_string("cancellationaccept", "block_metacourse"));
 	$mform->set_data($data);
 
-	if ($mform->is_cancelled()) {
-	  	redirect($URL, 'Your action was canceled!');
-
-	} else if ($fromform = $mform->get_data()) {
-		// redirect($URL, "TESTING THIS THIS");
-	} else {
-		//if data not valid
-		
-		$toform = $mform->get_data();
-		$mform->set_data(null);
-		$mform->display();
-	}
+	$mform->display();
 } else {
 	// EDIT
 
@@ -63,9 +51,9 @@ if ($id == 0) {
 	if (!check_provider_role($id)) {
 		die("Access denied!");
 	}
-	
+
 	$mform = new metacourse_form("add_datecourse.php");
-	
+
 	$meta = $DB->get_record("meta_course" ,array("id"=>$id));
 
 	// Rewrite from @@PLUGINFILE to an actual link
@@ -125,18 +113,6 @@ if ($id == 0) {
 	
 	$mform->set_data($data);
 
-	if ($mform->is_cancelled()) {
-	  	redirect($URL, 'Your action was canceled!');
-
-	} else if ($fromform = $mform->get_data()) {
-	
-	} else {
-		//if data not valid
-		$toform = $mform->get_data();
-		$mform->set_data(null);
-		$mform->display();
-
-	}
-	// redirect($CFG->wwwroot ."/blocks/metacourse/add_metacourse.php", 'Course not found!');
+	$mform->display();
 }
 echo $OUTPUT->footer();
