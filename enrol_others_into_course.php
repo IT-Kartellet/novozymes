@@ -31,58 +31,26 @@ $PAGE->navbar->add("View course", new moodle_url('/blocks/'. $murl[1]));
 $PAGE->navbar->add("Sign others up", new moodle_url('/blocks/metacourse/enrol_others_into_course.php?courseid='.$courseid));
 
 echo $OUTPUT->header();
-
-//used to hide the buttons for adding new courses;
-$teacher = has_capability("moodle/course:create", context_system::instance());
-
 echo html_writer::tag('h1', "Sign others up", array('id' => 'course_header', 'class' => 'main'));
 echo html_writer::start_tag('div',array('id' => 'meta_wrapper'));
 
-// select only the ones that allow you;
-// $users = $DB->get_records_sql("select e.id, a.canenrol, a.canbeenrolled, e.firstname, e.lastname from {meta_allow_enrol} a join {user} e on canbeenrolled = e.id where canenrol = :id", array("id"=>$USER->id));
-$users= $DB->get_records_sql("SELECT id, firstname, lastname, username, email from {user} where id <> :guest and deleted <> 1 AND firstname IS NOT NULL AND firstname <> '' ORDER BY username ASC", array("guest"=>1));
-
-$context = CONTEXT_COURSE::instance($courseid);
-list($sql, $params) = get_enrolled_sql($context, '', 0, true);
-$sql = "SELECT u.*, je.* FROM {user} u
-		JOIN ($sql) je ON je.id = u.id";
-$course_users = $DB->get_records_sql($sql, $params );
 $datecourse = $DB->get_record('meta_datecourse', array(
-	'courseid' => $courseid,
+    'courseid' => $courseid,
 ));
 $metacourse = $DB->get_record('meta_course', array('id' => $datecourse->metaid));
-
 $isCoordinator = $metacourse->coordinator === $USER->id || $datecourse->coordinator === $USER->id;
 
-$waiting_users = get_users_on_waitinglist($courseid);
-
-$enrolled_users = array();
-
-foreach($course_users as $id => $user){
-	if(user_has_role_assignment($id, 5, $context->id)){
-		$enrolled_users[$id] = $user;
-		unset($users[$id]);
-	}
-}
-
-foreach($waiting_users as $id => $user){
-	unset($users[$id]);
-}
-
-$not_enrolled_users = $users;
+list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($courseid);
 
 $table = new html_table();
 $table->id = 'enrol_info';
-$table->tablealign = "center";
 
 $table->data[] = array('Seats', $datecourse->total_places);
 $table->data[] = array('Currently signed up', count($enrolled_users));
 $table->data[] = array('Waiting list', count($waiting_users));
 
 echo html_writer::table($table);
-
 ?>
-
 
 <span>Select user role: &nbsp; </span>
 <select name="user_role_enrol" id="enrol_role">

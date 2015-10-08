@@ -15,7 +15,7 @@ function block_metacourse_pluginfile($course, $cm, $context, $filearea, array $a
 
 	send_stored_file($file, null, 0, true);
 
-	
+
 }
 
 function format_tz_offset($offset) {
@@ -53,18 +53,18 @@ function format_date_with_tz($timestamp, $offset) {
 
     $dstInEffect = date('I', $timestamp) == '1';
     $timezoneName = timezone_name_from_abbr("", $offset * 3600, $dstInEffect); // At first, try to get the timezone with adjustment for DST
-    
+
 	if ($timezoneName === false) {
         $timezoneName = timezone_name_from_abbr("", $offset * 3600, false); // If that fails, fall back to ignoring DST
     }
-	
+
 	if ($timezoneName === false) {
         $timezoneName = $tz;
     }
 
     // And then reset to the original timezone
     date_default_timezone_set($oldtimezone);
-    
+
     $timezone = new DateTimeZone($timezoneName);
     $date = new DateTime(null, $timezone);
     $date->setTimestamp($timestamp);
@@ -141,7 +141,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $username = urlencode($user->username);
     $username = str_replace('.', '%2E', $username); // prevent problems with trailing dots
     $data->link  = $CFG->wwwroot;
-	
+
 	$teacherCC = $DB->get_records_sql("
       SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
       ", array("cid"=>$courseid));
@@ -163,12 +163,12 @@ class enrol_manual_pluginITK extends enrol_plugin {
 	$a->coordinator = $teacherCC->firstname." ".$teacherCC->lastname;
 	$a->coordinatorinitials = $teacherCC->username;
 	$a->myhome = $CFG->wwwroot."/my";
-	  
+
     $message     = get_string("emailwait", 'block_metacourse', $a);
     $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
 
     $user->mailformat = 0;  // Always send HTML version as well
-	
+
     //iCal
     $ical = new iCalendar;
     $ical->add_property('method', 'PUBLISH');
@@ -177,15 +177,15 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $ev->add_property('uid', $course->id.'@'.'novozymes.it-kartellet.dk');
     $ev->add_property('summary', $course->fullname);
     $ev->add_property('description', clean_param($course->summary, PARAM_NOTAGS));
-    $ev->add_property('class', 'PUBLIC'); 
+    $ev->add_property('class', 'PUBLIC');
     $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
     $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
 
     $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
     $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
-    
+
     $ical->add_component($ev);
-    
+
     $serialized = $ical->serialize();
 
     $file = $CFG->dataroot . "/" . time() . ".ics";
@@ -204,7 +204,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     unlink($file);
     return $result;
   }
-  
+
   public function send_confirmation_email($user, $courseid) {
     global $CFG, $DB;
 
@@ -225,7 +225,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $username = urlencode($user->username);
     $username = str_replace('.', '%2E', $username); // prevent problems with trailing dots
     $data->link  = $CFG->wwwroot;
-	
+
 	$teacherCC = $DB->get_records_sql("
       SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
       ", array("cid"=>$courseid));
@@ -247,7 +247,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
 	$a->coordinator = $teacherCC->firstname." ".$teacherCC->lastname;
 	$a->coordinatorinitials = $teacherCC->username;
 	$a->myhome = $CFG->wwwroot."/my";
-	  
+
     $message     = get_string("emailconf", 'block_metacourse', $a);
     $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
 
@@ -260,14 +260,14 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $ev->add_property('uid', $course->id.'@'.'novozymes.it-kartellet.dk');
     $ev->add_property('summary', $course->fullname);
     $ev->add_property('description', clean_param($course->summary, PARAM_NOTAGS));
-    $ev->add_property('class', 'PUBLIC'); 
+    $ev->add_property('class', 'PUBLIC');
     $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
     $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
     $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
     $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
-    
+
     $ical->add_component($ev);
-    
+
     $serialized = $ical->serialize();
 
     $file = $CFG->dataroot . "/" . time() . ".ics";
@@ -293,7 +293,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
     if (empty($user) || empty($user->email)) {
         $nulluser = 'User is null or has no email';
-        
+
         if (CLI_SCRIPT) {
             mtrace('Error: lib/moodlelib.php email_to_user(): '.$nulluser);
         }
@@ -528,7 +528,7 @@ function create_new_course($fullname, $shortname, $categoryid, $startdate = 0 , 
 
   $enrolManual = enrol_get_plugin('manual');
   $instance = $enrolManual->add_default_instance($course);
-  
+
   $category->coursecount++;
   $DB->update_record('course_categories', $category);
 
@@ -537,7 +537,7 @@ function create_new_course($fullname, $shortname, $categoryid, $startdate = 0 , 
 
 function update_meta_course($metaid, $datecourse, $category){
   global $DB;
-  
+
   // if we have a date, and an actual course for it.
   if ($datecourse->courseid) {
       $meta = $DB->get_record("meta_course", array("id" => $metaid));
@@ -573,46 +573,68 @@ function update_meta_course($metaid, $datecourse, $category){
   }
 }
 
+function get_or_create_enrol($params) {
+    global $DB;
+
+    if (!isset($params['courseid']) || !isset($params['enrol']) || !isset($params['roleid'])) {
+        throw new Exception('enrol should contain courseid, enrol and roleid');
+    }
+
+    $enrol = $DB->get_record('enrol', $params);
+
+    if (!$enrol) {
+        $enrol = new stdClass();
+        $enrol->enrol          = $params['enrol'];
+        $enrol->status         = ENROL_INSTANCE_ENABLED;
+        $enrol->courseid       = $params['courseid'];
+        $enrol->enrolstartdate = 0;
+        $enrol->enrolenddate   = 0;
+        $enrol->roleid         = $params['roleid'];
+        $enrol->timemodified   = time();
+        $enrol->timecreated    = $enrol->timemodified;
+        $enrol->sortorder      = $DB->get_field('enrol', 'COALESCE(MAX(sortorder), -1) + 1', array('courseid'=>$params['courseid']));
+
+        $enrol->id = $DB->insert_record('enrol', $enrol);
+    }
+
+    return $enrol;
+}
+
 // enrols a coordinator in a course with a teacher role
 function add_coordinator($user_id, $course_id) {
     global $DB;
     $coursecontext = context_course::instance($course_id);
 
-    $enrol = $DB->get_record('enrol', array(
+    $enrol = get_or_create_enrol(array(
         'courseid' => $course_id,
-        'enrol' => 'manual'
-        )
+        'enrol' => 'manual',
+        'roleid' => 3
+    ));
+
+    $conds = array(
+        'enrolid' => $enrol->id,
+        'userid' => $user_id
     );
 
-    if ($enrol) {
-        $conds = array(
-            'enrolid' => $enrol->id,
-            'userid' => $user_id
-        );
+    $roles = array(
+        'roleid' => 3,
+        'contextid' => $coursecontext->id,
+        'userid' => $user_id
+    );
 
-        $roles = array(
-            'roleid' => 3,
-            'contextid' => $coursecontext->id,
-            'userid' => $user_id
-        );
+    if (!$DB->record_exists('user_enrolments', $conds) || !$DB->record_exists('role_assignments', $roles)) {
+        $DB->insert_record('user_enrolments', $conds);
+        $DB->insert_record('role_assignments', $roles);
+    } else {
+        $ueID = $DB->get_record('user_enrolments',$conds);
+        $conds['id'] = $ueID->id;
+        $DB->update_record('user_enrolments', $conds);
 
-        if (!$DB->record_exists('user_enrolments', $conds) || !$DB->record_exists('role_assignments', $roles)) {
-            // $DB->delete_records('user_enrolments', array('enrolid'=>$enrol->id));
-            // $DB->delete_records('role_assignments', array('roleid'=>3, "contextid"=>$coursecontext->id));
-
-            $DB->insert_record('user_enrolments', $conds);
-            $DB->insert_record('role_assignments', $roles);
-        } else {
-            $ueID = $DB->get_record('user_enrolments',$conds);
-            $conds['id'] = $ueID->id;
-            $DB->update_record('user_enrolments', $conds);
-
-            $raID = $DB->get_record('role_assignments', $roles);
-            $roles['id'] = $raID->id;
-            $DB->update_record('role_assignments', $roles);
-        }
+        $raID = $DB->get_record('role_assignments', $roles);
+        $roles['id'] = $raID->id;
+        $DB->update_record('role_assignments', $roles);
     }
-  }
+}
 
 function enrol_waiting_user($eventData){
   global $DB;
@@ -744,7 +766,7 @@ function create_role_and_provider($provider){
             $role_context->contextlevel = 10;
 
             $DB->insert_record('role_context_levels',$role_context);
-        
+
         $providerRec = new stdClass();
         $providerRec->provider = $provider;
         $providerRec->role = $role_id;
@@ -778,14 +800,14 @@ function check_provider_role($courseid){
 
 function check_if_not_enrolled($userid, $courseid) {
     global $DB;
-    
+
     //$context = context_course::instance($courseid);
-    $students = $DB->record_exists_sql("select u.id from user u join (select ue.* 
-            from user_enrolments ue 
-            join enrol e on ue.enrolid = e.id where e.courseid = :cid and ue.status = 0) a 
+    $students = $DB->record_exists_sql("select u.id from user u join (select ue.*
+            from user_enrolments ue
+            join enrol e on ue.enrolid = e.id where e.courseid = :cid and ue.status = 0) a
             on u.id = a.userid
 			AND u.id = :userid
-			", 
+			",
         array("cid"=>$courseid, "userid" => $userid)
     );
 	return $students;
@@ -795,13 +817,13 @@ function get_courses_in_category($category_id, $competence_id){
     global $DB;
     $courses = $DB->get_records_sql("
         select  distinct cde.*, da.category from {meta_datecourse} da
-        JOIN 
-        (SELECT d.*, pr.provider 
+        JOIN
+        (SELECT d.*, pr.provider
                 FROM {meta_providers} pr JOIN (
-                    SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate 
-                    FROM {meta_course} c 
-                    LEFT JOIN {user} u on c.coordinator = u.id 
-                    ORDER BY c.provider asc) d 
+                    SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate
+                    FROM {meta_course} c
+                    LEFT JOIN {user} u on c.coordinator = u.id
+                    ORDER BY c.provider asc) d
                 ON pr.id = d.providerid) cde
         ON cde.id = da.metaid");
 
@@ -811,14 +833,14 @@ function get_courses_in_category($category_id, $competence_id){
         $targets = json_decode($course->target);
         if ($category_id != 0 && $competence_id != 0) {
             if (in_array($category_id, $targets) && ($course->category == $competence_id)) {
-                $result[$i] = $course; 
+                $result[$i] = $course;
             }
         }
         if ($category_id == 0 && $competence_id != 0) {
             if ($course->category == $competence_id) {
                 $result[$i] = $course;
             }
-        } 
+        }
         if ($category_id != 0 && $competence_id == 0) {
             if (in_array($category_id, $targets)) {
                 $result[$i] = $course;
@@ -831,11 +853,11 @@ function get_courses_in_category($category_id, $competence_id){
 function get_users_on_waitinglist($courseid) {
     global $DB;
     return $DB->get_records_sql(
-        "SELECT *
-         FROM {meta_waitlist} mw 
-         JOIN {user} u 
+        "SELECT u.*
+         FROM {meta_waitlist} mw
+         JOIN {user} u
          ON mw.userid = u.id
-         WHERE mw.courseid = :courseid", 
+         WHERE mw.courseid = :courseid",
          array("courseid"=>$courseid)
     );
 }
@@ -853,47 +875,42 @@ function is_user_enrolled($userid, $courseid){
 
 //newly added function that returns enrolled, not enrolled and waitlist users
 function get_datecourse_users($courseid){
-
     global $DB;
+
+    $context = CONTEXT_COURSE::instance($courseid);
 
     $metacourse = $DB->get_records_sql("SELECT mp.role as providerid, mc.coordinator as metacoordinatorid, md.coordinator as datecoordinatorid FROM {meta_course} mc
                                         JOIN {meta_datecourse} md ON md.metaid = mc.id
                                         JOIN {meta_providers} mp ON mp.id = mc.provider
                                         WHERE md.courseid = :courseid", array('courseid' => $courseid));
     $metacourse = reset($metacourse);
-    $providerid = $metacourse->providerid;
     $metacoordinatorid = $metacourse->metacoordinatorid;
     $datecoordinatorid = $metacourse->datecoordinatorid;
 
-    $enrolled_users = $DB->get_records_sql("SELECT ue.userid, u.*
-            FROM {user_enrolments} ue
-            JOIN {enrol} e ON e.id = ue.enrolid
-            JOIN {user} u ON ue.userid = u.id
-            WHERE e.courseid = :courseid
+    $enrolled_users = $DB->get_records_sql("SELECT ra.userid, u.*
+            FROM {role_assignments} ra
+            JOIN {user} u ON ra.userid = u.id
+            WHERE ra.contextid = :contextid
+            AND ra.roleid = 5
             AND u.id <> :metacoordinatorid
             AND u.id <> :datecoordinatorid",
-        array('courseid' => $courseid, 'metacoordinatorid' => $metacoordinatorid, 'datecoordinatorid' => $datecoordinatorid));
-
-    $where = " u.id NOT IN($metacoordinatorid,$datecoordinatorid,";
-
-    foreach($enrolled_users as $key => $user){
-        $where .= $user->userid . ",";
-    }
+        array('contextid' => $context->id, 'metacoordinatorid' => $metacoordinatorid, 'datecoordinatorid' => $datecoordinatorid));
 
     $waiting_users = get_users_on_waitinglist($courseid);
 
-    foreach($waiting_users as $waiting_user){
-        $where .= $waiting_user->id . ",";
-    }
+    $excluded_uids = [$metacoordinatorid, $datecoordinatorid] + array_map(function ($user) {
+            return $user->userid;
+        }, $enrolled_users) + array_map(function ($user) {
+            return $user->id;
+        }, $waiting_users);
 
-    $where = substr($where, 0, -1);
-    $where .= ") AND ";
+    list($where, $params) = $DB->get_in_or_equal($excluded_uids, SQL_PARAMS_NAMED, 'param', false);
 
-    $not_enrolled_users = $DB->get_records_sql("SELECT u.id, u.firstname, u.lastname, u.username, u.email FROM {user} u
-                                        JOIN {role_assignments} ra ON u.id = ra.userid
-                                        JOIN {role} r on r.id = ra.roleid
-                                        WHERE $where ra.roleid = :roleid AND u.id <> :guest and u.deleted <> 1 AND u.firstname IS NOT NULL AND u.firstname <> ''
-                                        ORDER BY u.username ASC", array("guest"=>1, 'roleid' => $providerid));
+    $not_enrolled_users = $DB->get_records_sql("
+      SELECT u.id, u.firstname, u.lastname, u.username, u.email
+      FROM {user} u
+      WHERE u.id $where AND u.id <> :guest and u.deleted <> 1 AND u.firstname IS NOT NULL AND u.firstname <> ''
+      ORDER BY u.username ASC", $params + array("guest"=>1));
 
     return array($enrolled_users, $not_enrolled_users, $waiting_users);
 }

@@ -263,46 +263,24 @@ if ($metacourse) {
 		//replace id with location
 		$loc = $DB->get_record('meta_locations', array ('id'=> $datecourse->location), 'location');
 		$location = $loc->location;
-		
-	
+
 		//replace id with language
 		$lang = $DB->get_record('meta_languages', array ('id'=> $datecourse->lang), 'language');
 		$language =$lang->language;
 		$price = str_replace(array(".",","), '', $datecourse->price);
-		$price = $price;
+
 		$price .= " " . $datecourse->currency;
 		@$coordinator = strtoupper($cor->username);
 		if (strlen($coordinator)<2) {
 			$coordinator = "-";
 		}
 		$total_places =$datecourse->total_places;
-		
-		//Get all users enrolled in course. 
-		$context = CONTEXT_COURSE::instance($datecourse->courseid);
-		
-		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
-		$sql = "SELECT u.*, je.* FROM {user} u
-				JOIN ($sql) je ON je.id = u.id";
-		$course_users = $DB->get_records_sql($sql, $params );
 
+		list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($datecourse->courseid);
 
-		$enrolled_users = array();
-		foreach($course_users as $uid => $user){
-			if(user_has_role_assignment($uid, 5, $context->id)){
-				$enrolled_users[$uid] = $user;
-			}elseif(user_has_role_assignment($uid, 3, $context->id)){
-				$coordinators[$uid] = $user;
-			}
-		}
 		$busy_places = count($enrolled_users);
 
-		$waiting = $DB->get_record('meta_waitlist', array(
-			'courseid' => $datecourse->courseid,
-			'userid' => $USER->id,
-			'nodates' => 0,
-		));
-
-		if ($waiting || array_key_exists($USER->id, $enrolled_users)) {
+		if (array_key_exists($USER->id, $waiting_users) || array_key_exists($USER->id, $enrolled_users)) {
 			// already enrolled
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'unEnrolMeButton';
