@@ -580,6 +580,7 @@ function get_or_create_enrol($params) {
         throw new Exception('enrol should contain courseid, enrol and roleid');
     }
 
+    $params['status'] = ENROL_INSTANCE_ENABLED;
     $enrol = $DB->get_record('enrol', $params);
 
     if (!$enrol) {
