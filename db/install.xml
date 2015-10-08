@@ -247,12 +247,12 @@
       </KEYS>
     </TABLE>
     <TABLE NAME="meta_views_log" COMMENT="stores metacourse views">
-      <FIELDs>
+      <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="metaid" TYPE="int" LENGTH="10" NOTNULL="true"/>
         <FIELD NAME="user" TYPE="int" LENGTH="10" NOTNULL="true"/>
         <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true"/>
-      </FIELDs>
+      </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
