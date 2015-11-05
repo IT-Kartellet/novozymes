@@ -884,33 +884,36 @@ function get_datecourse_users($courseid){
                                         JOIN {meta_datecourse} md ON md.metaid = mc.id
                                         JOIN {meta_providers} mp ON mp.id = mc.provider
                                         WHERE md.courseid = :courseid", array('courseid' => $courseid));
-    $metacourse = reset($metacourse);
-    $metacoordinatorid = $metacourse->metacoordinatorid;
-    $datecoordinatorid = $metacourse->datecoordinatorid;
 
     $enrolled_users = $DB->get_records_sql("SELECT ra.userid, u.*
             FROM {role_assignments} ra
             JOIN {user} u ON ra.userid = u.id
             WHERE ra.contextid = :contextid
-            AND ra.roleid = 5
-            AND u.id <> :metacoordinatorid
-            AND u.id <> :datecoordinatorid",
-        array('contextid' => $context->id, 'metacoordinatorid' => $metacoordinatorid, 'datecoordinatorid' => $datecoordinatorid));
+            AND ra.roleid = 5",
+        array('contextid' => $context->id));
+
+
 
     $waiting_users = get_users_on_waitinglist($courseid);
 
-    $excluded_uids = [$metacoordinatorid, $datecoordinatorid] + array_map(function ($user) {
+    $excluded_uids = array_map(function ($user) {
             return $user->userid;
         }, $enrolled_users) + array_map(function ($user) {
             return $user->id;
         }, $waiting_users);
 
-    list($where, $params) = $DB->get_in_or_equal($excluded_uids, SQL_PARAMS_NAMED, 'param', false);
+    if (count($excluded_uids)) {
+        list($where, $params) = $DB->get_in_or_equal($excluded_uids, SQL_PARAMS_NAMED, 'param', false);
+        $where = 'u.id ' . $where . ' AND ';
+    } else {
+        $where = '';
+        $params = array();
+    }
 
     $not_enrolled_users = $DB->get_records_sql("
       SELECT u.id, u.firstname, u.lastname, u.username, u.email
       FROM {user} u
-      WHERE u.id $where AND u.id <> :guest and u.deleted <> 1 AND u.firstname IS NOT NULL AND u.firstname <> ''
+      WHERE $where u.id <> :guest and u.deleted <> 1 AND u.firstname IS NOT NULL AND u.firstname <> ''
       ORDER BY u.username ASC", $params + array("guest"=>1));
 
     return array($enrolled_users, $not_enrolled_users, $waiting_users);
