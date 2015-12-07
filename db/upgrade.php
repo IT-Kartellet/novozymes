@@ -180,5 +180,19 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2015022501, 'metacourse');
     }
 
+    if ($oldversion < 2015120701) {
+        // Add japanese lang
+        $japanese = $DB->get_record('meta_languages', array('iso' => 'jp'));
+
+        if ($japanese) {
+            $japanese->active = 1;
+            $DB->update_record('meta_languages', $japanese);
+        } else {
+            $DB->insert_record('meta_languages', array('language' => 'Japanese', 'iso' => 'jp', 'active' => 1));
+        }
+
+        upgrade_block_savepoint(true, 2015022501, 'metacourse');
+    }
+
     return $result;
 }
