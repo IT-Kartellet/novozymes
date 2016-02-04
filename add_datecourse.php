@@ -31,7 +31,11 @@ $meta['meta_coordinator'] = optional_param('coordinator',"",PARAM_INT);
 $meta['meta_provider'] = optional_param('provider',"",PARAM_TEXT);
 $meta['meta_unpublishdate'] = $_POST['unpublishdate'];
 $meta['meta_competence'] = $_POST['competence'];
-$meta['custom_email'] = $_POST['custom_email']; // TODO: Does not work with optional param.
+$meta['customemail'] = optional_param('customemail', false, PARAM_BOOL);
+
+if ($meta['customemail']) {
+	$meta['custom_email'] = $_POST['custom_email']; // TODO: Does not work with optional param.
+}
 
 $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('admin');

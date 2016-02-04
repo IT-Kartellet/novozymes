@@ -41,6 +41,12 @@ $coordinator = $meta['meta_coordinator'];
 $provider = $meta['meta_provider'];
 $competence = $meta['meta_competence'];
 
+if ($meta['customemail']) {
+	$custom_emails = $meta['custom_email'];
+} else {
+	$custom_emails = false;
+}
+
 //TODO: find a smarter and sober method to transform these dates into unix timestamp
 $unpublish_meta = $meta['meta_unpublishdate'];
 
@@ -55,7 +61,6 @@ $umt .= " " . $unpublish_meta_time['hour'] . ":" . $unpublish_meta_time['minute'
 global $DB, $USER;
 
 $datecourses = @$_POST['datecourse'];
-$custom_emails = @$_SESSION['custom_email'];
 
 $meta = new stdClass();
 $meta->id = $metaid;
@@ -87,15 +92,33 @@ if ($metaid) {
 } else {
 	$metaid = $DB->insert_record('meta_course', $meta);
 	$meta->id = $metaid;
-	// add the custom emails
-	foreach ($custom_emails as $lang => $email) {
-		$em = new stdClass();
-		$em->metaid = $metaid;
-		$em->lang = $lang;
-		$em->text = $email['text'];
-		$DB->insert_record("meta_custom_emails", $em);
-	}
 }
+
+if ($custom_emails) {
+	foreach ($custom_emails as $lang => $email) {
+		$record = $DB->get_record('meta_custom_emails', array(
+			'metaid' => $metaid,
+			'lang' => $lang
+		));
+
+		$text = html_to_text($email['text']);
+		if ($record) {
+			$record->text = $text;
+			$DB->update_record('meta_custom_emails', $record);
+		} else {
+			$em = new stdClass();
+			$em->metaid = $metaid;
+			$em->lang = $lang;
+			$em->text = $text;
+			$DB->insert_record("meta_custom_emails", $em);
+		}
+	}
+} else {
+	$DB->delete_records('meta_custom_emails', array(
+		'metaid' => $metaid
+	));
+}
+
 
 // Save draft area files from all input
 $changed = false;

@@ -39,4 +39,4 @@ if ($courseid != 0 && $userid != 0) {
 
 	add_to_log($courseid, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/unenrol_from_course.php', "Unenrolled $userid from $courseid");
 }
-redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "Your signup has beeen removed", 5);
+redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "Your signup has been removed", 5);

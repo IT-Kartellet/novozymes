@@ -110,6 +110,18 @@ if ($id == 0) {
 	$one_date = $DB->get_records("meta_datecourse", array("metaid"=>$id));
 	$one_date = reset($one_date);
 	$data->competence = $one_date->category;
+
+	if ($DB->record_exists('meta_custom_emails', array(
+		'metaid' => $data->id
+	))) {
+		$data->customemail = true;
+		foreach ($DB->get_records('meta_custom_emails', array(
+			'metaid' => $data->id
+		)) as $custom_email) {
+			$key = "custom_email[$custom_email->lang]";
+			$data->$key = array('text' => $custom_email->text);
+		}
+	}
 	
 	$mform->set_data($data);
 
