@@ -267,7 +267,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
       'metaid' => $metacourse_id,
       'lang' => $lang_id
     ));
-    if ($text) {
+    if ($text && strlen(trim($text->text)) > 0) {
       // Replacement code copied from core_string_manager_standard->get_string
       $search = array();
       $replace = array();
