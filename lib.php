@@ -223,7 +223,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
     if(is_int($user)){
       $user = $DB->get_record("user",array("id"=>$user));
     }
-    $supportuser = core_user::get_support_user();
 
     $data = new stdClass();
     $data->firstname = fullname($user);

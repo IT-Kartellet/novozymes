@@ -47,7 +47,6 @@ $removeAllow = optional_param("removeAllow",0, PARAM_INT);
 $enrolGuy = optional_param("enrolGuy",0,PARAM_INT);
 $unenrolGuy = optional_param("unenrolGuy",0,PARAM_INT);
 $enrolCourse = optional_param("enrolCourse",0,PARAM_INT);
-$sendEmail = optional_param("sendEmail", false, PARAM_BOOL);
 $enrolRole = optional_param("enrolRole", "", PARAM_TEXT);
 
 $getTemplate = optional_param("getTemplate", 0, PARAM_INT);
@@ -79,11 +78,9 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 			$waitRecord->timecreated = time();
 			$DB->insert_record('meta_waitlist', $waitRecord);
 
-			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully added to the waiting list. Email sent? $sendEmail");
+			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully added to the waiting list.");
 
-			if ($sendEmail) {
-				$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
-			}
+			$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
 
 			echo json_encode(array(
 				'action' => 'enrol',
@@ -112,10 +109,8 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
 
 		if (is_user_enrolled($enrolGuy, $enrolCourse)) {
-			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully enrolled. Email sent? $sendEmail");
-			if ($sendEmail) {
-				$enrol->send_confirmation_email($enrolUser, $enrolCourse);
-			}
+			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully enrolled.");
+			$enrol->send_confirmation_email($enrolUser, $enrolCourse);
 			echo json_encode(array(
 				'action' => 'enrol',
 				'status' => 'done',

@@ -61,7 +61,6 @@
 		e.preventDefault();
 		var courseid = $(this).siblings("#courseID").val();
 		var userids = $("#addselect :selected");
-		var sendEmail = $('#sendEmail').prop('checked');
 		var user_role = $('#enrol_role :selected').val();
 
 		var spinner = M.util.add_spinner(Y, Y.one('#addcontrols'));
@@ -76,7 +75,6 @@
 				data: { 	
 					enrolGuy: uid,
 					enrolCourse: courseid, 
-					sendEmail: sendEmail,
 					enrolRole: user_role
 				},
 				success: function (response) {
