@@ -40,6 +40,7 @@ if ($meta['customemail']) {
 $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('admin');
 $PAGE->requires->jquery();
+$PAGE->requires->yui_module('moodle-block_metacourse-dateform', 'M.block_metacourse.dateform.init');
 $URL = '/blocks/metacourse/list_metacourses.php';
 
 

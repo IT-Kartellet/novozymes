@@ -38,5 +38,9 @@ if ($courseid != 0 && $userid != 0) {
 	$enrol->sendUnenrolMail($userid, $courseid, $waiting);
 
 	add_to_log($courseid, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/unenrol_from_course.php', "Unenrolled $userid from $courseid");
+
 }
-redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php"), "Your signup has been removed", 5);
+$datecourse = $DB->get_record('meta_datecourse', array(
+	'courseid' => $courseid
+), '*', MUST_EXIST);
+redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php", array('id' => $datecourse->metaid)), "Your signup has been removed", 5);

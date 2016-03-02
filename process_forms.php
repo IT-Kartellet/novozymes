@@ -167,16 +167,18 @@ if ($count_deleted === count($datecourses)) {
 	print_error('deleted_all_courses_error', 'block_metacourse', $CFG->wwwroot . "blocks/metacourse/add_metacourse.php?id=$metaid");
 }
 
+function get_unixtime($course, $key) {
+	$time = "{$course[$key]['year']}-{$course[$key]['month']}-{$course[$key]['day']} {$course[$key]['hour']}:{$course[$key]['minute']}{$course['timezone']}";
+
+	return (new DateTime($time))->getTimestamp();
+}
+
 foreach ($datecourses as $key => $course) {
 	// Delete a datecourse, which is the same as a Moodle-course. 
 	$dc = new stdClass();
 	if (@$course['deleted'] == 1 && $course['courseid'] != 0) {
 		delete_course($course['courseid'], false);
 		continue;
-	}
-	
-	if(!isset($course['timestart'])){
-		var_dump($course);
 	}
 
 	//if we are editing
@@ -189,79 +191,47 @@ foreach ($datecourses as $key => $course) {
 		$dc->id = $course['id'];
 	}
 	$dc->metaid = $metaid;
-	
-	$starttime = array("day"=>$course['timestart']['day'],
-						"month"=>$course['timestart']['month'],
-						"year"=>$course['timestart']['year'],
-						"hour"=>$course['timestart']['hour'],
-						"minute"=>$course['timestart']['minute']
-	 );
 
-	$endtime = array("day"=>$course['timeend']['day'],
-						"month"=>$course['timeend']['month'],
-						"year"=>$course['timeend']['year'],
-						"hour"=>$course['timeend']['hour'],
-						"minute"=>$course['timeend']['minute']
-	 );
+	if (!empty($course['elearning'])) {
+		$starttime = 0;
+		$endtime = null;
+		$timezone = null;
+		$places = null;
+		$location = null;
+		$price = null;
+	} else {
+		$starttime = get_unixtime($course, 'timestart');
+		$endtime = get_unixtime($course, 'timeend');
+		$timezone = $course['timezone'];
+		$places = $course['places'];
+		$location = $course['location'];
+		$price = $course['price'];
+	}
 
-	$publishtime = array("day"=>$course['publishdate']['day'],
-						"month"=>$course['publishdate']['month'],
-						"year"=>$course['publishdate']['year'],
-						"hour"=>$course['publishdate']['hour'],
-						"minute"=>$course['publishdate']['minute']
-	 );
-	 
-	$unpublishtime = array("day"=>$course['unpublishdate']['day'],
-						"month"=>$course['unpublishdate']['month'],
-						"year"=>$course['unpublishdate']['year'],
-						"hour"=>$course['unpublishdate']['hour'],
-						"minute"=>$course['unpublishdate']['minute']
-	 );
-
-	$startenrolmenttime = array("day"=>$course['startenrolment']['day'],
-							"month"=>$course['startenrolment']['month'],
-							"year"=>$course['startenrolment']['year'],
-							"hour"=>$course['startenrolment']['hour'],
-							"minute"=>$course['startenrolment']['minute']
-	 );
-
-	//format the times
-	$ts = implode("-",array($starttime['year'], $starttime['month'], $starttime['day']));
-	$ts .= " " . $starttime['hour'] . ":" . $starttime['minute'] . $course['timezone'];
-	$te = implode("-",array($endtime['year'], $endtime['month'], $endtime['day']));
-	$te .= " " . $endtime['hour'] . ":" . $endtime['minute'] . $course['timezone'];
-	$pd = implode("-",array($publishtime['year'], $publishtime['month'], $publishtime['day']));
-	$pd .= " " . $publishtime['hour'] . ":" . $publishtime['minute'] . $course['timezone'];
-
-	$upd = implode("-",array($unpublishtime['year'], $unpublishtime['month'], $unpublishtime['day']));
-	$upd .= " " . $unpublishtime['hour'] . ":" . $unpublishtime['minute'] . $course['timezone'];
-
-	$ste = implode("-",array($startenrolmenttime['year'], $startenrolmenttime['month'], $startenrolmenttime['day']));
-	$ste .= " " . $startenrolmenttime['hour'] . ":" . $startenrolmenttime['minute'] . $course['timezone'];
-
-	$dc->startdate = date_timestamp_get(date_create($ts));
-	$dc->enddate = date_timestamp_get(date_create($te));
-	$dc->publishdate = date_timestamp_get(date_create($pd));
-	$dc->unpublishdate = date_timestamp_get(date_create($upd));
-	$dc->startenrolment = date_timestamp_get(date_create($ste));
-	$dc->timezone = $course['timezone'];
-    $dc->location = $course['location'];
+	$dc->startdate = $starttime;
+	$dc->enddate = $endtime;
+	$dc->publishdate = get_unixtime($course, 'publishdate');
+	$dc->unpublishdate = get_unixtime($course, 'unpublishdate');
+	$dc->startenrolment = get_unixtime($course, 'startenrolment');
+	$dc->timezone = $timezone;
+	$dc->location = $location;
 	$dc->country = $course['country'];
 	$dc->lang = $course['language'];
 	$dc->category = $competence;
-	$dc->price = $course['price'];
+	$dc->price = $price;
 	$dc->currencyid = $course['currency'];
-	$dc->total_places = $course['places'];
+	$dc->total_places = $places;
+	$dc->elearning = !empty($course['elearning']) ? 1 : 0;
 	// only if have a new course we add the free seats
 	if (@!$dc->id) {
-		$dc->free_places = $course['places'];
+		$dc->free_places = $places;
 	} else {
 		// update the nr of free places
 		$places = $DB->get_records_sql("SELECT total_places, free_places from {meta_datecourse} where id=:id",array("id"=>$dc->id));
 		$places = reset($places);
 		$dc->free_places = ($dc->total_places - $places->total_places) + $places->free_places;
 	}
-	$dc->open = 1;
+
 	$dc->coordinator = $course['coordinator'];
 	$dc->remarks = (isset($course['remarks'])) ? $course['remarks'] : '';
 	$dc->timemodified = time();
@@ -295,25 +265,20 @@ foreach ($datecourses as $key => $course) {
 		// else insert and create new courses
 		$datecourseid = $DB->insert_record('meta_datecourse', $dc);
 		//create the course
-		if ($dc->open == 1) {
-			$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
+		$courseName = $meta->name."-".$dc->lang."-".$datecourseid;
 
-			$created_courseid = create_new_course($courseName,$courseName, $competence, $dc->startdate, $meta->content);
+		$created_courseid = create_new_course($courseName,$courseName, $competence, $dc->startdate, $meta->content);
 
-			// add the manual enrolment
-			$DB->insert_record("enrol",array("enrol"=>"manual","status"=>0, "roleid"=>5,"courseid"=>$created_courseid));
+		// update the datecourse with the course id
+		$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
 
-			// update the datecourse with the course id
-			$DB->set_field('meta_datecourse', 'courseid', $created_courseid, array("id"=>$datecourseid));
-
-			if ($meta->coordinator == 0) {
-				 add_coordinator($meta->coordinator, $created_courseid);
-			}
-			add_coordinator($dc->coordinator, $created_courseid);
-
-			//add the label with the description
-			add_label($created_courseid, $meta);
+		if ($meta->coordinator == 0) {
+			 add_coordinator($meta->coordinator, $created_courseid);
 		}
+		add_coordinator($dc->coordinator, $created_courseid);
+
+		//add the label with the description
+		add_label($created_courseid, $meta);
 	}
 }
 add_to_log(1, 'metacourse', 'Saved metacourse', '', $name, 0, $USER->id);

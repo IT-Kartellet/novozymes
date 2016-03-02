@@ -76,7 +76,7 @@
 		var victim = $(".template").last();
 		var index = $('.template').length - 1 + countDeleted;
 
-		victim.find('input').not("#removeDateCourse").val("");
+		victim.find('input').not("#removeDateCourse, [type='checkbox']").val("");
 
 		// Get all input elements"
 		var elements = victim.find("select, input:not(#removeDateCourse)");
@@ -108,6 +108,8 @@
 		victim.find("select[name*='day']").val(dd);
 		victim.find("select[name*='month']").val(mm);
 		victim.find("select[name*='year']").val(yyyy);
+
+		M.block_metacourse.dateform.init();
 	});
 
 	// don't screw this up
@@ -145,7 +147,7 @@
 	});
 
 	//enrol me
-	$(document.body).on('click','div.enrolMeButton input',function(e){
+	$(document.body).on('click','div.enrolMeButton:not(.elearning) input',function(e){
 		e.preventDefault();
 
 		enrolledCourse = $(this);
@@ -183,7 +185,7 @@
 
 
 	//unenrol me
-	$(document.body).on('click','div.unEnrolMeButton input',function(e){
+	$(document.body).on('click','div.unEnrolMeButton:not(.elearning) input',function(e){
 		e.preventDefault();
 
 		enrolledCourse = $(this);

@@ -194,5 +194,47 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2015120701, 'metacourse');
     }
 
+
+    if ($oldversion < 2016022902) {
+        $table = new xmldb_table('meta_datecourse');
+        $field = new xmldb_field('elearning', XMLDB_TYPE_INTEGER, '1');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $dbman->change_field_notnull($table, new xmldb_field('startdate', XMLDB_TYPE_INTEGER, '10', null, false));
+        $dbman->change_field_notnull($table, new xmldb_field('enddate', XMLDB_TYPE_INTEGER, '10', null, false));
+
+        upgrade_block_savepoint(true, 2016022902, 'metacourse');
+    }
+
+    if ($oldversion < 2016030101) {
+        $table = new xmldb_table('meta_datecourse');
+        $field = new xmldb_field('open');
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        upgrade_block_savepoint(true, 2016030101, 'metacourse');
+    }
+
+    if ($oldversion < 2016030105) {
+        $table = new xmldb_table('meta_datecourse');
+
+        $ix = new xmldb_index('metadate_loc_ix', XMLDB_INDEX_NOTUNIQUE, array('location'));
+
+        if ($dbman->index_exists($table, $ix)) {
+            $dbman->drop_index($table, $ix);
+        }
+        $dbman->change_field_notnull($table, new xmldb_field('total_places', XMLDB_TYPE_INTEGER, '10', null, false));
+        $dbman->change_field_notnull($table, new xmldb_field('free_places', XMLDB_TYPE_INTEGER, '10', null, false));
+        $dbman->change_field_notnull($table, new xmldb_field('location', XMLDB_TYPE_INTEGER, '10', null, false));
+        $dbman->change_field_notnull($table, new xmldb_field('price', XMLDB_TYPE_INTEGER, '10', null, false));
+
+        upgrade_block_savepoint(true, 2016030105, 'metacourse');
+    }
+
     return $result;
 }

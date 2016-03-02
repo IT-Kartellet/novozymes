@@ -65,27 +65,12 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$PAGE->set_context($context);
 
 		$course = $DB->get_record('course', array('id' => $enrolCourse));
-
-		/*
-		list($sql, $params) = get_enrolled_sql($context, '', 0, true);
-		$sql = "SELECT u.*, je.* FROM {user} u
-		JOIN ($sql) je ON je.id = u.id";
-		$course_users = $DB->get_records_sql($sql, $params );
-		$students = array();
-
-		foreach($course_users as $id => $user){
-			if(user_has_role_assignment($id, 5, $context->id)){
-				$students[$id] = $user;
-				
-			}
-		}
-		*/
 			
 		list($students, $not_enrolled_users) = get_datecourse_users($enrolCourse);
 	
 		$enrol = new enrol_manual_pluginITK();
 
-		if ($enrolRole === 'student' && $datecourse->total_places <= count($students)) {
+		if (!$datecourse->elearning && $enrolRole === 'student' && $datecourse->total_places <= count($students)) {
 			$waitRecord = new stdClass();
 			$waitRecord->userid = $enrolGuy;
 			$waitRecord->courseid = $enrolCourse;

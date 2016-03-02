@@ -91,7 +91,14 @@ class enrol_manual_pluginITK extends enrol_plugin {
       ", array("cid"=>$courseid));
     $teacherCC = reset($teacherCC);
 
-    $datecourse = $DB->get_record_sql("SELECT d.*, c.currency, l.location as loc, m.name as metaname FROM {meta_datecourse} d JOIN {meta_currencies} c on d.currencyid=c.id JOIN {meta_locations} l ON d.location = l.id JOIN {meta_course} m ON d.metaid = m.id where courseid = :id", array("id"=>$courseid));
+    $datecourse = $DB->get_record_sql("
+      SELECT d.*, c.currency, l.location as loc, m.name as metaname
+      FROM {meta_datecourse} d
+      JOIN {meta_currencies} c on d.currencyid=c.id
+      LEFT JOIN {meta_locations} l ON d.location = l.id
+      JOIN {meta_course} m ON d.metaid = m.id
+      where courseid = :id",
+    array("id"=>$courseid));
 
     $a = new stdClass();
     $a->username = $username;
@@ -238,7 +245,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
       SELECT d.*, c.currency, l.location as loc, m.name as metaname
       FROM {meta_datecourse} d
       JOIN {meta_currencies} c on d.currencyid=c.id
-      JOIN {meta_locations} l ON d.location = l.id
+      LEFT JOIN {meta_locations} l ON d.location = l.id
       JOIN {meta_course} m ON d.metaid = m.id
       WHERE courseid = :id",
       array("id"=>$course->id)
@@ -284,37 +291,43 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
     $user->mailformat = 0;  // Always send HTML version as well
     //iCal
-    $ical = new iCalendar;
-    $ical->add_property('method', 'PUBLISH');
 
-    $ev = new iCalendar_event;
-    $ev->add_property('uid', $course->id.'@'.'novozymes.it-kartellet.dk');
-    $ev->add_property('summary', $course->fullname);
-    $ev->add_property('description', clean_param($course->summary, PARAM_NOTAGS));
-    $ev->add_property('class', 'PUBLIC');
-    $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
-    $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
-    $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
-    $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
+    if (!$datecourse->elearning) {
+      $ical = new iCalendar;
+      $ical->add_property('method', 'PUBLISH');
 
-    $ical->add_component($ev);
+      $ev = new iCalendar_event;
+      $ev->add_property('uid', $course->id . '@' . 'novozymes.it-kartellet.dk');
+      $ev->add_property('summary', $course->fullname);
+      $ev->add_property('description', clean_param($course->summary, PARAM_NOTAGS));
+      $ev->add_property('class', 'PUBLIC');
+      $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
+      $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
+      $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
+      $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
 
-    $serialized = $ical->serialize();
+      $ical->add_component($ev);
 
-    $file = $CFG->dataroot . "/" . time() . ".ics";
+      $serialized = $ical->serialize();
 
-    $fh = fopen($file, "w+");
-    fwrite($fh, $serialized);
-    fclose($fh);
+      $file = $CFG->dataroot . "/" . time() . ".ics";
 
-    if(empty($serialized)) {
-      // TODO
-      die('bad serialization');
+      $fh = fopen($file, "w+");
+      fwrite($fh, $serialized);
+      fclose($fh);
+
+      if (empty($serialized)) {
+        // TODO
+        die('bad serialization');
+      }
+    } else {
+      $file = false;
     }
-    // calendar_add_icalendar_event($ev, $course->id);
-    //end iCal
-    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email, $file, "event.ics");
-    unlink($file);
+
+    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email, $file, "invite.ics");
+    if ($file) {
+      unlink($file);
+    }
     return $result;
   }
 
@@ -897,12 +910,10 @@ function get_users_on_waitinglist($courseid) {
 function is_user_enrolled($userid, $courseid){
   global $DB;
 
-  $enrol = $DB->get_records_sql("SELECT e.courseid, ue.userid FROM {enrol} e
+  return $DB->record_exists_sql("SELECT e.courseid, ue.userid FROM {enrol} e
         JOIN {user_enrolments} ue ON e.id = ue.enrolid
         WHERE e.courseid = :courseid  AND ue.userid = :userid",
     array('userid' => $userid, 'courseid' => $courseid));
-
-  return !empty($enrol);
 }
 
 //newly added function that returns enrolled, not enrolled and waitlist users

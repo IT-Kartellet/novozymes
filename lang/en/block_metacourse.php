@@ -165,3 +165,11 @@ $string['unpublishdate_help'] = 'When do you want the course not to be shown to 
 
 $string['timezone'] = 'Timezone?';
 $string['timezone_help'] = 'The timezone for the place where the course is held. Remember to account for daylight saving time (DST). For example if the course is held in Denmark (timezone = +1), and DST is active, you have to select +2, since DST adds one hour.';
+
+$string['elearning'] = 'Elearning';
+$string['elearning_help'] = 'Elearning courses are course which the student attends wholly online - they do not have an attached date, since users can access them at any time.';
+
+$string['goto_course'] = 'Go to course';
+$string['elearning_course'] = 'E-learning course';
+
+$string['no_limit'] = 'No limit';

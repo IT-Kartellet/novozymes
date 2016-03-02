@@ -237,7 +237,7 @@ if ($metacourse) {
 				continue;
 			}
 			// you can't be added anymore
-			if ($datecourse->startdate < time()) {
+			if (!$datecourse->elearning && $datecourse->startdate < time()) {
 				continue;
 			}
 		}
@@ -247,33 +247,53 @@ if ($metacourse) {
 		// get coordinator
 		$cor = $DB->get_records_sql("SELECT username FROM {user} where id = :id", array("id"=>$datecourse->coordinator));
 		$cor = reset($cor);
-		
-		if ($datecourse->startdate == 0) {
-			$start = "-";
-			$end = "-";
-		} else{
-			$start = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
-			if ($isTeacher) {
-				$start = "<a href='/course/view.php?id=$datecourse->courseid'>".$start."</a>";
-			}
 
-			$end = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+		$row = array();
+		
+		if (!empty($datecourse->elearning) && (is_user_enrolled($USER->id, $datecourse->courseid) || $isTeacher)) {
+			$cell = new html_table_cell(html_writer::link(new moodle_url('/course/view.php', array('id' => $datecourse->courseid)), get_string('goto_course', 'block_metacourse')));
+			$cell->colspan = 2;
+			$row[] = $cell;
+		} else {
+			if ($datecourse->startdate == 0) {
+				$start = "-";
+				$end = "-";
+			} else{
+				$start = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
+				if ($isTeacher) {
+					$start = "<a href='/course/view.php?id=$datecourse->courseid'>".$start."</a>";
+				}
+
+				$end = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+			}
+			$row[] = $start;
+			$row[] = $end;
 		}
 
-		//replace id with location
-		$loc = $DB->get_record('meta_locations', array ('id'=> $datecourse->location), 'location');
-		$location = $loc->location;
+		if ($datecourse->elearning) {
+			$location = 'Online';
+		} else {
+			//replace id with location
+			$loc = $DB->get_record('meta_locations', array ('id'=> $datecourse->location), 'location');
+			$location = $loc->location;
+		}
+		$row[] = $location;
 
 		//replace id with language
 		$lang = $DB->get_record('meta_languages', array ('id'=> $datecourse->lang), 'language');
-		$language =$lang->language;
-		$price = str_replace(array(".",","), '', $datecourse->price);
+		$row[] = $lang->language;
 
-		$price .= " " . $datecourse->currency;
+		if ($datecourse->elearning) {
+			$row[] = '-';
+		} else {
+			$price = str_replace(array(".",","), '', $datecourse->price);
+			$row[] = $price .  " " . $datecourse->currency;
+		}
 		@$coordinator = strtoupper($cor->username);
 		if (strlen($coordinator)<2) {
 			$coordinator = "-";
 		}
+		$row[] = $coordinator;
 		$total_places =$datecourse->total_places;
 
 		list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($datecourse->courseid);
@@ -285,7 +305,7 @@ if ($metacourse) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'unEnrolMeButton';
 			$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");
-		} else if ($busy_places >= $total_places) { 
+		} else if (!$datecourse->elearning && $busy_places >= $total_places) {
 			// waiting list
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'addToWaitingList';
@@ -297,13 +317,17 @@ if ($metacourse) {
 			$enrolMe->tooltip = get_string("enrolme", "block_metacourse");
 		}
 
+		if ($datecourse->elearning) {
+			$enrolMe->class .= ' elearning';
+		}
+
 		//Always add enrol others button
- 		$enrolOthers = new single_button(new moodle_url('/blocks/metacourse/enrol_others_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
- 		$enrolOthers->class="enrolOthers";
- 		
-		//Set one tooltip if waiting list and another without waiting list. 
+		$enrolOthers = new single_button(new moodle_url('/blocks/metacourse/enrol_others_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
+		$enrolOthers->class="enrolOthers";
+
+		//Set one tooltip if waiting list and another without waiting list.
 		if($busy_places >= $total_places){
-			$enrolOthers->tooltip = get_string("enrolOthers-wait", "block_metacourse");			
+			$enrolOthers->tooltip = get_string("enrolOthers-wait", "block_metacourse");
 		}else{
 			$enrolOthers->tooltip = get_string("enrolOthers", "block_metacourse");
 		}
@@ -320,17 +344,24 @@ if ($metacourse) {
 			$action = $OUTPUT->render($enrolMe);
 			$action .= $OUTPUT->render($enrolOthers);
 		}
-		
+
+		if ($datecourse->elearning) {
+			$total_places = get_string('elearning_course', 'block_metacourse');
+		}
 		if ($busy_places > 0) {
-			$date_table->data[] = array($start, $end,$location,$language,$price,$coordinator,$total_places, $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$busy_places), $action);
-			if ($datecourse->remarks) {
-				$date_table->data[] = array($datecourse->remarks, "","","","","","","","");
-			}
+			$busy_places = $OUTPUT->action_link(new moodle_url('/blocks/metacourse/enrolled_users.php', array("id"=>$datecourse->id)),$busy_places);
 		} else {
-			$date_table->data[] = array($start, $end,$location,$language,$price,$coordinator,$total_places, $busy_places, $action);
-			if ($datecourse->remarks) {
-				$date_table->data[] = array($datecourse->remarks, "","","","","","","","");
-			}
+			$busy_places = 0;
+		}
+		$row[] = $total_places;
+		$row[] = $busy_places;
+
+		$row[] = $action;
+
+		$date_table->data[] = $row;
+
+		if ($datecourse->remarks) {
+			$date_table->data[] = array($datecourse->remarks, "","","","","","","","");
 		}
 	}
 	echo html_writer::table($date_table);

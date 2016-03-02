@@ -45,7 +45,7 @@ list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_user
 $table = new html_table();
 $table->id = 'enrol_info';
 
-$table->data[] = array('Seats', $datecourse->total_places);
+$table->data[] = array('Seats', $datecourse->elearning ? get_string('no_limit', 'block_metacourse') : $datecourse->total_places);
 $table->data[] = array('Currently signed up', count($enrolled_users));
 $table->data[] = array('Waiting list', count($waiting_users));
 
