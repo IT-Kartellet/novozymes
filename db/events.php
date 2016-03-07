@@ -1,17 +1,5 @@
 <?php
 $handlers = array(
-	'user_unenrolled'=>array(
-		'handlerfile'=>'/blocks/metacourse/lib.php',
-		'handlerfunction'=>'enrol_waiting_user',
-		'schedule'=>'instant',
-		'internal'=>1
-	),
-	'user_deleted'=>array(
-		'handlerfile'=>'/blocks/metacourse/lib.php',
-		'handlerfunction'=>'enrol_waiting_user',
-		'schedule'=>'instant',
-		'internal'=>1
-	),
 	'user_enrolled'=>array(
 		'handlerfile'=>'/blocks/metacourse/lib.php',
 		'handlerfunction'=>'enrol_update_free_places',
@@ -35,5 +23,13 @@ $handlers = array(
 		'handlerfunction'=>'course_created_enrol_waiters',
 		'schedule'=>'instant',
 		'internal'=>1
+	)
+);
+
+$observers = array(
+	array(
+		'eventname' => '\core\event\user_enrolment_deleted',
+		'callback' => 'enrol_waiting_user',
+		'includefile' => 'blocks/metacourse/lib.php'
 	)
 );
