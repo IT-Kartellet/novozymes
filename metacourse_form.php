@@ -124,7 +124,6 @@ class metacourse_form extends moodleform {
         $mform->addHelpButton('localname_lang', 'localname_lang', 'block_metacourse');
         $mform->addElement('editor', 'purpose', 'Purpose', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true, 'context' => $context));
         $mform->addHelpButton('purpose', 'purpose', 'block_metacourse');
-        // $mform->addElement('select', 'target', 'Target group', $meta_cat, "multiple");
 
         // == checkbox target
         $mform->addElement('html',"<div class='fitem'>");
@@ -134,8 +133,12 @@ class metacourse_form extends moodleform {
         foreach ($meta_cat as $key => $cat) {
             $mform->addElement('advcheckbox', "targetgroup[".$key."]", $cat, null, array('group' => 1), false);
         }
-        $this->add_checkbox_controller(1);
-        $mform->addElement('html',"</div></div>");
+
+        $mform->addElement('html', html_writer::link('#', get_string('selectallornone', 'form'), array(
+            'class' => 'selectallornone'
+        )));
+        $PAGE->requires->yui_module('moodle-block_metacourse-metacourse_form', 'M.block_metacourse.metacourse_form.init');
+        $mform->addElement('html', "</div></div>");
         // == end checkbox target
 
         $mform->addElement('editor', 'target_description', 'Target description', null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));

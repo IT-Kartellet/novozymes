@@ -195,14 +195,12 @@ foreach ($datecourses as $key => $course) {
 	if (!empty($course['elearning'])) {
 		$starttime = 0;
 		$endtime = null;
-		$timezone = null;
 		$places = null;
 		$location = null;
 		$price = null;
 	} else {
 		$starttime = get_unixtime($course, 'timestart');
 		$endtime = get_unixtime($course, 'timeend');
-		$timezone = $course['timezone'];
 		$places = $course['places'];
 		$location = $course['location'];
 		$price = $course['price'];
@@ -213,7 +211,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->publishdate = get_unixtime($course, 'publishdate');
 	$dc->unpublishdate = get_unixtime($course, 'unpublishdate');
 	$dc->startenrolment = get_unixtime($course, 'startenrolment');
-	$dc->timezone = $timezone;
+	$dc->timezone = $course['timezone'];
 	$dc->location = $location;
 	$dc->country = $course['country'];
 	$dc->lang = $course['language'];

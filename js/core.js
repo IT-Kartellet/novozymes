@@ -25,20 +25,9 @@
 	}
 
 	if ($('#id_customemail').is(":checked")) {
-		$("#[id^='fitem_id_custom_email']").show();
+		$("[id^='fitem_id_custom_email']").show();
 	} else {
 		$("[id^='fitem_id_custom_email']").hide();
-	}
-
-	if (!(typeof itk_targets === 'undefined')) {
-		$.each(itk_targets, function( key, value ) {
-		  if (value === 1 ) {
-		  	var elem = "#id_targetgroup_" + key;
-
-		  	$(elem).prop('checked', true);
-
-		  }
-		});
 	}
 
 	$(document.body).on("click","form[action='add_datecourse.php'] input[id='id_submitbutton']",function(){

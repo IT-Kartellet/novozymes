@@ -231,7 +231,7 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         $dbman->change_field_notnull($table, new xmldb_field('total_places', XMLDB_TYPE_INTEGER, '10', null, false));
         $dbman->change_field_notnull($table, new xmldb_field('free_places', XMLDB_TYPE_INTEGER, '10', null, false));
         $dbman->change_field_notnull($table, new xmldb_field('location', XMLDB_TYPE_INTEGER, '10', null, false));
-        $dbman->change_field_notnull($table, new xmldb_field('price', XMLDB_TYPE_INTEGER, '10', null, false));
+        $dbman->change_field_notnull($table, new xmldb_field('price', XMLDB_TYPE_TEXT, null, null, false));
 
         upgrade_block_savepoint(true, 2016030105, 'metacourse');
     }

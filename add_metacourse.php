@@ -85,19 +85,19 @@ if ($id == 0) {
 	$data->lodging = array("text"=>$meta->lodging);
 	$data->contact = array("text"=>$meta->contact);
 	$data->target_description = array("text"=>$meta->target_description);
-	$data->targetgroup = array();
 	$targets = $DB->get_records_sql("SELECT id from {meta_category} order by name asc");
 
 	$targ = json_decode($meta->target);
 	foreach ($targets as $i => $t) {
-		$data->targetgroup[$t->id] = 0;
+		$key = "targetgroup[$t->id]";
+		$data->{$key} = 0;
 	}
 
 	foreach ($targ as $i => $t) {
-		$data->targetgroup[$t] = 1;
+		$key = "targetgroup[$t]";
+		$data->{$key} = 1;
 	}
-	// moodle fucks with this
-	echo "<script> var itk_targets = ". json_encode($data->targetgroup) ."</script>";
+
 	$data->comment = array("text"=>$meta->comment);
 	$data->multiple_dates = array("text"=>$meta->multiple_dates);
 	$data->multipledates = 1;
