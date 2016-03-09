@@ -177,7 +177,7 @@ foreach ($datecourses as $key => $course) {
 	// Delete a datecourse, which is the same as a Moodle-course. 
 	$dc = new stdClass();
 	if (@$course['deleted'] == 1 && $course['courseid'] != 0) {
-		delete_course($course['courseid'], false);
+		delete_datecourse($course);
 		continue;
 	}
 
@@ -220,15 +220,6 @@ foreach ($datecourses as $key => $course) {
 	$dc->currencyid = $course['currency'];
 	$dc->total_places = $places;
 	$dc->elearning = !empty($course['elearning']) ? 1 : 0;
-	// only if have a new course we add the free seats
-	if (@!$dc->id) {
-		$dc->free_places = $places;
-	} else {
-		// update the nr of free places
-		$places = $DB->get_records_sql("SELECT total_places, free_places from {meta_datecourse} where id=:id",array("id"=>$dc->id));
-		$places = reset($places);
-		$dc->free_places = ($dc->total_places - $places->total_places) + $places->free_places;
-	}
 
 	$dc->coordinator = $course['coordinator'];
 	$dc->remarks = (isset($course['remarks'])) ? $course['remarks'] : '';
