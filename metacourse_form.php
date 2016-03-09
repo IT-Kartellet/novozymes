@@ -30,13 +30,7 @@ class metacourse_form extends moodleform {
         $mform = $this->_form;
         $data = $this->_customdata['data'];
 
-        $coordinators = $DB->get_records_sql("
-            select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u where u.id <> 1 and u.deleted <> 1 and u.suspended <> 1 AND u.email <> '' AND u.firstname <> '' ORDER BY username ASC
-         ");
-
-        $coordinators = array_map(function ($arg){
-            return strtoupper($arg->username) . " - " . $arg->firstname . " " . $arg->lastname;
-        }, $coordinators);
+        $coordinators = get_available_coordinators();
 
         $nocoordinator = array("0" => "none");
         $coordinators = $nocoordinator + $coordinators;

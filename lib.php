@@ -3,7 +3,6 @@
 require_once($CFG->dirroot.'/calendar/lib.php');
 require_once($CFG->libdir.'/bennu/bennu.inc.php');
 
-
 function block_metacourse_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
   $fs = get_file_storage();
 
@@ -14,8 +13,6 @@ function block_metacourse_pluginfile($course, $cm, $context, $filearea, array $a
   }
 
   send_stored_file($file, null, 0, true);
-
-
 }
 
 function format_tz_offset($offset) {
@@ -958,4 +955,19 @@ function get_datecourse_users($courseid){
       ORDER BY u.username ASC", $params + array("guest"=>1));
 
   return array($enrolled_users, $not_enrolled_users, $waiting_users);
+}
+
+function get_available_coordinators() {
+  global $DB;
+
+  $coordinators = $DB->get_records_sql("
+    select distinct u.id, u.username, u.`firstname`, u.lastname, u.email
+    from {user} u
+    where u.id <> 1 and u.deleted <> 1 and u.suspended <> 1 AND u.email <> '' AND u.firstname <> ''
+    ORDER BY username ASC
+ ");
+
+  return array_map(function ($arg){
+    return strtoupper($arg->username) . " - " . $arg->firstname . " " . $arg->lastname;
+  }, $coordinators);
 }

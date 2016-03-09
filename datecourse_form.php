@@ -55,13 +55,7 @@ class datecourse_form extends moodleform {
             return $curr->currency;
         }, $currencies);
 
-        $coordinators = $DB->get_records_sql("
-            select distinct u.id, u.username, u.`firstname`, u.lastname, u.email from {user} u join 
-                {role_assignments} ra on u.id = ra.userid and ra.roleid in (1,2,3,4) and u.id <> 1 order by u.username asc
-         ");     
-        $coordinators = array_map(function ($arg){
-                return strtoupper($arg->username);
-            }, $coordinators);
+        $coordinators = get_available_coordinators();
 
         $mform->addElement('header', 'header_courses', 'COURSES');
         $mform->addElement('html',"<div id='wrapper'>");
