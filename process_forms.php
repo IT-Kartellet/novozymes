@@ -246,6 +246,28 @@ foreach ($datecourses as $key => $course) {
 				$dc->courseid = $created_courseid;
 			}
 		}
+		$existing_datecourse = $DB->get_record('meta_datecourse', array(
+			'id' => $dc->id
+		));
+
+		if (!$dc->elearning) {
+			foreach (array(
+			 'location',
+			 'startdate',
+			 'enddate'
+		 	) as $property) {
+				if ($existing_datecourse->{$property} != $dc->{$property}) {
+					list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($dc->courseid);
+
+					$lib = new enrol_manual_pluginITK();
+					foreach ($enrolled_users as $user) {
+						$lib->send_course_updated_email($user, $dc);
+					}
+					break;
+				}
+			}
+		}
+
 		$DB->update_record('meta_datecourse', $dc);
 		$dc = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id",array("id"=>$dc->id));
 		$dc = reset($dc);

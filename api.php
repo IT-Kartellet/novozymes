@@ -136,6 +136,13 @@ if ($unenrolGuy && $enrolCourse) {
 	try {
 		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
 		$instance = reset($instance);
+
+		//check if on waiting list
+		$waiting = $DB->record_exists('meta_waitlist', array(
+			'courseid' => $enrolCourse,
+			'userid' => $unenrolGuy,
+			'nodates' => 0,
+		));
 		
 		$DB->delete_records('meta_waitlist', array(
 			'courseid' => $enrolCourse,
@@ -146,6 +153,8 @@ if ($unenrolGuy && $enrolCourse) {
 		$PAGE->set_context(context_course::instance($enrolCourse)); // Needed in send mail
 		$enrolments = enrol_get_plugin('manual');
 		$enrolments->unenrol_user($instance, $unenrolGuy);
+		$enrol = new enrol_manual_pluginITK();
+		$enrol->sendUnenrolMail($unenrolGuy, $enrolCourse, $waiting);
 
 		add_to_log($enrolCourse, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Unenrolled $unenrolGuy from $enrolCourse");
 
