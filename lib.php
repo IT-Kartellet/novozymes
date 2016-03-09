@@ -255,7 +255,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $a->myhome = $CFG->wwwroot."/my";
 
     $message     = get_string("emailwait", 'block_metacourse', $a);
-    $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
+    $messagehtml = text_to_html($message, false, false, true);
 
     $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC);
     $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
@@ -710,29 +710,16 @@ function enrol_waiting_user($eventData){
   return false;
 }
 
-function update_metacourse($eventData){
-  global $DB;
-  //nothing yet
-}
+function delete_datecourse($datecourse){
+  global $DB, $USER;
 
-function delete_metacourse($eventData){
-  global $DB;
-  $courseid = $eventData->id;
   try {
-    $DB->delete_records("meta_datecourse",array("courseid"=>$courseid));
-    $DB->delete_records("meta_waitlist",array("courseid"=>$courseid));
-    $DB->delete_records("meta_tos_accept",array("courseid"=>$courseid));
+    $DB->delete_records("meta_datecourse",array("courseid"=>$datecourse->courseid));
+    $DB->delete_records("meta_waitlist",array("courseid"=>$datecourse->courseid));
+    $DB->delete_records("meta_tos_accept",array("courseid"=>$datecourse->courseid));
   } catch(Exception $e){
     add_to_log(1, 'metacourse_err', 'course_deleted_error', "", json_encode($e), 0, $USER->id);
   }
-}
-
-function enrol_update_free_places($eventData){
-  global $DB;
-  $record = new stdClass();
-  $current_record = $DB->get_record("meta_datecourse",array("courseid"=>$eventData->courseid));
-  $record->id = $eventData->courseid;
-  $record->free_places = $current_record->free_places - 1;
 }
 
 function add_label($courseid, $meta) {
