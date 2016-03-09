@@ -160,7 +160,7 @@ if ($unenrolGuy && $enrolCourse) {
 		if ($sendEmail) {
 			$enrol->sendUnenrolMail($unenrolGuy, $enrolCourse, $waiting);
 		}
-
+		
 		add_to_log($enrolCourse, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Unenrolled $unenrolGuy from $enrolCourse");
 
 		echo json_encode("done");

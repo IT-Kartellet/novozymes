@@ -173,3 +173,6 @@ $string['goto_course'] = 'Go to course';
 $string['elearning_course'] = 'E-learning course';
 
 $string['no_limit'] = 'No limit';
+
+$string['course_details_updated_subject'] = 'Course details updated';
+$string['course_details_updated_body'] = 'Course details have been updated, please see the attached event.';

@@ -77,7 +77,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
     $site = get_site();
     $user = $DB->get_record("user", array("id" => $userid));
-
     $subject = format_string($site->fullname) . ": cancellation confirmation";
 
     $username = urlencode($user->username);
@@ -89,13 +88,14 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $teacherCC = reset($teacherCC);
 
     $datecourse = $DB->get_record_sql("
-      SELECT d.*, c.currency, l.location as loc, m.name as metaname
+      SELECT d.*, c.currency, m.content, l.location as loc, m.name as metaname
       FROM {meta_datecourse} d
       JOIN {meta_currencies} c on d.currencyid=c.id
       LEFT JOIN {meta_locations} l ON d.location = l.id
       JOIN {meta_course} m ON d.metaid = m.id
       where courseid = :id",
     array("id"=>$courseid));
+    $course = $DB->get_record('course', array('id' => $courseid));
 
     $a = new stdClass();
     $a->username = $username;
@@ -117,12 +117,99 @@ class enrol_manual_pluginITK extends enrol_plugin {
     } else {
       $message = get_string("emailunenrolconf", 'block_metacourse', $a);
     }
+
+    if (!$datecourse->elearning) {
+      $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC, 'CANCEL', 1);
+    } else {
+      $attachment = false;
+    }
+
     $messagehtml = text_to_html($message, false, false, true);
 
-    $user->mailformat = 0;  // Always send HTML version as well
-
-    $result = $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email);
+    $result = $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
     return $result;
+  }
+
+  private function get_ical($datecourse, $course, $user, $teacher, $method = 'REQUEST', $sequence = 0) {
+    global $DB;
+
+    $ical = new iCalendar;
+    $ical->add_property('method', $method);
+
+    if (!empty($datecourse->location)) {
+      $location = $DB->get_field('meta_locations', 'location', array(
+        'id' => $datecourse->location
+      ));
+    } else {
+      $location = $datecourse->loc;
+    }
+
+    if (empty($datecourse->content)) {
+      $content = $DB->get_field('meta_course', 'content', array(
+        'id' => $datecourse->metaid
+      ));
+    } else {
+      $content = $datecourse->content;
+    }
+
+    $ev = new iCalendar_event;
+    $ev->add_property('uid', $course->id . '@' . 'novozymes.it-kartellet.dk');
+    $ev->add_property('summary', $course->fullname);
+    $ev->add_property('description', html_to_text($content));
+    $ev->add_property('location', $location);
+    $ev->add_property('X-ALT-DESC', $content);
+    $ev->add_property('class', 'PUBLIC');
+    $ev->add_property('sequence', $sequence);
+    $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
+    $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
+    $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
+    $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
+
+    $ev->add_property('organizer', "mailto:$teacher->email", array(
+      'cn' => $teacher->firstname . ' ' . $teacher->lastname
+    ));
+
+    $ev->add_property('attendee', "mailto:$user->email", array(
+      'cutype' => 'individual',
+      'role' => 'req-participant',
+      'partstat' => 'needs-action',
+      'cn' => $user->firstname . ' ' . $user->lastname
+    ));
+
+    switch ($method) {
+      case 'PUBLISH':
+        $ev->add_property('status', 'CONFIRMED');
+        break;
+      case 'CANCEL':
+        $ev->add_property('status', 'CANCELLED');
+        break;
+    }
+
+    $ical->add_component($ev);
+
+    return $ical->serialize();
+  }
+
+  public function send_course_updated_email($user, $datecourse) {
+    global $DB;
+    $site = get_site();
+
+    $subject = format_string($site->fullname) . ": "  . get_string('course_details_updated_subject', 'block_metacourse');
+    $message = get_string('course_details_updated_body', 'block_metacourse');
+    $messagehtml = text_to_html($message);
+
+    $course = $DB->get_record("course", array(
+      "id" => $datecourse->courseid
+    ));
+
+    $teacherCC = $DB->get_records_sql("SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid", array(
+      "cid" => $datecourse->courseid
+    ));
+    $teacherCC = reset($teacherCC);
+
+    $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC, 'REQUEST', 1);
+
+    return $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
   }
 
   public function send_waitlist_email($user, $courseid){
@@ -133,7 +220,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
     if(is_int($user)){
       $user = $DB->get_record("user",array("id"=>$user));
     }
-    $supportuser = core_user::get_support_user();
 
     $data = new stdClass();
     $data->firstname = fullname($user);
@@ -171,41 +257,9 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $message     = get_string("emailwait", 'block_metacourse', $a);
     $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
 
-    $user->mailformat = 0;  // Always send HTML version as well
+    $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC);
+    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
 
-    //iCal
-    $ical = new iCalendar;
-    $ical->add_property('method', 'PUBLISH');
-
-    $ev = new iCalendar_event;
-    $ev->add_property('uid', $course->id.'@'.'novozymes.it-kartellet.dk');
-    $ev->add_property('summary', $course->fullname);
-    $ev->add_property('description', clean_param($course->summary, PARAM_NOTAGS));
-    $ev->add_property('class', 'PUBLIC');
-    $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
-    $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
-
-    $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
-    $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
-
-    $ical->add_component($ev);
-
-    $serialized = $ical->serialize();
-
-    $file = $CFG->dataroot . "/" . time() . ".ics";
-
-    $fh = fopen($file, "w+");
-    fwrite($fh, $serialized);
-    fclose($fh);
-
-    if(empty($serialized)) {
-      // TODO
-      die('bad serialization');
-    }
-    // calendar_add_icalendar_event($ev, $course->id);
-    //end iCal
-    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email, $file, "event.ics");
-    unlink($file);
     return $result;
   }
 
@@ -238,7 +292,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $teacherCC = reset($teacherCC);
 
     $datecourse = $DB->get_record_sql("
-      SELECT d.*, c.currency, l.location as loc, m.name as metaname
+      SELECT d.*, c.currency, l.location as loc, m.name as metaname, m.content as content
       FROM {meta_datecourse} d
       JOIN {meta_currencies} c on d.currencyid=c.id
       LEFT JOIN {meta_locations} l ON d.location = l.id
@@ -285,50 +339,18 @@ class enrol_manual_pluginITK extends enrol_plugin {
     }
     $messagehtml = text_to_html($message);
 
-    $user->mailformat = 0;  // Always send HTML version as well
-    //iCal
-
     if (!$datecourse->elearning) {
-      $ical = new iCalendar;
-      $ical->add_property('method', 'PUBLISH');
-
-      $ev = new iCalendar_event;
-      $ev->add_property('uid', $course->id . '@' . 'novozymes.it-kartellet.dk');
-      $ev->add_property('summary', $course->fullname);
-      $ev->add_property('description', clean_param($course->summary, PARAM_NOTAGS));
-      $ev->add_property('class', 'PUBLIC');
-      $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
-      $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
-      $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
-      $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
-
-      $ical->add_component($ev);
-
-      $serialized = $ical->serialize();
-
-      $file = $CFG->dataroot . "/" . time() . ".ics";
-
-      $fh = fopen($file, "w+");
-      fwrite($fh, $serialized);
-      fclose($fh);
-
-      if (empty($serialized)) {
-        // TODO
-        die('bad serialization');
-      }
+      $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC);
     } else {
-      $file = false;
+      $attachment = false;
     }
 
-    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $teacherCC->email, $file, "invite.ics");
-    if ($file) {
-      unlink($file);
-    }
+    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
+
     return $result;
   }
 
-  private function send_enrolment_email($user, $from, $subject, $messagetext, $messagehtml='', $teacherCC ,$attachment='', $attachname='', $usetrueaddress=true, $replyto='', $replytoname='', $wordwrapwidth=79) {
-
+  private function send_enrolment_email($user, $from, $subject, $messagetext, $messagehtml='', $attachment='') {
     global $CFG;
 
     if (empty($user) || empty($user->email)) {
@@ -390,25 +412,9 @@ class enrol_manual_pluginITK extends enrol_plugin {
       return false;
     }
 
-    // If the user is a remote mnet user, parse the email text for URL to the
-    // wwwroot and modify the url to direct the user's browser to login at their
-    // home site (identity provider - idp) before hitting the link itself
-    if (is_mnet_remote_user($user)) {
-      require_once($CFG->dirroot.'/mnet/lib.php');
-
-      $jumpurl = mnet_get_idp_jump_url($user);
-      $callback = partial('mnet_sso_apply_indirection', $jumpurl);
-
-      $messagetext = preg_replace_callback("%($CFG->wwwroot[^[:space:]]*)%",
-        $callback,
-        $messagetext);
-      $messagehtml = preg_replace_callback("%href=[\"'`]($CFG->wwwroot[\w_:\?=#&@/;.~-]*)[\"'`]%",
-        $callback,
-        $messagehtml);
-    }
     $mail = get_mailer();
     // add teacher as a cc
-    $mail->AddCC($teacherCC);
+    $mail->AddCC($from->email);
 
     if (!empty($mail->SMTPDebug)) {
       echo '<pre>' . "\n";
@@ -430,7 +436,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     if (is_string($from)) { // So we can pass whatever we want if there is need
       $mail->From     = $CFG->noreplyaddress;
       $mail->FromName = $from;
-    } else if ($usetrueaddress and $from->maildisplay) {
+    } else if ($from->maildisplay) {
       $mail->From     = $from->email;
       $mail->FromName = fullname($from);
     } else {
@@ -441,15 +447,11 @@ class enrol_manual_pluginITK extends enrol_plugin {
       }
     }
 
-    if (!empty($replyto)) {
-      $tempreplyto[] = array($replyto, $replytoname);
-    }
-
     $mail->Subject = substr($subject, 0, 900);
 
     $temprecipients[] = array($user->email, fullname($user));
 
-    $mail->WordWrap = $wordwrapwidth;                   // set word wrap
+    $mail->WordWrap = 79;                   // set word wrap
 
     if (!empty($from->customheaders)) {                 // Add custom headers
       if (is_array($from->customheaders)) {
@@ -465,25 +467,14 @@ class enrol_manual_pluginITK extends enrol_plugin {
       $mail->Priority = $from->priority;
     }
 
-    if ($messagehtml && !empty($user->mailformat) && $user->mailformat == 1) { // Don't ever send HTML to users who don't want it
-      $mail->IsHTML(true);
-      $mail->Encoding = 'quoted-printable';           // Encoding to use
-      $mail->Body    =  $messagehtml;
-      $mail->AltBody =  "\n$messagetext\n";
-    } else {
-      $mail->IsHTML(false);
-      $mail->Body =  "\n$messagetext\n";
-    }
+    $mail->IsHTML(true);
+    $mail->Encoding = 'quoted-printable';
+    $mail->Body    =  $messagehtml;
+    $mail->AltBody =  "\n$messagetext\n";
 
-    if ($attachment && $attachname) {
-      if (preg_match( "~\\.\\.~" ,$attachment )) {    // Security check for ".." in dir path
-        $temprecipients[] = array($supportuser->email, fullname($supportuser, true));
-        $mail->AddStringAttachment('Error in attachment.  User attempted to attach a filename with a unsafe name.', 'error.txt', '8bit', 'text/plain');
-      } else {
-        require_once($CFG->libdir.'/filelib.php');
-        $mimetype = mimeinfo('type', $attachname);
-        $mail->AddAttachment($attachment, $attachname, 'base64', $mimetype);
-      }
+    if ($attachment) {
+      $mail->AltBody = $mail->Body;
+      $mail->Ical = $attachment;
     }
 
     // Check if the email should be sent in an other charset then the default UTF-8
@@ -679,6 +670,7 @@ function add_coordinator($user_id, $course_id) {
 
 function enrol_waiting_user($eventData){
   global $DB;
+
   //get the first user on the waiting list
   $user = $DB->get_records_sql("SELECT * FROM {meta_waitlist} WHERE courseid = :courseid order by timecreated asc", array('courseid' => $eventData->courseid));
   $user = reset($user);
