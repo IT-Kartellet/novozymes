@@ -177,7 +177,7 @@ foreach ($datecourses as $key => $course) {
 	// Delete a datecourse, which is the same as a Moodle-course. 
 	$dc = new stdClass();
 	if (@$course['deleted'] == 1 && $course['courseid'] != 0) {
-		delete_datecourse($course);
+		delete_datecourse((object)$course);
 		continue;
 	}
 
