@@ -174,5 +174,18 @@ $string['elearning_course'] = 'E-learning course';
 
 $string['no_limit'] = 'No limit';
 
-$string['course_details_updated_subject'] = 'Course details updated';
-$string['course_details_updated_body'] = 'Course details have been updated, please see the attached event.';
+$string['course_details_updated_subject'] = 'Course details updated for the course {$a}';
+$string['course_details_updated_body'] = '
+Dear {$a->firstname} {$a->lastname},
+
+The course {$a->coursename} has been updated:
+
+{$a->changes}
+
+Your Outlook invite has automatically been updated, so no actions are required from you, this e-mail was just to inform you.
+
+Best regards,
+{$a->coordinator}';
+
+$string['course_details_updated_location'] = 'Please notice that the location of the course has been changed';
+$string['course_details_updated_time'] = 'Please notice that the time for the course has been changed from {$a->old} to {$a->new}"';

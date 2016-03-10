@@ -190,22 +190,46 @@ class enrol_manual_pluginITK extends enrol_plugin {
     return $ical->serialize();
   }
 
-  public function send_course_updated_email($user, $datecourse) {
+  public function send_course_updated_email($user, $datecourse, $existing_datecourse) {
     global $DB;
     $site = get_site();
 
-    $subject = format_string($site->fullname) . ": "  . get_string('course_details_updated_subject', 'block_metacourse');
-    $message = get_string('course_details_updated_body', 'block_metacourse');
-    $messagehtml = text_to_html($message);
-
-    $course = $DB->get_record("course", array(
-      "id" => $datecourse->courseid
+    $metacourse = $DB->get_record('meta_course', array(
+      'id' => $datecourse->metaid
     ));
+
+    $changes = array();
+    if ($datecourse->location !== $existing_datecourse->location) {
+      $changes[] = get_string('course_details_updated_location', 'block_metacourse');
+    }
+    if (!$datecourse->startdate !== $existing_datecourse->startdate ||
+      $datecourse->enddate !== $existing_datecourse->enddate) {
+      $a = new stdClass();
+      $a->old = format_date_with_tz($existing_datecourse->startdate, $existing_datecourse->timezone) . ' - ' . format_date_with_tz($existing_datecourse->enddate, $existing_datecourse->timezone);
+      $a->new = format_date_with_tz($datecourse->startdate, $datecourse->timezone) . ' - ' . format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+
+      $changes[] = get_string('course_details_updated_time', 'block_metacourse', $a);
+    }
 
     $teacherCC = $DB->get_records_sql("SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid", array(
       "cid" => $datecourse->courseid
     ));
     $teacherCC = reset($teacherCC);
+
+    $a = new stdClass();
+    $a->firstname = $user->firstname;
+    $a->lastname = $user->lastname;
+    $a->changes = implode(PHP_EOL . PHP_EOL, $changes);
+    $a->coursename = $datecourse->name;
+    $a->coordinator = $teacherCC->firstname . ' ' . $teacherCC->lastname;
+
+    $subject = format_string($site->fullname) . ": "  . get_string('course_details_updated_subject', 'block_metacourse', $metacourse->name);
+    $message = get_string('course_details_updated_body', 'block_metacourse', $a);
+    $messagehtml = text_to_html($message);
+
+    $course = $DB->get_record("course", array(
+      "id" => $datecourse->courseid
+    ));
 
     $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC, 'REQUEST', 1);
 
