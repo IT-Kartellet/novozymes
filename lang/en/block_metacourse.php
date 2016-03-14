@@ -169,7 +169,7 @@ $string['timezone_help'] = 'The timezone for the place where the course is held.
 $string['elearning'] = 'Elearning';
 $string['elearning_help'] = 'Elearning courses are course which the student attends wholly online - they do not have an attached date, since users can access them at any time.';
 
-$string['goto_course'] = 'Go to course';
+$string['goto_course'] = 'Go to E-learning course';
 $string['elearning_course'] = 'E-learning course';
 
 $string['no_limit'] = 'No limit';
