@@ -14,8 +14,8 @@ $string['metacourse:addinstance'] = 'Add the block on the My page';
 $string['coursesavailable'] = 'Course menu';
 $string['instructors'] = 'Instructors'; 
 $string['coursedates'] = 'Course dates'; 
-$string['location'] = 'Location'; 
-$string['action'] = 'Action'; 
+$string['location'] = 'Location';
+$string['action'] = 'Action';
 $string['signup'] = 'Sign up'; 
 $string['enrolme'] = 'Sign me up'; 
 $string['enrolOthers'] = 'Sign others up'; 
@@ -178,14 +178,16 @@ $string['course_details_updated_subject'] = 'Course details updated for the cour
 $string['course_details_updated_body'] = '
 Dear {$a->firstname} {$a->lastname},
 
-The course {$a->coursename} has been updated:
+Please notice, that the {$a->changes_summary} for the course {$a->coursename} has been updated. {$a->changes}
 
-{$a->changes}
-
-Your Outlook invite has automatically been updated, so no actions are required from you, this e-mail was just to inform you.
+Your Outlook invite has automatically been updated, so no actions are required from you. This e-mail was just to inform you about the changes.
+If you have any questions, please let me know.
 
 Best regards,
 {$a->coordinator}';
 
-$string['course_details_updated_location'] = 'Please notice that the location of the course has been changed';
-$string['course_details_updated_time'] = 'Please notice that the time for the course has been changed from {$a->old} to {$a->new}"';
+$string['course_details_updated_location'] = 'the location has changed from {$a->old} to {$a->new}';
+$string['course_details_updated_time'] = 'the {$a->name} has been changed from {$a->old} to {$a->new}';
+
+$string['startdate'] = 'start time';
+$string['enddate'] = 'end time';

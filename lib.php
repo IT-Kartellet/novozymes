@@ -31,7 +31,7 @@ function format_tz_offset($offset) {
   return $offset;
 }
 
-function format_date_with_tz($timestamp, $offset) {
+function format_date_with_tz($timestamp, $offset, $asString = true) {
   $oldtimezone = date_default_timezone_get();
 
   $offset = format_tz_offset($offset);
@@ -65,9 +65,28 @@ function format_date_with_tz($timestamp, $offset) {
   $timezone = new DateTimeZone($timezoneName);
   $date = new DateTime(null, $timezone);
   $date->setTimestamp($timestamp);
-  $date = $date->format("d M Y - h:i A");
+
+  if ($asString) {
+    $date = $date->format("d M Y - h:i A");
+  }
 
   return $date;
+}
+
+// Implodes a list like humans would do, e.g. array(x, y, z) => x, y, and z
+function human_implode(array $items) {
+  if (count($items) == 1) {
+    return $items[0];
+  }
+
+  $parts = array_slice($items, 0, count($items) - 2);
+  $parts[] =get_string('and', '', (object) array(
+    'one' => $items[count($items) - 2],
+    'two' => $items[count($items) - 1]
+  ));
+  $str = implode(', ', $parts);
+
+  return $str;
 }
 
 class enrol_manual_pluginITK extends enrol_plugin {
@@ -190,7 +209,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     return $ical->serialize();
   }
 
-  public function send_course_updated_email($user, $datecourse, $existing_datecourse) {
+  public function send_course_updated_email($user, $datecourse, $existing_datecourse, array $changed_attributes) {
     global $DB;
     $site = get_site();
 
@@ -199,16 +218,46 @@ class enrol_manual_pluginITK extends enrol_plugin {
     ));
 
     $changes = array();
-    if ($datecourse->location !== $existing_datecourse->location) {
-      $changes[] = get_string('course_details_updated_location', 'block_metacourse');
-    }
-    if (!$datecourse->startdate !== $existing_datecourse->startdate ||
-      $datecourse->enddate !== $existing_datecourse->enddate) {
-      $a = new stdClass();
-      $a->old = format_date_with_tz($existing_datecourse->startdate, $existing_datecourse->timezone) . ' - ' . format_date_with_tz($existing_datecourse->enddate, $existing_datecourse->timezone);
-      $a->new = format_date_with_tz($datecourse->startdate, $datecourse->timezone) . ' - ' . format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+    $changes_summary = array();
 
-      $changes[] = get_string('course_details_updated_time', 'block_metacourse', $a);
+    foreach (array('startdate', 'enddate') as $key) {
+      if (in_array($key, $changed_attributes)) {
+        $changes_summary[] = strtolower(get_string($key, 'block_metacourse'));
+
+        $old = format_date_with_tz($existing_datecourse->{$key}, $existing_datecourse->timezone, false);
+        $new = format_date_with_tz($datecourse->{$key}, $datecourse->timezone, false);
+
+        $format = array();
+        if ($old->format('d M Y') !== $new->format('d M Y')) {
+          $format[] = "d M Y";
+        }
+        if ($old->format('h:i A') !== $new->format('h:i A')) {
+          $format[] = "h:i A";
+        }
+
+        $format = implode(' - ', $format);
+
+        $changes[] = get_string('course_details_updated_time', 'block_metacourse', (object) array(
+          'name' => get_string($key, 'block_metacourse'),
+          'old' => $old->format($format),
+          'new' => $new->format($format)
+        ));
+      }
+    }
+    if (in_array('location', $changed_attributes)) {
+      $changes_summary[] = strtolower(get_string('location', 'block_metacourse'));
+      $old_location = $DB->get_field('meta_locations', 'location', array(
+        'id' => $existing_datecourse->location
+      ));
+
+      $new_location = $DB->get_field('meta_locations', 'location', array(
+        'id' => $datecourse->location
+      ));
+
+      $changes[] = get_string('course_details_updated_location', 'block_metacourse', (object) array(
+        'old' => $old_location,
+        'new' => $new_location
+      ));
     }
 
     $teacherCC = $DB->get_records_sql("SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid", array(
@@ -219,7 +268,10 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $a = new stdClass();
     $a->firstname = $user->firstname;
     $a->lastname = $user->lastname;
-    $a->changes = implode(PHP_EOL . PHP_EOL, $changes);
+    $a->changes_summary = human_implode($changes_summary);
+
+    $changes[0] = ucfirst($changes[0]);
+    $a->changes = human_implode($changes);
     $a->coursename = $metacourse->name;
     $a->coordinator = $teacherCC->firstname . ' ' . $teacherCC->lastname;
 

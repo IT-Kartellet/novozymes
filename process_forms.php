@@ -241,6 +241,7 @@ foreach ($datecourses as $key => $course) {
 			'id' => $dc->id
 		));
 
+		$changes = array();
 		if (!$dc->elearning) {
 			foreach (array(
 			 'location',
@@ -248,14 +249,17 @@ foreach ($datecourses as $key => $course) {
 			 'enddate'
 		 	) as $property) {
 				if ($existing_datecourse->{$property} != $dc->{$property}) {
-					list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($dc->courseid);
-
-					$lib = new enrol_manual_pluginITK();
-					foreach ($enrolled_users as $user) {
-						$lib->send_course_updated_email($user, $dc, $existing_datecourse);
-					}
-					break;
+					$changes[] = $property;
 				}
+			}
+		}
+
+		if (count($changes)) {
+			list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($dc->courseid);
+
+			$lib = new enrol_manual_pluginITK();
+			foreach ($enrolled_users as $user) {
+				$lib->send_course_updated_email($user, $dc, $existing_datecourse, $changes);
 			}
 		}
 
