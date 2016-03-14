@@ -220,7 +220,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $a->firstname = $user->firstname;
     $a->lastname = $user->lastname;
     $a->changes = implode(PHP_EOL . PHP_EOL, $changes);
-    $a->coursename = $datecourse->name;
+    $a->coursename = $metacourse->name;
     $a->coordinator = $teacherCC->firstname . ' ' . $teacherCC->lastname;
 
     $subject = format_string($site->fullname) . ": "  . get_string('course_details_updated_subject', 'block_metacourse', $metacourse->name);
