@@ -214,7 +214,7 @@ if ($metacourse) {
 	echo html_writer::table($table);
 
 	echo html_writer::tag('h1', get_string('coursedates','block_metacourse'), array('id' => 'course_header', 'class' => 'main'));
-	$datecourses = $DB->get_records_sql("SELECT d.*, c.currency FROM {meta_datecourse} d join {meta_currencies} c on d.currencyid=c.id where metaid = :id ORDER BY startdate ASC", array("id"=>$id));
+	$datecourses = $DB->get_records_sql("SELECT d.*, c.currency FROM {meta_datecourse} d join {meta_currencies} c on d.currencyid=c.id where metaid = :id AND deleted = 0 ORDER BY startdate ASC", array("id"=>$id));
 
 	$date_table = new html_table();
 	$date_table->id = "view_date_table";

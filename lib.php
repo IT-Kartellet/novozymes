@@ -790,7 +790,8 @@ function delete_datecourse($datecourse){
   global $DB, $USER;
 
   try {
-    $DB->delete_records("meta_datecourse",array("courseid"=>$datecourse->courseid));
+    $datecourse->deleted = 1;
+    $DB->update_record("meta_datecourse", $datecourse);
     $DB->delete_records("meta_waitlist",array("courseid"=>$datecourse->courseid));
     $DB->delete_records("meta_tos_accept",array("courseid"=>$datecourse->courseid));
   } catch(Exception $e){

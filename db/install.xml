@@ -150,6 +150,7 @@
         <FIELD NAME="country" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="remarks" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="elearning" SEQUENCE="false" TYPE="int" NOTNULL="false" LENGTH="1" DEFAULT="0" COMMENT="Is this course an elearning course?"/>
+        <FIELD NAME="deleted" SEQUENCE="false" TYPE="int" NOTNULL="false" LENGTH="1" DEFAULT="0" COMMENT="Is the date course deleted?"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

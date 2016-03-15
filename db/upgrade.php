@@ -247,5 +247,16 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2016030901, 'metacourse');
     }
 
+    if ($oldversion < 2016031501) {
+        $table = new xmldb_table('meta_datecourse');
+        $field = new xmldb_field('deleted', XMLDB_TYPE_INTEGER, 1, true, false, false, 0);
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_block_savepoint(true, 2016031501, 'metacourse');
+    }
+
     return $result;
 }
