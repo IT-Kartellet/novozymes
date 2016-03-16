@@ -3,6 +3,8 @@
 require_once($CFG->dirroot.'/calendar/lib.php');
 require_once($CFG->libdir.'/bennu/bennu.inc.php');
 
+require('../../vendor/autoload.php');
+
 function block_metacourse_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
   $fs = get_file_storage();
 
@@ -170,6 +172,49 @@ class enrol_manual_pluginITK extends enrol_plugin {
     } else {
       $content = $datecourse->content;
     }
+
+    $vCalendar = new \Eluceo\iCal\Component\Calendar('dkta01grow');
+    $vCalendar->setMethod($method);
+
+    $vEvent = new \Eluceo\iCal\Component\Event();
+
+    $vEvent->setUniqueId($course->id . '@' . 'novozymes.it-kartellet.dk');
+    $vEvent->setSummary($course->fullname);
+    $vEvent->setDescription(str_replace("\n", '\\n', html_to_text($content)));
+    $vEvent->setLocation($location);
+
+    $vEvent->setSequence($sequence);
+
+    $vEvent->setModified(new DateTime('@'.$course->timemodified));
+    $vEvent->setDtStamp(new DateTime());
+    $vEvent->setDtStart(new DateTime('@'.$datecourse->startdate));
+    $vEvent->setDtEnd(new DateTime('@'.$datecourse->enddate));
+
+    $vEvent->setOrganizer(new \Eluceo\iCal\Property\Event\Organizer($teacher->email, array(
+      'cn' => $teacher->firstname . ' ' . $teacher->lastname
+    )));
+
+    $vEvent->addAttendee($user->email, array(
+      'cutype' => 'individual',
+      'role' => 'req-participant',
+      'partstat' => 'ACCEPTED',
+      'cn' => $user->firstname . ' ' . $user->lastname
+    ));
+
+    switch ($method) {
+      case 'PUBLISH':
+        $vEvent->setStatus('CONFIRMED');
+        break;
+      case 'CANCEL':
+        $vEvent->setStatus('CANCELLED');
+        break;
+    }
+
+    $vCalendar->addComponent($vEvent);
+
+
+    $out = $vCalendar->render();
+    return $out;
 
     $ev = new iCalendar_event;
     $ev->add_property('uid', $course->id . '@' . 'novozymes.it-kartellet.dk');
