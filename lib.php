@@ -190,11 +190,11 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $vEvent->setDtStart(new DateTime('@'.$datecourse->startdate));
     $vEvent->setDtEnd(new DateTime('@'.$datecourse->enddate));
 
-    $vEvent->setOrganizer(new \Eluceo\iCal\Property\Event\Organizer($teacher->email, array(
+    $vEvent->setOrganizer(new \Eluceo\iCal\Property\Event\Organizer('mailto:'.$teacher->email, array(
       'cn' => $teacher->firstname . ' ' . $teacher->lastname
     )));
 
-    $vEvent->addAttendee($user->email, array(
+    $vEvent->addAttendee('mailto:'.$user->email, array(
       'cutype' => 'individual',
       'role' => 'req-participant',
       'partstat' => 'ACCEPTED',
