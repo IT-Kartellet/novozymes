@@ -154,9 +154,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
   private function get_ical($datecourse, $course, $user, $teacher, $method = 'REQUEST', $sequence = 0) {
     global $DB;
 
-    $ical = new iCalendar;
-    $ical->add_property('method', $method);
-
     if (!empty($datecourse->location)) {
       $location = $DB->get_field('meta_locations', 'location', array(
         'id' => $datecourse->location
@@ -202,7 +199,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     ));
 
     switch ($method) {
-      case 'PUBLISH':
+      case 'REQUEST':
         $vEvent->setStatus('CONFIRMED');
         break;
       case 'CANCEL':
@@ -215,43 +212,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
     $out = $vCalendar->render();
     return $out;
-
-    $ev = new iCalendar_event;
-    $ev->add_property('uid', $course->id . '@' . 'novozymes.it-kartellet.dk');
-    $ev->add_property('summary', $course->fullname);
-    $ev->add_property('description', html_to_text($content));
-    $ev->add_property('location', $location);
-    $ev->add_property('X-ALT-DESC', $content);
-    $ev->add_property('class', 'PUBLIC');
-    $ev->add_property('sequence', $sequence);
-    $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
-    $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
-    $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
-    $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
-
-    $ev->add_property('organizer', "mailto:$teacher->email", array(
-      'cn' => $teacher->firstname . ' ' . $teacher->lastname
-    ));
-
-    $ev->add_property('attendee', "mailto:$user->email", array(
-      'cutype' => 'individual',
-      'role' => 'req-participant',
-      'partstat' => 'needs-action',
-      'cn' => $user->firstname . ' ' . $user->lastname
-    ));
-
-    switch ($method) {
-      case 'PUBLISH':
-        $ev->add_property('status', 'CONFIRMED');
-        break;
-      case 'CANCEL':
-        $ev->add_property('status', 'CANCELLED');
-        break;
-    }
-
-    $ical->add_component($ev);
-
-    return $ical->serialize();
   }
 
   public function send_course_updated_email($user, $datecourse, $existing_datecourse, array $changed_attributes) {
