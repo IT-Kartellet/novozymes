@@ -108,7 +108,7 @@
 			return false;
 		}
 
-		if (confirm("Please note – that this will delete the date from all files – including the participants ”My courses” file.")) {
+		if (confirm("Please note – unless the course has already been held, that this will delete the date from all files – including the participants ”My courses” file.")) {
 			var klass = $(this).attr('class');
 
 			$(this).parent(".template").remove();

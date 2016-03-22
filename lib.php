@@ -187,15 +187,13 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $vEvent->setDtStart(new DateTime('@'.$datecourse->startdate));
     $vEvent->setDtEnd(new DateTime('@'.$datecourse->enddate));
 
-    $vEvent->setOrganizer(new \Eluceo\iCal\Property\Event\Organizer('mailto:'.$teacher->email, array(
+    $vEvent->setOrganizer(new \Eluceo\iCal\Property\Event\Organizer('mailto:' . $teacher->email, array(
       'cn' => $teacher->firstname . ' ' . $teacher->lastname
     )));
 
-    $vEvent->addAttendee('mailto:'.$user->email, array(
-      'cutype' => 'individual',
-      'role' => 'req-participant',
-      'partstat' => 'ACCEPTED',
-      'cn' => $user->firstname . ' ' . $user->lastname
+    $vEvent->addAttendee('mailto:' . $user->email, array(
+      'PARTSTAT' => 'ACCEPTED',
+      'CN' => $user->firstname . ' ' . $user->lastname
     ));
 
     switch ($method) {
@@ -209,8 +207,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
     $vCalendar->addComponent($vEvent);
 
-
     $out = $vCalendar->render();
+
     return $out;
   }
 
@@ -287,6 +285,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $course = $DB->get_record("course", array(
       "id" => $datecourse->courseid
     ));
+
+    $course->timemodified = time();
 
     $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC, 'REQUEST', 1);
 
@@ -794,9 +794,19 @@ function enrol_waiting_user($eventData){
 function delete_datecourse($datecourse){
   global $DB, $USER;
 
+  $datecourse = $DB->get_record("meta_datecourse",array("courseid"=>$datecourse->courseid));
+
   try {
-    $datecourse->deleted = 1;
-    $DB->update_record("meta_datecourse", $datecourse);
+    // If a course is deleted or unpublished before it has started it has been cancelled and should not show up in my courses
+    // If the course has already started it should still show up in my courses, but not on the course overview page so we mark it as deleted and keep the moodle course
+    if ($datecourse->startdate != 0 && $datecourse->startdate < time()) {
+      delete_course($datecourse->courseid);
+      $DB->delete_records("meta_datecourse",array("courseid"=>$datecourse->courseid));
+    } else {
+      $datecourse->deleted = 1;
+      $DB->update_record("meta_datecourse", $datecourse);
+    }
+
     $DB->delete_records("meta_waitlist",array("courseid"=>$datecourse->courseid));
     $DB->delete_records("meta_tos_accept",array("courseid"=>$datecourse->courseid));
   } catch(Exception $e){
