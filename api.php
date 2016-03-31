@@ -47,6 +47,8 @@ $removeAllow = optional_param("removeAllow",0, PARAM_INT);
 $enrolGuy = optional_param("enrolGuy",0,PARAM_INT);
 $unenrolGuy = optional_param("unenrolGuy",0,PARAM_INT);
 $enrolCourse = optional_param("enrolCourse",0,PARAM_INT);
+// Non-siteadmins should always send emails
+$sendEmail = !is_siteadmin() || optional_param("sendEmail", false, PARAM_BOOL);
 $enrolRole = optional_param("enrolRole", "", PARAM_TEXT);
 
 $getTemplate = optional_param("getTemplate", 0, PARAM_INT);
@@ -80,7 +82,9 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 
 			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully added to the waiting list.");
 
-			$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
+			if ($sendEmail) {
+				$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
+			}
 
 			echo json_encode(array(
 				'action' => 'enrol',
@@ -110,7 +114,9 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 
 		if (is_user_enrolled($enrolGuy, $enrolCourse)) {
 			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully enrolled.");
-			$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+			if ($sendEmail) {
+				$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+			}
 			echo json_encode(array(
 				'action' => 'enrol',
 				'status' => 'done',
@@ -136,16 +142,24 @@ if ($unenrolGuy && $enrolCourse) {
 	try {
 		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
 		$instance = reset($instance);
-		
-		$DB->delete_records('meta_waitlist', array(
+
+		$waiting_conditions = array(
 			'courseid' => $enrolCourse,
 			'userid' => $unenrolGuy,
 			'nodates' => 0,
-		));
+		);
+		if (($waiting = $DB->record_exists('meta_waitlist', $waiting_conditions))) {
+			$DB->delete_records('meta_waitlist', $waiting_conditions);
+		}
 
 		$PAGE->set_context(context_course::instance($enrolCourse)); // Needed in send mail
-		$enrolments = enrol_get_plugin('manual');
-		$enrolments->unenrol_user($instance, $unenrolGuy);
+
+		$enrol = new enrol_manual_pluginITK();
+		$enrol->unenrol_user($instance, $unenrolGuy);
+
+		if ($sendEmail) {
+			$enrol->sendUnenrolMail($unenrolGuy, $enrolCourse, $waiting);
+		}
 
 		add_to_log($enrolCourse, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Unenrolled $unenrolGuy from $enrolCourse");
 

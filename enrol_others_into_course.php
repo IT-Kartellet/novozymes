@@ -101,6 +101,10 @@ echo html_writer::table($table);
 
 <?php
 
+if (is_siteadmin()) {
+  echo '<span>Send signup / unenroll email: </span><input type="checkbox" checked="checked" id="sendEmail" />';
+}
+
 echo html_writer::end_tag('div');
 
 echo $OUTPUT->footer();
