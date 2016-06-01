@@ -103,6 +103,14 @@ class metacourse_form extends moodleform {
             return $template->name;
         }, $templates);
         $templates = array("0"=>"") + $templates;
+		
+		//create the currency select
+        $currencies = $DB->get_records_sql("SELECT * FROM {meta_currencies} order by currency");
+        $currencies = array_map(function($curr){
+            return $curr->currency;
+        }, $currencies);
+		$currencies[0] = '';
+		ksort($currencies);
 
         //ELEMENTS
         $mform->addElement('header', 'header', 'Course Form');
@@ -150,6 +158,9 @@ class metacourse_form extends moodleform {
 
         $mform->addElement('duration', 'duration', "Duration");
         $mform->setDefault('duration', 1);
+		
+		$mform->addElement('text', 'price', 'Price', array("class"=>"price"));
+		$mform->addElement('select', 'currencyid', 'Currency', $currencies, array("class"=>"currency"));
 
         $mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addHelpButton('cancellation', 'cancellation', 'block_metacourse');

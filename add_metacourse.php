@@ -105,6 +105,8 @@ if ($id == 0) {
 	$data->provider = $meta->provider;
 	$data->duration['number'] = (int) $meta->duration;
 	$data->duration['timeunit'] = $meta->duration_unit;
+	$data->price = $meta->price;
+	$data->currencyid = $meta->currencyid;
 	$data->unpublishdate = $meta->unpublishdate;
 	// get the competence from the dates and use it here
 	$one_date = $DB->get_records("meta_datecourse", array("metaid"=>$id));

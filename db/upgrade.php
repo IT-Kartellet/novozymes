@@ -257,6 +257,20 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
 
         upgrade_block_savepoint(true, 2016031501, 'metacourse');
     }
+	
+	if ($oldversion < 2016053001) {
+		$table = new xmldb_table('meta_course');
+		$field = new xmldb_field('price', XMLDB_TYPE_TEXT, null, null, null, null, null, 'duration_unit');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		$field = new xmldb_field('currencyid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'price');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		
+		upgrade_block_savepoint(true, 2016053001, 'metacourse');
+	}
 
     return $result;
 }

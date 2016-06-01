@@ -27,8 +27,8 @@ echo $OUTPUT->header();
 global $DB, $USER;
 
 $metacourse = $DB->get_records_sql("
-	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.lodging, c.coordinator, c.multiple_dates, p.provider, c.contact, c.timemodified
-	FROM {meta_course} c join {meta_providers} p on c.provider = p.id where c.id = :id", array("id"=>$id));
+	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, if(c.price is null or c.price='', '', concat(c.price, if(cur.currency is null, '', concat(' ', cur.currency)))) as price, c.cancellation, c.lodging, c.coordinator, c.multiple_dates, p.provider, c.contact, c.timemodified
+	FROM {meta_course} c join {meta_providers} p on c.provider = p.id left join {meta_currencies} cur on c.currencyid = cur.id where c.id = :id", array("id"=>$id));
 $metacourse = reset($metacourse);
 
 $cancellation = "";
@@ -41,7 +41,7 @@ if ($metacourse) {
 	$title = null;
 	$localTitle = null;
 	$localLang = null;
-
+	
 	foreach ($metacourse as $key => $course) {
 		//if field empty
 		if ($course == "") {

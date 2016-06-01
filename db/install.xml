@@ -55,6 +55,8 @@
         <FIELD NAME="comment" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="duration" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="duration_unit" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+		<FIELD NAME="price" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="currencyid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="cancellation" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="lodging" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="contact" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
