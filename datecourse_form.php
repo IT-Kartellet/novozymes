@@ -99,6 +99,7 @@ class datecourse_form extends moodleform {
             $mform->addElement('select', 'datecourse['. $key .'][coordinator]', 'Coordinator', $coordinators, array("class"=>"coordinator"));
             $mform->setDefault('coordinator', $USER->id);
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][publishdate]', "Publish date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone), array("class"=>"publishdate"));
+			$mform->addElement('date_time_selector', 'datecourse['. $key .'][realunpublishdate]', "Unpublish date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>true, 'timezone' => $timezone),array("class"=>"realunpublishdate"));
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][startenrolment]', "Start enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone), array("class"=>"startenrolment"));
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][unpublishdate]', "End enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone),array("class"=>"unpublishdate"));
             $mform->addElement('text', 'datecourse['. $key .'][remarks]', 'Remarks',array("class"=>"date_remarks"));
@@ -114,7 +115,7 @@ class datecourse_form extends moodleform {
             $mform->setType('datecourse['. $key .'][remarks]', PARAM_TEXT);
             $mform->setType('datecourse['. $key .'][timezone]', PARAM_TEXT);
 
-            // All fields except remark are required.
+            // All fields except remark and real unpublish date are required.
             $mform->addRule('datecourse['. $key .'][places]', "Needs to be a number", 'numeric', null, 'client');
             $mform->addRule('datecourse['. $key .'][places]', get_string('required'), 'required', null, 'client');
             $mform->addRule('datecourse['. $key .'][price]', get_string('required'), 'required', null, 'client');
@@ -154,6 +155,7 @@ class datecourse_form extends moodleform {
                 $awesomeData->{'datecourse['. $horribleCounter .'][timeend]'} = ($dc->enddate == 0) ? time() : $dc->enddate;
                 $awesomeData->{'datecourse['. $horribleCounter .'][elearning]'} = $dc->elearning;
                 $awesomeData->{'datecourse['. $horribleCounter .'][publishdate]'} = $dc->publishdate;
+				$awesomeData->{'datecourse['. $horribleCounter .'][realunpublishdate]'} = $dc->realunpublishdate;
                 $awesomeData->{'datecourse['. $horribleCounter .'][unpublishdate]'} = $dc->unpublishdate;
                 $awesomeData->{'datecourse['. $horribleCounter .'][startenrolment]'} = $dc->startenrolment;
                 $awesomeData->{'datecourse['. $horribleCounter .'][timezone]'} = $dc->timezone;

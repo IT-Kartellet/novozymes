@@ -173,10 +173,12 @@ if ($count_deleted === count($datecourses)) {
 }
 
 function get_unixtime($course, $key) {
+	if ($course[$key] == null) return null;
 	$time = "{$course[$key]['year']}-{$course[$key]['month']}-{$course[$key]['day']} {$course[$key]['hour']}:{$course[$key]['minute']}{$course['timezone']}";
 
 	return (new DateTime($time))->getTimestamp();
 }
+
 
 foreach ($datecourses as $key => $course) {
 	// Delete a datecourse, which is the same as a Moodle-course. 
@@ -214,6 +216,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->startdate = $starttime;
 	$dc->enddate = $endtime;
 	$dc->publishdate = get_unixtime($course, 'publishdate');
+	$dc->realunpublishdate = get_unixtime($course, 'realunpublishdate');
 	$dc->unpublishdate = get_unixtime($course, 'unpublishdate');
 	$dc->startenrolment = get_unixtime($course, 'startenrolment');
 	$dc->timezone = $course['timezone'];

@@ -271,6 +271,23 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
 		
 		upgrade_block_savepoint(true, 2016053001, 'metacourse');
 	}
+	
+	if ($oldversion < 2016060101) {
+		$table = new xmldb_table('meta_course');
+		$table->add_key('currencyid', XMLDB_KEY_FOREIGN, array('currencyid'), 'meta_currencies', array('id'));
+		
+		upgrade_block_savepoint(true, 2016060101, 'metacourse');
+	}
+	
+	if ($oldversion < 2016060201) {
+		$table = new xmldb_table('meta_datecourse');
+		$field = new xmldb_field('realunpublishdate', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'unpublishdate');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		
+		upgrade_block_savepoint(true, 2016060201, 'metacourse');
+	}
 
     return $result;
 }
