@@ -19,6 +19,7 @@ $PAGE->set_url($CFG->wwwroot."/blocks/metacourse/list_metacourses.php");
 $PAGE->navbar->ignore_active();
 $PAGE->navbar->add(get_string('frontpagecourselist'), new moodle_url('/blocks/metacourse/list_metacourses.php'));
 
+$PAGE->requires->css(new moodle_url('styles.css'));
 $PAGE->requires->jquery();
 $PAGE->requires->js(new moodle_url('js/dataTables.js'));
 $PAGE->requires->js(new moodle_url('js/dataTables_start.js'));

@@ -1314,4 +1314,6 @@ disabled look for disabled choices in the results dropdown
   }
 }
 
-
+.paginate_disabled_previous, .paginate_disabled_next {
+	display: none;
+}

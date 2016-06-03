@@ -231,6 +231,14 @@ if ($metacourse) {
 								get_string('signup', 'block_metacourse')
 							);
 	foreach ($datecourses as $key => $datecourse) {
+		
+		$isPublished = ($datecourse->realunpublishdate == null || $datecourse->realunpublishdate > time());
+		$isCoordinator = ($USER->id == $datecourse->coordinator);
+		
+		if (!$isPublished && !$isCoordinator) {
+			continue;
+		}
+		
 		if (!$isTeacher) {
 			// if not published skip it.
 			if ($datecourse->publishdate > time()) {
