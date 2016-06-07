@@ -11,6 +11,7 @@ $string['contentheader'] = 'Metacourse Settings';
 $string['modulenameplural'] = 'Courses';
 $string['metacourse:view'] = 'View the block';
 $string['metacourse:addinstance'] = 'Add the block on the My page';
+$string['none'] = 'none';
 $string['coursesavailable'] = 'Course menu';
 $string['instructors'] = 'Instructors'; 
 $string['coursedates'] = 'Course dates'; 
@@ -48,7 +49,8 @@ $string['nrviews'] = 'Views';
 $string['viewcourse'] = 'View course'; 
 $string['courseend'] = 'End'; 
 $string['coursestart'] = 'Start'; 
-$string['price'] = 'Price'; 
+$string['price'] = 'Price';
+$string['currency'] = 'Currency';
 $string['availableseats'] = 'Seats'; 
 $string['nrparticipants'] = 'Enrolled'; 
 $string['coursedates'] = 'Course dates';
@@ -58,6 +60,7 @@ $string['addtowaitinglist'] = 'Sign me up on the waiting list';
 $string['enrol_waitinglist_title'] = 'Waiting list terms title';
 $string['enrol_waitinglist_contents'] = 'Waiting list terms contents';
 $string['enrol_waitinglist_tos'] = 'Waiting list TOS';
+$string['unpublish_date'] = 'Unpublish date';
 
 $string['tostitle'] = 'Terms of agreement'; 
 $string['tosaccept'] = 'I accept the terms of agreement'; 
@@ -163,11 +166,17 @@ $string['customemail_help'] = 'Do you want the user to receive a custom "Welcome
 $string['unpublishdate'] = 'Unpublish date'; 
 $string['unpublishdate_help'] = 'When do you want the course not to be shown to student anymore?'; 
 
+$string['nodates_enabled'] = 'Meta enrolment';
+$string['nodates_enabled_help'] = 'When selected users can enrol meta course before any date course has been planned. When sufficient participants have enroled a date course can be scheduled, and participants can be enrolled to the date course from the meta course waiting list.';
+
 $string['timezone'] = 'Timezone?';
 $string['timezone_help'] = 'The timezone for the place where the course is held. Remember to account for daylight saving time (DST). For example if the course is held in Denmark (timezone = +1), and DST is active, you have to select +2, since DST adds one hour.';
 
 $string['elearning'] = 'Elearning';
 $string['elearning_help'] = 'Elearning courses are course which the student attends wholly online - they do not have an attached date, since users can access them at any time.';
+
+$string['manual_enrol'] = 'Manual enrolment';
+$string['manual_enrol_help'] = 'When selected automatic enrolment is not enabled from the waiting list. Instead the coordinater should enrol from the waiting list.';
 
 $string['goto_course'] = 'Go to E-learning course';
 $string['elearning_course'] = 'E-learning course';

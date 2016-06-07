@@ -43,6 +43,7 @@ $multiple_dates = $meta['meta_multiple_dates'];
 $coordinator = $meta['meta_coordinator'];
 $provider = $meta['meta_provider'];
 $competence = $meta['meta_competence'];
+$nodates_enabled = $meta['meta_nodates_enabled'];
 
 if ($meta['customemail']) {
 	$custom_emails = $meta['custom_email'];
@@ -89,6 +90,7 @@ $meta->multiple_dates = $multiple_dates['text'];
 $meta->coordinator = $coordinator;
 $meta->provider = $provider;
 $meta->unpublishdate = date_timestamp_get(date_create($umt));
+$meta->nodates_enabled = !empty($nodates_enabled) ? 1 : 0;
 $meta->timemodified = time();
 
 //if we are editing
@@ -228,6 +230,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->currencyid = $course['currency'];
 	$dc->total_places = $places;
 	$dc->elearning = !empty($course['elearning']) ? 1 : 0;
+	$dc->manual_enrol = !empty($course['manual_enrol']) ? 1 : 0;
 
 	$dc->coordinator = $course['coordinator'];
 	$dc->remarks = (isset($course['remarks'])) ? $course['remarks'] : '';

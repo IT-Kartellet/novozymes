@@ -512,11 +512,14 @@
 		var courseComment        = tinyMCE.get('id_comment').getContent();
 		var courseDurationNumber = $("#id_duration_number").val();
 		var courseDurationUnit   = $("#id_duration_timeunit").find(":selected").val();
+		var coursePrice          = $("#id_price").val();
+		var courseCurrencyId     = $("#id_currencyid").find(":selected").val();
 		var courseCancellation   = tinyMCE.get('id_cancellation').getContent();
 		var courseLodging   	 = tinyMCE.get('id_lodging').getContent();
 		var courseContact   	 = tinyMCE.get('id_contact').getContent();
 		var courseCoordinator    = $("#id_coordinator").find(":selected").val();
 		var courseProvider       = $("#id_provider").find(":selected").val();
+		var courseNoDatesEnabled = $("#id_nodates_enabled").is(':checked') ? 1 : 0;
 
 		$.ajax({
 		  type: "POST", 
@@ -534,11 +537,14 @@
 		  	courseComment : courseComment,
 		  	courseDurationNumber : courseDurationNumber,
 		  	courseDurationUnit : courseDurationUnit,
+			coursePrice : coursePrice,
+			courseCurrencyId : courseCurrencyId,
 		  	courseCancellation : courseCancellation,
 		  	courseLodging : courseLodging,
 		  	courseContact : courseContact,
 		  	courseCoordinator : courseCoordinator,
-		  	courseProvider : courseProvider
+		  	courseProvider : courseProvider,
+			courseNoDatesEnabled : courseNoDatesEnabled
 	  	  },
 	  	  success : function(e){
 				// add the template at the top in the template select
@@ -578,12 +584,15 @@
 					$('#id_instructors').val("");
 					$('#id_duration_number').val("");
 					$('#id_duration_timeunit').val("");
+					$('#id_price').val("");
+					$('#id_currencyid').val(0);
 					tinyMCE.get('id_cancellation').setContent("");
 					tinyMCE.get('id_comment').setContent("");
 					tinyMCE.get('id_lodging').setContent("");
 					tinyMCE.get('id_contact').setContent("");
 					$('#id_coordinator').val("");
 					$('#id_provider').val("");
+					$('#id_nodates_enabled').prop("checked", false);
 				}else {
 					var metacourse = JSON.parse(e);
 					$('#id_name').val(metacourse.name);
@@ -597,6 +606,8 @@
 					$('#id_comment').val(metacourse.comment);
 					$('#id_duration_number').val(metacourse.duration);
 					$('#id_duration_timeunit').val(metacourse.duration_unit);
+					$('#id_price').val(metacourse.price);
+					$('#id_currencyid').val(metacourse.currencyid===null ? 0 : metacourse.currencyid);
 					tinyMCE.get('id_cancellation').setContent(metacourse.cancellation);
 					tinyMCE.get('id_comment').setContent(metacourse.comment);
 					tinyMCE.get('id_lodging').setContent(metacourse.lodging);
@@ -605,6 +616,7 @@
 					$('#id_provider').val(metacourse.provider);
 					$('#id_purpose').trigger('change');
 					$('#id_content').trigger('change');
+					$('#id_nodates_enabled').prop("checked", metacourse.nodates_enabled==0 ? false : true);
 					tinyMCE.triggerSave();
 				}
 			}

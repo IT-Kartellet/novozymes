@@ -109,7 +109,7 @@ class metacourse_form extends moodleform {
         $currencies = array_map(function($curr){
             return $curr->currency;
         }, $currencies);
-		$currencies[0] = '';
+		$currencies[0] = get_string('none', 'block_metacourse');
 		ksort($currencies);
 
         //ELEMENTS
@@ -159,8 +159,8 @@ class metacourse_form extends moodleform {
         $mform->addElement('duration', 'duration', "Duration");
         $mform->setDefault('duration', 1);
 		
-		$mform->addElement('text', 'price', 'Price', array("class"=>"price"));
-		$mform->addElement('select', 'currencyid', 'Currency', $currencies, array("class"=>"currency"));
+		$mform->addElement('text', 'price', get_string('price', 'block_metacourse'), array("class"=>"price"));
+		$mform->addElement('select', 'currencyid', get_string('currency', 'block_metacourse'), $currencies, array("class"=>"currency"));
 
         $mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addHelpButton('cancellation', 'cancellation', 'block_metacourse');
@@ -192,6 +192,9 @@ class metacourse_form extends moodleform {
         $mform->addElement('date_time_selector', 'unpublishdate', get_string("unpublishdate", "block_metacourse"), array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false));
         $mform->addHelpButton('unpublishdate', 'unpublishdate', 'block_metacourse');
         $mform->addElement('select', 'competence', 'Competence', $categories, null);
+		
+		$mform->addElement('checkbox', 'nodates_enabled', get_string('nodates_enabled', 'block_metacourse'));
+        $mform->addHelpButton('nodates_enabled', 'nodates_enabled', 'block_metacourse');
 
         $mform->addElement('html',"<input type='button' id='saveTemplate' value='Add to templates'>");
 

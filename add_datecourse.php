@@ -33,6 +33,7 @@ $meta['meta_coordinator'] = optional_param('coordinator',"",PARAM_INT);
 $meta['meta_provider'] = optional_param('provider',"",PARAM_TEXT);
 $meta['meta_unpublishdate'] = $_POST['unpublishdate'];
 $meta['meta_competence'] = $_POST['competence'];
+$meta['meta_nodates_enabled'] = optional_param('nodates_enabled', false, PARAM_BOOL);
 $meta['customemail'] = optional_param('customemail', false, PARAM_BOOL);
 
 if ($meta['customemail']) {

@@ -35,11 +35,14 @@ $courseInstructors    = optional_param("courseInstructors","",PARAM_TEXT);
 $courseComment        = optional_param("courseComment","",PARAM_RAW);
 $courseDurationNumber = optional_param("courseDurationNumber",0,PARAM_INT);
 $courseDurationUnit   = optional_param("courseDurationUnit",0,PARAM_INT);
+$coursePrice          = optional_param("coursePrice","",PARAM_TEXT);
+$courseCurrencyId     = optional_param("courseCurrencyId",0,PARAM_INT);
 $courseCancellation   = optional_param("courseCancellation","",PARAM_RAW);
 $courseLodging   	  = optional_param("courseLodging","",PARAM_RAW);
 $courseContact   	  = optional_param("courseContact","",PARAM_RAW);
 $courseCoordinator    = optional_param("courseCoordinator",0,PARAM_INT);
 $courseProvider       = optional_param("courseProvider",0,PARAM_INT);
+$courseNoDatesEnabled = optional_param("courseNoDatesEnabled",0,PARAM_INT);
 
 /// allow others to enroll you
 $newAllow = optional_param("newAllow",0, PARAM_INT);
@@ -325,9 +328,12 @@ if ($saveTemplate) {
 		$template->duration       = $courseDurationNumber;
 		//TODO:
 		$template->duration_unit  = $courseDurationUnit;
+		$template->price          = $coursePrice=="" ? null : $coursePrice;
+		$template->currencyid     = $courseCurrencyId==0 ? null : $courseCurrencyId;
 		$template->cancellation   = $courseCancellation;
 		$template->coordinator    = $courseCoordinator;
 		$template->provider       = $courseProvider;
+		$template->nodates_enabled= $courseNoDatesEnabled;
 		$template->timemodified   = time();
 		
 		$DB->insert_record("meta_template", $template);

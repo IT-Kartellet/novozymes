@@ -112,6 +112,7 @@ if ($id == 0) {
 	$one_date = $DB->get_records("meta_datecourse", array("metaid"=>$id));
 	$one_date = reset($one_date);
 	$data->competence = $one_date->category;
+	$data->nodates_enabled = $meta->nodates_enabled;
 
 	if ($DB->record_exists('meta_custom_emails', array(
 		'metaid' => $data->id

@@ -998,7 +998,8 @@ function get_datecourse_users($courseid){
             FROM {role_assignments} ra
             JOIN {user} u ON ra.userid = u.id
             WHERE ra.contextid = :contextid
-            AND ra.roleid = 5",
+            AND ra.roleid = 5
+			ORDER BY u.username ASC",
     array('contextid' => $context->id));
 
 

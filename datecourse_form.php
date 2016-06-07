@@ -93,15 +93,19 @@ class datecourse_form extends moodleform {
             $mform->addElement('select', 'datecourse['. $key .'][country]', 'Where', $countries, array("class"=>"country"));
             $mform->addElement('html', "<div class='fitem'><div class='felement'> <a href='#' class='anotherLocation' > + another location </a></div></div>");
             $mform->addElement('select', 'datecourse['. $key .'][language]', 'Language', $languages, array("class"=>"language"));
-            $mform->addElement('text', 'datecourse['. $key .'][price]', 'Price',array("class"=>"price"));
-            $mform->addElement('select', 'datecourse['. $key .'][currency]', 'Currency', $currencies, array("class"=>"currency"));
+            $mform->addElement('text', 'datecourse['. $key .'][price]', get_string('price', 'block_metacourse'), array("class"=>"price"));
+            $mform->addElement('select', 'datecourse['. $key .'][currency]', get_string('currency', 'block_metacourse'), $currencies, array("class"=>"currency"));
             $mform->addElement('text', 'datecourse['. $key .'][places]', 'No. of places',array("class"=>"noPlaces"));
             $mform->addElement('select', 'datecourse['. $key .'][coordinator]', 'Coordinator', $coordinators, array("class"=>"coordinator"));
             $mform->setDefault('coordinator', $USER->id);
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][publishdate]', "Publish date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone), array("class"=>"publishdate"));
-			$mform->addElement('date_time_selector', 'datecourse['. $key .'][realunpublishdate]', "Unpublish date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>true, 'timezone' => $timezone),array("class"=>"realunpublishdate"));
+			$mform->addElement('date_time_selector', 'datecourse['. $key .'][realunpublishdate]', get_string('unpublish_date', 'block_metacourse'), array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>true, 'timezone' => $timezone),array("class"=>"realunpublishdate"));
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][startenrolment]', "Start enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone), array("class"=>"startenrolment"));
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][unpublishdate]', "End enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone),array("class"=>"unpublishdate"));
+			
+			$mform->addElement('checkbox', 'datecourse[' . $key . '][manual_enrol]', get_string('manual_enrol', 'block_metacourse'), '', array('class' => 'manual_enrol'));
+            $mform->addHelpButton('datecourse[' . $key . '][manual_enrol]', 'manual_enrol', 'block_metacourse');
+			
             $mform->addElement('text', 'datecourse['. $key .'][remarks]', 'Remarks',array("class"=>"date_remarks"));
             //$mform->addElement('advcheckbox', "datecourse_no_dates[".$key."]", "No dates", null, array('group' => 1), false);
 
@@ -163,6 +167,7 @@ class datecourse_form extends moodleform {
                 $awesomeData->{'datecourse['. $horribleCounter .'][country]'} = $dc->country;
                 $awesomeData->{'datecourse['. $horribleCounter .'][language]'} = $dc->lang;
                 $awesomeData->{'datecourse['. $horribleCounter .'][price]'} = $dc->price;
+				$awesomeData->{'datecourse['. $horribleCounter .'][manual_enrol]'} = $dc->manual_enrol;
                 $awesomeData->{'datecourse['. $horribleCounter .'][remarks]'} = $dc->remarks;
                 $awesomeData->{'datecourse['. $horribleCounter .'][currency]'} = $dc->currencyid;
                 $awesomeData->{'datecourse['. $horribleCounter .'][places]'} = $dc->total_places;

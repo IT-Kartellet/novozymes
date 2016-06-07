@@ -23,13 +23,13 @@
 			users.appendTo("#addselect");
 		} else {
 			var filtered_users = [];
-			for (var i = users.length - 1; i >= 0; i--) {
-				if (users[i].innerText.toLowerCase().indexOf(filter.toLowerCase()) !== -1) {
+			//for (var i = users.length - 1; i >= 0; i--) {
+			for (var i = 0; i < users.length; i++) {
+				if (users[i].textContent.toLowerCase().indexOf(filter.toLowerCase()) !== -1) {
 					// users.splice(i, 1);
 					filtered_users.push(users[i]);
 				}
 			}
-
 			$("#addselect option").remove();
 			$("#addselect").append($(filtered_users));
 		}
@@ -45,8 +45,9 @@
 			enrolled_users.appendTo("#removeselect");
 		} else {
 			var filtered_users = [];
-			for (var i = enrolled_users.length - 1; i >= 0; i--) {
-				if (enrolled_users[i].innerText.toLowerCase().indexOf(filter.toLowerCase()) !== -1) {
+			//for (var i = enrolled_users.length - 1; i >= 0; i--) {
+			for (var i = 0; i < enrolled_users.length; i++) {
+				if (enrolled_users[i].textContent.toLowerCase().indexOf(filter.toLowerCase()) !== -1) {
 					// users.splice(i, 1);
 					filtered_users.push(enrolled_users[i]);
 				}
