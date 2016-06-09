@@ -756,7 +756,7 @@ function enrol_waiting_user($eventData){
   $user = $DB->get_records_sql("SELECT * FROM {meta_waitlist} WHERE courseid = :courseid order by timecreated asc", array('courseid' => $eventData->courseid));
   $user = reset($user);
 
-  $enrolmentEnd = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where courseid = :courseid and unpublishdate > :time", array("courseid" => $eventData->courseid, "time"=>time()));
+  $enrolmentEnd = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where courseid = :courseid and unpublishdate > :time and (manual_enrol is null or manual_enrol = 0)", array("courseid" => $eventData->courseid, "time"=>time()));
 
   list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($eventData->courseid);
   $busy_places = count($enrolled_users);
@@ -764,7 +764,7 @@ function enrol_waiting_user($eventData){
   $total_places = $DB->get_field_sql("SELECT total_places from {meta_datecourse} where courseid = :cid", array("cid"=>$eventData->courseid));
 
   if ($user && //if there is anyone on the waiting list...
-    $enrolmentEnd && // the course is still active
+    $enrolmentEnd && // the course is still active and automatic enrolment enabled
     $busy_places < $total_places // and there's still space
   ) {
     $instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual', 'courseid' => $eventData->courseid));

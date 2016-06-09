@@ -18,6 +18,7 @@ $string['coursedates'] = 'Course dates';
 $string['location'] = 'Location';
 $string['action'] = 'Action';
 $string['signup'] = 'Sign up'; 
+$string['promote'] = 'Promote'; 
 $string['enrolme'] = 'Sign me up'; 
 $string['enrolOthers'] = 'Sign others up'; 
 $string['enrolOthers-wait'] = 'Sign others up for waiting list'; 
@@ -200,3 +201,5 @@ $string['course_details_updated_time'] = 'the {$a->name} has been changed from {
 
 $string['startdate'] = 'start time';
 $string['enddate'] = 'end time';
+
+$string['error_full_booked'] = 'The course is full booked. User could not be enrolled.';

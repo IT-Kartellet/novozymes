@@ -60,13 +60,20 @@ echo html_writer::table($table);
 
 <form id="assignform" method="post" ><div>
   <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
+  <input type="hidden" id="manual_enrol" value = "<?php echo ($datecourse->manual_enrol===null || $datecourse->manual_enrol == 0 ? '0' : '1') ?>" />
 
   <table id="assigningrole" summary="" class="admintable roleassigntable generaltable" cellspacing="0">
     <tr>
       <td id="existingcell">
           <p><label for="removeselect">Signed up users</label></p>
           <?php output_users_for_enrolment($enrolled_users, 'remove', 15); ?>
-          <p><label for="waitingselect">Waiting users</label></p>
+          <p>
+		    <label for="waitingselect">Waiting users</label>
+			<?php if (($isCoordinator || is_siteadmin($USER)) && $datecourse->manual_enrol !== null && $datecourse->manual_enrol != 0 ): ?>
+			  <input name="promote" id="promote" type="submit" disabled=true style="float:right; margin-top:-31px; margin-bottom:3px" value="<?php echo '&#9650;'.get_string('promote', 'block_metacourse'); ?>" title="<?php print_string('promote', 'block_metacourse'); ?>" />
+			  <input type="hidden" id="courseID" value = "<?php echo $courseid ?>" />
+			<?php endif; ?>
+		  </p>
     	  <?php output_users_for_enrolment($waiting_users, 'waiting', 4); ?>
           <div class="search_filter">
 				<label for="removeselect_searchtext">Search</label>
@@ -76,12 +83,12 @@ echo html_writer::table($table);
       </td>
       <td id="buttonscell">
           <div id="addcontrols">
-              <input name="add" id="add" type="submit" value="<?php echo $OUTPUT->larrow().'&nbsp;'.get_string('signup', 'block_metacourse'); ?>" title="<?php print_string('signup', 'block_metacourse'); ?>" /><br />
+              <input name="add" id="add" type="submit" disabled=true value="<?php echo $OUTPUT->larrow().'&nbsp;'.get_string('signup', 'block_metacourse'); ?>" title="<?php print_string('signup', 'block_metacourse'); ?>" /><br />
               <input type="hidden" id="courseID" value = "<?php echo $courseid ?>" />
           </div>
           <?php if ($isCoordinator || is_siteadmin($USER)): ?>
             <div id="removecontrols">
-                <input name="remove" id="remove" type="submit" value="<?php echo get_string('cancel').'&nbsp;'.$OUTPUT->rarrow(); ?>" title="<?php print_string('cancel'); ?>" />
+                <input name="remove" id="remove" type="submit" disabled=true value="<?php echo get_string('cancel').'&nbsp;'.$OUTPUT->rarrow(); ?>" title="<?php print_string('cancel'); ?>" />
                 <input type="hidden" id="courseID" value = "<?php echo $courseid ?>" />
             </div>
           <?php endif; ?>

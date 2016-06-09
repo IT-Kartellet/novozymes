@@ -33,7 +33,7 @@ $datecourse = $DB->get_record('meta_datecourse', array('courseid' => $courseid))
 
 $total_places = intval($datecourse->total_places);
 
-if ($datecourse->elearning || $total_places - $busy_places > 0) {
+if ($datecourse->elearning || ($total_places > $busy_places && count($waiting_users) == 0)) {
 	$current_enrolment = $DB->get_records_sql("
 		SELECT u.id as userid, e.id as enrolid FROM {user} u 
 		JOIN {user_enrolments} ue ON ue.userid = u.`id`

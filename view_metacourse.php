@@ -41,12 +41,14 @@ if ($metacourse) {
 	$title = null;
 	$localTitle = null;
 	$localLang = null;
+	$meta_coordinator = 0;
 	
 	foreach ($metacourse as $key => $course) {
 		//if field empty
 		if ($course == "") {
 			continue;
 		}
+		if ($meta_coordinator == 0 && $metacourse->coordinator!==null && $metacourse->coordinator!=0) $meta_coordinator = $metacourse->coordinator;
 		if ($key == 'duration_unit') {
 
 			//skip the duration_unit as a separate row, and add it instead in the duration row
@@ -233,7 +235,7 @@ if ($metacourse) {
 	foreach ($datecourses as $key => $datecourse) {
 		
 		$isPublished = ($datecourse->realunpublishdate == null || $datecourse->realunpublishdate > time());
-		$isCoordinator = ($USER->id == $datecourse->coordinator);
+		$isCoordinator = ($USER->id == $datecourse->coordinator ||$USER->id == $meta_coordinator);
 		
 		if (!$isPublished && !$isCoordinator) {
 			continue;
@@ -313,7 +315,7 @@ if ($metacourse) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'unEnrolMeButton';
 			$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");
-		} else if (!$datecourse->elearning && $busy_places >= $total_places) {
+		} else if (!$datecourse->elearning && ($busy_places >= $total_places || count($waiting_users)>0)) {
 			// waiting list
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'addToWaitingList';

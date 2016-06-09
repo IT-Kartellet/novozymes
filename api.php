@@ -53,6 +53,7 @@ $enrolCourse = optional_param("enrolCourse",0,PARAM_INT);
 // Non-siteadmins should always send emails
 $sendEmail = !is_siteadmin() || optional_param("sendEmail", false, PARAM_BOOL);
 $enrolRole = optional_param("enrolRole", "", PARAM_TEXT);
+$source = optional_param("source", "", PARAM_TEXT);
 
 $getTemplate = optional_param("getTemplate", 0, PARAM_INT);
 
@@ -70,30 +71,36 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 
 		$course = $DB->get_record('course', array('id' => $enrolCourse));
 			
-		list($students, $not_enrolled_users) = get_datecourse_users($enrolCourse);
+		list($students, $not_enrolled_users, $waiting_users) = get_datecourse_users($enrolCourse);
 	
 		$enrol = new enrol_manual_pluginITK();
 
+		//if (!$datecourse->elearning && $enrolRole === 'student' && ($datecourse->total_places <= count($students) || count($waiting_users) > 0)) {
 		if (!$datecourse->elearning && $enrolRole === 'student' && $datecourse->total_places <= count($students)) {
-			$waitRecord = new stdClass();
-			$waitRecord->userid = $enrolGuy;
-			$waitRecord->courseid = $enrolCourse;
-			$waitRecord->timestart = 0;
-			$waitRecord->timeend = 0;
-			$waitRecord->timecreated = time();
-			$DB->insert_record('meta_waitlist', $waitRecord);
-
-			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully added to the waiting list.");
-
-			if ($sendEmail) {
-				$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
+			if ($source=="waiting") {
+				throw new Exception(get_string("error_full_booked", "block_metacourse"));
 			}
+			else {
+				$waitRecord = new stdClass();
+				$waitRecord->userid = $enrolGuy;
+				$waitRecord->courseid = $enrolCourse;
+				$waitRecord->timestart = 0;
+				$waitRecord->timeend = 0;
+				$waitRecord->timecreated = time();
+				$DB->insert_record('meta_waitlist', $waitRecord);
 
-			echo json_encode(array(
-				'action' => 'enrol',
-				'status' => 'waitlist',
-			));
-			return;
+				add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully added to the waiting list.");
+
+				if ($sendEmail) {
+					$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
+				}
+
+				echo json_encode(array(
+					'action' => 'enrol',
+					'status' => 'waitlist',
+				));
+				return;
+			}
 		}
 
 		if (!$instance) {
@@ -116,6 +123,18 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
 
 		if (is_user_enrolled($enrolGuy, $enrolCourse)) {
+			
+			if ($source=="waiting") {
+				$waiting_conditions = array(
+					'courseid' => $enrolCourse,
+					'userid' => $enrolGuy,
+					'nodates' => 0,
+				);
+				if (($waiting = $DB->record_exists('meta_waitlist', $waiting_conditions))) {
+					$DB->delete_records('meta_waitlist', $waiting_conditions);
+				}
+			}
+			
 			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully enrolled.");
 			if ($sendEmail) {
 				$enrol->send_confirmation_email($enrolUser, $enrolCourse);
