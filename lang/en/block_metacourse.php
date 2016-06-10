@@ -146,6 +146,16 @@ Price: {$a->currency} {$a->price} - If no amount is stated there is no fee. (Exc
 Best regards
 {$a->coordinator}
 ';
+$string['emailunenrolmetawaitconf'] = '
+Dear {$a->firstname} {$a->lastname},
+
+We have received your cancellation from the waiting list for:
+Title: {$a->course}
+Price: {$a->currency} {$a->price} - If no amount is stated there is no fee. (Except for language courses in Danish)
+
+Best regards
+{$a->coordinator}
+';
 
 // help buttons
 $string["name"] = "Name";

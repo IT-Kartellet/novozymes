@@ -102,21 +102,38 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
     $username = urlencode($user->username);
     $username = str_replace('.', '%2E', $username); // prevent problems with trailing dots
-
-    $teacherCC = $DB->get_records_sql("
-      SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
-      ", array("cid"=>$courseid));
-    $teacherCC = reset($teacherCC);
-
-    $datecourse = $DB->get_record_sql("
-      SELECT d.*, c.currency, m.content, l.location as loc, m.name as metaname
-      FROM {meta_datecourse} d
-      JOIN {meta_currencies} c on d.currencyid=c.id
-      LEFT JOIN {meta_locations} l ON d.location = l.id
-      JOIN {meta_course} m ON d.metaid = m.id
-      where courseid = :id",
-    array("id"=>$courseid));
-    $course = $DB->get_record('course', array('id' => $courseid));
+	
+	if ($courseid>=0) {
+		// Date course unenrolled.
+		$teacherCC = $DB->get_records_sql("
+		  SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
+		  ", array("cid"=>$courseid));
+		$teacherCC = reset($teacherCC);
+		
+		$datecourse = $DB->get_record_sql("
+		  SELECT d.*, c.currency, m.content, l.location as loc, m.name as metaname
+		  FROM {meta_datecourse} d
+		  JOIN {meta_currencies} c on d.currencyid=c.id
+		  LEFT JOIN {meta_locations} l ON d.location = l.id
+		  JOIN {meta_course} m ON d.metaid = m.id
+		  where courseid = :id",
+		array("id"=>$courseid));
+		$course = $DB->get_record('course', array('id' => $courseid));
+	}
+	else {
+		// Meta course unenrolled.
+		$teacherCC = $DB->get_records_sql("
+		  SELECT u.* from {user} u join {meta_course} mc on u.id = mc.coordinator and mc.id = :cid
+		  ", array("cid"=>-$courseid));
+		$teacherCC = reset($teacherCC);
+		
+		$datecourse = $DB->get_record_sql("
+		  SELECT m.*, c.currency, m.name as metaname
+		  FROM {meta_course} m
+		  LEFT JOIN {meta_currencies} c on m.currencyid=c.id
+		  where m.id = :id",
+		array("id"=>-$courseid));
+	}
 
     $a = new stdClass();
     $a->username = $username;
@@ -124,29 +141,31 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $a->lastname = $user->lastname;
     $a->course = $datecourse->metaname;
     $a->department = $user->department;
-    $a->periodfrom = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
-    $a->periodto = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+	if ($courseid>=0) {
+		$a->periodfrom = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
+		$a->periodto = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+		$a->location = $datecourse->loc;
+	}
     $a->currency = $datecourse->currency;
     $a->price = $datecourse->price;
-    $a->location = $datecourse->loc;
     $a->coordinator = $teacherCC->firstname." ".$teacherCC->lastname;
     $a->coordinatorinitials = $teacherCC->username;
     $a->myhome = $CFG->wwwroot."/my";
 
     if ($waiting) {
-      $message = get_string("emailunenrolwaitconf", 'block_metacourse', $a);
+      if ($courseid>=0) $message = get_string("emailunenrolwaitconf", 'block_metacourse', $a);
+	  else $message = get_string("emailunenrolmetawaitconf", 'block_metacourse', $a);
     } else {
       $message = get_string("emailunenrolconf", 'block_metacourse', $a);
     }
 
-    if (!$datecourse->elearning) {
+    if (!$datecourse->elearning && $courseid>=0) {
       $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC, 'CANCEL', 1);
     } else {
       $attachment = false;
     }
 
     $messagehtml = text_to_html($message, false, false, true);
-
     $result = $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
     return $result;
   }

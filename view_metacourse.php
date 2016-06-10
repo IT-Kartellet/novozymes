@@ -27,7 +27,7 @@ echo $OUTPUT->header();
 global $DB, $USER;
 
 $metacourse = $DB->get_records_sql("
-	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, if(c.price is null or c.price='', '', concat(c.price, if(cur.currency is null, '', concat(' ', cur.currency)))) as price, c.cancellation, c.lodging, c.coordinator, c.multiple_dates, p.provider, c.contact, c.timemodified
+	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, if(c.price is null or c.price='', '', concat(c.price, if(cur.currency is null, '', concat(' ', cur.currency)))) as price, c.cancellation, c.lodging, c.coordinator, c.multiple_dates, p.provider, c.contact, c.timemodified, c.nodates_enabled
 	FROM {meta_course} c join {meta_providers} p on c.provider = p.id left join {meta_currencies} cur on c.currencyid = cur.id where c.id = :id", array("id"=>$id));
 $metacourse = reset($metacourse);
 
@@ -41,14 +41,15 @@ if ($metacourse) {
 	$title = null;
 	$localTitle = null;
 	$localLang = null;
-	$meta_coordinator = 0;
+	$nodates = 0;
+	if ($metacourse->coordinator!==null) $meta_coordinator = $metacourse->coordinator;
+	else $meta_coordinator = 0;
 	
 	foreach ($metacourse as $key => $course) {
 		//if field empty
 		if ($course == "") {
 			continue;
 		}
-		if ($meta_coordinator == 0 && $metacourse->coordinator!==null && $metacourse->coordinator!=0) $meta_coordinator = $metacourse->coordinator;
 		if ($key == 'duration_unit') {
 
 			//skip the duration_unit as a separate row, and add it instead in the duration row
@@ -98,6 +99,10 @@ if ($metacourse) {
 		}
 		if ($key == 'localname_lang') {
 			$localLang = $course;
+			continue;
+		}
+		if ($key == 'nodates_enabled') {
+			$nodates = $course;
 			continue;
 		}
 		if ($key == 'id') continue; //we don't want to display the id
@@ -197,6 +202,7 @@ if ($metacourse) {
 			default:
 				break;
 		}
+		
 		if (!$course || !$key) { continue; }
 		$table->data[] = array(ucfirst($key), $course);
 	}
@@ -205,6 +211,23 @@ if ($metacourse) {
 	if ($isTeacher) {
 		$nr_of_views = $DB->count_records('meta_views_log', array("metaid"=>$id));
 		$table->data[] = array(get_string('nrviews','block_metacourse'), $nr_of_views);
+	}
+	
+	// Sign on to meta course waiting list.
+	if ($nodates == 1) {
+		if ($DB->record_exists_sql(
+			'SELECT * FROM {meta_waitlist} WHERE courseid = :courseid AND userid = :userid AND nodates = 1',
+			array('courseid'=>$id, 'userid'=>$USER->id))) {
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$id, "userid"=>$USER->id, "nodates"=>1)), "");
+			$enrolMe->class = 'unEnrolMeButton';
+			$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");
+		}
+		else {
+			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$id, "userid"=>$USER->id, "nodates"=>1)), "");
+			$enrolMe->class = 'addToWaitingList';
+			$enrolMe->tooltip = get_string("addtowaitinglist", "block_metacourse");
+		}
+		$table->data[] = array(get_string('signup', 'block_metacourse'), $OUTPUT->render($enrolMe));
 	}
 
 	if (!empty($localTitle) && (current_language() == $localLang)) {
@@ -232,10 +255,11 @@ if ($metacourse) {
 								get_string("nrparticipants", "block_metacourse"), 
 								get_string('signup', 'block_metacourse')
 							);
+	
 	foreach ($datecourses as $key => $datecourse) {
 		
 		$isPublished = ($datecourse->realunpublishdate == null || $datecourse->realunpublishdate > time());
-		$isCoordinator = ($USER->id == $datecourse->coordinator ||$USER->id == $meta_coordinator);
+		$isCoordinator = ($USER->id == $datecourse->coordinator ||$USER->id == $meta_coordinator || is_siteadmin($USER));
 		
 		if (!$isPublished && !$isCoordinator) {
 			continue;
@@ -336,7 +360,7 @@ if ($metacourse) {
 		$enrolOthers->class="enrolOthers";
 
 		//Set one tooltip if waiting list and another without waiting list.
-		if($busy_places >= $total_places){
+		if(!$datecourse->elearning && ($busy_places >= $total_places || count($waiting_users)>0)){
 			$enrolOthers->tooltip = get_string("enrolOthers-wait", "block_metacourse");
 		}else{
 			$enrolOthers->tooltip = get_string("enrolOthers", "block_metacourse");
