@@ -126,6 +126,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
 		  SELECT u.* from {user} u join {meta_course} mc on u.id = mc.coordinator and mc.id = :cid
 		  ", array("cid"=>-$courseid));
 		$teacherCC = reset($teacherCC);
+		if ($teacherCC===false) $teacherCC = '';
 		
 		$datecourse = $DB->get_record_sql("
 		  SELECT m.*, c.currency, m.name as metaname
@@ -316,7 +317,9 @@ class enrol_manual_pluginITK extends enrol_plugin {
     global $CFG, $DB;
 
     $site = get_site();
-    $course = $DB->get_record("course",array("id"=>$courseid));
+	if ($courseid>=0) {
+		$course = $DB->get_record("course",array("id"=>$courseid));
+	}
     if(is_int($user)){
       $user = $DB->get_record("user",array("id"=>$user));
     }
@@ -331,13 +334,34 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $username = urlencode($user->username);
     $username = str_replace('.', '%2E', $username); // prevent problems with trailing dots
     $data->link  = $CFG->wwwroot;
-
-    $teacherCC = $DB->get_records_sql("
-      SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
-      ", array("cid"=>$courseid));
-    $teacherCC = reset($teacherCC);
-
-    $datecourse = $DB->get_record_sql("SELECT d.*, c.currency, l.location as loc, m.name as metaname FROM {meta_datecourse} d JOIN {meta_currencies} c on d.currencyid=c.id JOIN {meta_locations} l ON d.location = l.id JOIN {meta_course} m ON d.metaid = m.id where courseid = :id", array("id"=>$course->id));
+	
+	if ($courseid>=0) {
+		$teacherCC = $DB->get_records_sql("
+		  SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
+		  ", array("cid"=>$courseid));
+		$teacherCC = reset($teacherCC);
+		$datecourse = $DB->get_record_sql("
+			SELECT d.*, c.currency, l.location as loc, m.name as metaname 
+			FROM {meta_datecourse} d 
+			JOIN {meta_currencies} c on d.currencyid=c.id 
+			JOIN {meta_locations} l ON d.location = l.id 
+			JOIN {meta_course} m ON d.metaid = m.id 
+			where courseid = :id", 
+		array("id"=>$course->id));
+	}
+	else {
+		$teacherCC = $DB->get_records_sql("
+		  SELECT u.* from {user} u join {meta_course} mc on u.id = mc.coordinator and mc.id = :cid
+		  ", array("cid"=>-$courseid));
+		$teacherCC = reset($teacherCC);
+		if ($teacherCC===false) $teacherCC = '';
+		$datecourse = $DB->get_record_sql("
+			SELECT m.*, c.currency, m.name as metaname 
+			FROM {meta_course} m
+			LEFT JOIN {meta_currencies} c on m.currencyid=c.id
+			where m.id = :id", 
+		array("id"=>-$courseid));
+	}
 
     $a = new stdClass();
     $a->username = $username;
@@ -345,19 +369,22 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $a->lastname = $user->lastname;
     $a->course = $datecourse->metaname;
     $a->department = $user->department;
-    $a->periodfrom = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
-    $a->periodto = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+	if ($courseid>=0) {
+		$a->periodfrom = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
+		$a->periodto = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+		$a->location = $datecourse->loc;
+	}
     $a->currency = $datecourse->currency;
     $a->price = $datecourse->price;
-    $a->location = $datecourse->loc;
     $a->coordinator = $teacherCC->firstname." ".$teacherCC->lastname;
     $a->coordinatorinitials = $teacherCC->username;
     $a->myhome = $CFG->wwwroot."/my";
 
-    $message     = get_string("emailwait", 'block_metacourse', $a);
+    if ($courseid>=0) $message = get_string("emailwait", 'block_metacourse', $a);
+	else $message = get_string("emailmetawait", 'block_metacourse', $a);
     $messagehtml = text_to_html($message, false, false, true);
-
-    $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC);
+	if ($courseid>=0) $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC);
+	else $attachment = false;
     $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
 
     return $result;
@@ -452,6 +479,12 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
   private function send_enrolment_email($user, $from, $subject, $messagetext, $messagehtml='', $attachment='') {
     global $CFG;
+	
+	if ($from===false) {
+		$from = new stdClass();
+		$from->email = 'noreply@novozymes.com';
+		
+	}
 
     if (empty($user) || empty($user->email)) {
       $nulluser = 'User is null or has no email';
@@ -471,7 +504,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
       }
       return false;
     }
-
+	
     if (!empty($CFG->noemailever)) {
       // hidden setting for development sites, set in config.php if needed
       $noemail = 'Not sending email due to noemailever config setting';
@@ -772,7 +805,15 @@ function enrol_waiting_user($eventData){
   global $DB;
 
   //get the first user on the waiting list
-  $user = $DB->get_records_sql("SELECT * FROM {meta_waitlist} WHERE courseid = :courseid order by timecreated asc", array('courseid' => $eventData->courseid));
+  $metaid = $DB->get_field('meta_datecourse', 'metaid', array('courseid'=>$eventData->courseid));
+  $user = $DB->get_records_sql(
+	"SELECT mw.*
+		 FROM {meta_waitlist} mw
+		 WHERE (mw.courseid = :courseid and mw.nodates = 0) or (mw.courseid = :metaid and mw.nodates = 1)
+		 ORDER BY timecreated asc",
+	array("courseid"=>$eventData->courseid, "metaid"=>$metaid)
+  );
+  //$user = $DB->get_records_sql("SELECT * FROM {meta_waitlist} WHERE courseid = :courseid order by timecreated asc", array('courseid' => $eventData->courseid));
   $user = reset($user);
 
   $enrolmentEnd = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where courseid = :courseid and unpublishdate > :time and (manual_enrol is null or manual_enrol = 0)", array("courseid" => $eventData->courseid, "time"=>time()));
@@ -800,7 +841,7 @@ function enrol_waiting_user($eventData){
 
     $full_user = $DB->get_record("user",array("id"=>$user->userid));
     $enrolPlugin->send_confirmation_email($full_user, $instance->courseid);
-    $DB->delete_records('meta_waitlist', array('courseid'=> $instance->courseid, 'userid' => $user->userid));
+    $DB->delete_records('meta_waitlist', array('id'=> $user->id));
 
     add_to_log($eventData->courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/lib.php', "$user->id successfully moved from waiting list to course. Email sent? 1");
 
@@ -983,13 +1024,15 @@ function get_courses_in_category($category_id, $competence_id){
 
 function get_users_on_waitinglist($courseid) {
   global $DB;
+  $metaid = $DB->get_field('meta_datecourse', 'metaid', array('courseid'=>$courseid));
   return $DB->get_records_sql(
     "SELECT u.*
          FROM {meta_waitlist} mw
          JOIN {user} u
          ON mw.userid = u.id
-         WHERE mw.courseid = :courseid",
-    array("courseid"=>$courseid)
+         WHERE (mw.courseid = :courseid and mw.nodates = 0) or (mw.courseid = :metaid and mw.nodates = 1)
+		 ORDER BY mw.timecreated",
+    array("courseid"=>$courseid, "metaid"=>$metaid)
   );
 }
 

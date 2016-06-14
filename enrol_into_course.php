@@ -91,6 +91,8 @@ if ($nodates==0 && ($datecourse->elearning || ($total_places > $busy_places && c
 		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$datecourse->metaid}"), "You've been signed up for the waitlist", 5);
 	}
 	else {
+		add_to_log(SITEID, 'block_metacourse', 'add enrolment', 'blocks/metacourse/unenrol_from_course.php', "$userid successfully added to the waiting list for meta course $courseid. Email sent? 1");
+		$enrol->send_waitlist_email($userid, -$courseid);
 		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$courseid}"), "You've been signed up for the waitlist", 5);
 	}
 }

@@ -125,14 +125,14 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		if (is_user_enrolled($enrolGuy, $enrolCourse)) {
 			
 			if ($source=="waiting") {
-				$waiting_conditions = array(
-					'courseid' => $enrolCourse,
-					'userid' => $enrolGuy,
-					'nodates' => 0,
+				$metaid = $DB->get_field('meta_datecourse', 'metaid', array('courseid'=>$enrolCourse));
+				$wait = $DB->get_record_sql(
+					"SELECT mw.*
+						 FROM {meta_waitlist} mw
+						 WHERE userid = :userid and ((mw.courseid = :courseid and mw.nodates = 0) or (mw.courseid = :metaid and mw.nodates = 1))",
+					array("userid"=>$enrolGuy, "courseid"=>$enrolCourse, "metaid"=>$metaid)
 				);
-				if (($waiting = $DB->record_exists('meta_waitlist', $waiting_conditions))) {
-					$DB->delete_records('meta_waitlist', $waiting_conditions);
-				}
+				if ($wait!==false) $DB->delete_records('meta_waitlist', array('id' => $wait->id));
 			}
 			
 			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully enrolled.");
@@ -162,16 +162,22 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 
 if ($unenrolGuy && $enrolCourse) {
 	try {
-		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
-		$instance = reset($instance);
-
-		$waiting_conditions = array(
-			'courseid' => $enrolCourse,
-			'userid' => $unenrolGuy,
-			'nodates' => 0,
+		$metaid = $DB->get_field('meta_datecourse', 'metaid', array('courseid'=>$enrolCourse));
+		
+		$wait = $DB->get_record_sql(
+			"SELECT mw.*
+				 FROM {meta_waitlist} mw
+				 WHERE userid = :userid and ((mw.courseid = :courseid and mw.nodates = 0) or (mw.courseid = :metaid and mw.nodates = 1))",
+			array("userid"=>$unenrolGuy, "courseid"=>$enrolCourse, "metaid"=>$metaid)
 		);
-		if (($waiting = $DB->record_exists('meta_waitlist', $waiting_conditions))) {
-			$DB->delete_records('meta_waitlist', $waiting_conditions);
+		if ($wait===false) $waiting = false;
+		else $waiting = true;
+		
+		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol = :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
+		$instance = reset($instance);
+		
+		if ($waiting) {
+			$DB->delete_records('meta_waitlist', array('id' => $wait->id));
 		}
 
 		$PAGE->set_context(context_course::instance($enrolCourse)); // Needed in send mail
@@ -180,10 +186,12 @@ if ($unenrolGuy && $enrolCourse) {
 		$enrol->unenrol_user($instance, $unenrolGuy);
 
 		if ($sendEmail) {
-			$enrol->sendUnenrolMail($unenrolGuy, $enrolCourse, $waiting);
+			if ($waiting && $wait->nodates == 1) $enrol->sendUnenrolMail($unenrolGuy, -$metaid, $waiting);
+			else $enrol->sendUnenrolMail($unenrolGuy, $enrolCourse, $waiting);
 		}
 		
-		add_to_log($enrolCourse, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Unenrolled $unenrolGuy from $enrolCourse");
+		if ($waiting && $wait->nodates == 1) add_to_log(SITEID, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Unenrolled $unenrolGuy from meta course $metaid");
+		else add_to_log($enrolCourse, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Unenrolled $unenrolGuy from $enrolCourse");
 
 		echo json_encode("done");
 	} catch (Exception $e) {

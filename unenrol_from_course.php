@@ -47,6 +47,7 @@ if ($courseid != 0 && $userid != 0) {
 	}
 	else {
 		$enrol->sendUnenrolMail($userid, -$courseid, $waiting);
+		add_to_log(SITEID, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/unenrol_from_course.php', "Unenrolled $userid from meta course $courseid");
 	}
 }
 

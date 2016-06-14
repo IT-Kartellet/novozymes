@@ -3,6 +3,18 @@
 require_once("$CFG->libdir/formslib.php");
 
 class metacourse_form extends moodleform {
+	
+	public function validation($data, $files) {
+		$errors = array();
+		
+		if (!empty($data['coordinator'])) {
+			$errors['coordinator'] = "REQUIRED!";
+		}
+		$errors['coordinator'] = $data['coordinator'];
+		
+		return $errors;
+	}
+	
     //Add elements to form
     public function definition() {
         global $CFG, $DB, $USER, $PAGE;
@@ -225,6 +237,7 @@ class metacourse_form extends moodleform {
         // $mform->addRule('target', get_string('required'), 'required', null, 'client');
         $mform->addRule('content', get_string('required'), 'required', null, 'client');
         $mform->addRule('cancellation', get_string('required'), 'required', null, 'client');
+		//$mform->addRule('coordinator', get_string('required'), 'checkCoordinator', null, 'client');
 
         //BUTTONS
         $this->set_data($data);

@@ -120,6 +120,19 @@ Best regards
 {$a->coordinator}
 ';
 
+$string['emailmetawait'] = '
+Dear {$a->firstname} {$a->lastname},
+ 
+We hereby confirm that you have been added to a waiting list.
+
+Title: {$a->course}
+
+When a seat becomes available you will automatically be signed up for the course and you will receive an email confirming this.
+
+Best regards
+{$a->coordinator}
+';
+
 //Cancellation Email
 $string['emailunenrolconf'] = '
 Dear {$a->firstname} {$a->lastname},
