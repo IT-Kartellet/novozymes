@@ -44,7 +44,7 @@ if ($category != 0 || $competence != 0) {
 	$metacourses = get_courses_in_category($category, $competence);
 } else {
 	$metacourses = $DB->get_records_sql("SELECT d.*, pr.provider FROM {meta_providers} pr join 
-									(SELECT c.id, c.localname,c.localname_lang, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate 
+									(SELECT c.id, c.localname,c.localname_lang, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate, c.nodates_enabled 
 									FROM {meta_course} c left outer join {user} u on c.coordinator = u.id order by c.provider asc) d 
 									on pr.id = d.providerid");
 }
@@ -63,14 +63,17 @@ foreach ($metacourses as $key => $course) {
 	$isProvider = check_provider_role($course->id);
 	$isPublished = ($course->unpublishdate > time());
 	//don't display if they are overdue
-
 	if (!$isPublished && !$teacher) {
 		continue;
 	}
 
+	$datecourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id", array("id"=>$course->id));
+	//if (count($datecourses)==0) $languages = $DB->get_records_sql("SELECT DISTINCT ml.id, ml.language from {meta_languages} ml where ml.iso = :iso",
+	//	array("iso"=>$course->localname_lang));
+	//else $languages = $DB->get_records_sql("SELECT DISTINCT ml.id, ml.language from {meta_datecourse} md JOIN {meta_languages} ml on md.lang = ml.id where metaid = :metaid",
+	//	array("metaid"=>$key));
 	$languages = $DB->get_records_sql("SELECT DISTINCT ml.id, ml.language from {meta_datecourse} md JOIN {meta_languages} ml on md.lang = ml.id where metaid = :metaid",
 		array("metaid"=>$key));
-	$datecourses = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where metaid = :id", array("id"=>$course->id));
 	$countries = $DB->get_records_sql("select a.id, mct.country from {meta_countries} mct join (select md.id, md.country from {meta_course} mc join {meta_datecourse} md on mc.id = md.metaid where md.metaid = :metaid) a on mct.id = a.country", array("metaid"=>$key));
 	
 	$deleteCourse = new single_button(new moodle_url("/blocks/metacourse/api.php", array("deleteMeta"=>$key)), "", 'post');
@@ -164,8 +167,7 @@ foreach ($metacourses as $key => $course) {
 	}, $countries);
 	$countries = array_unique($countries);
 
-
-	if ($teacher && $count_datecourses) {
+	if ($teacher && ($count_datecourses || $course->nodates_enabled==1)) {
 		$status = (($isPublished) ? "Yes" : "No");
 		if (!$isProvider) {
 			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),','),rtrim(join("<br>",$countries),','), $status ,"");
@@ -173,7 +175,7 @@ foreach ($metacourses as $key => $course) {
 			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),',') , rtrim(join("<br>",$countries),','), $status,$OUTPUT->render($editCourse). $OUTPUT->render($exportExcel) . $OUTPUT->render($deleteCourse));
 		}
 	} else {
-		if ($count_datecourses) {
+		if ($count_datecourses || $course->nodates_enabled==1) {
 			$table->data[] = array($link, $provider, rtrim(join("<br>",$languages),','), rtrim(join("<br>",$countries),','));
 		}
 	}

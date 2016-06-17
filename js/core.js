@@ -58,14 +58,20 @@
 		}
 	});
 
-	$(document.body).on("click","#addDateCourse",function(){
+	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	function AddDateCourse() {
 		//used to duplicate the datecourses;
 		var course = $("div.template").last().clone(true, true);
+		course.css("display","");
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
 		var index = $('.template').length - 1 + countDeleted;
 
 		victim.find('input').not("#removeDateCourse, [type='checkbox']").val("");
+		if ($('[name="meta_coordinator"]').val()=='0') victim.find("select[name*='coordinator']").val($('[name="current_user"]').val());
+		else victim.find("select[name*='coordinator']").val($('[name="meta_coordinator"]').val());
+		if ($('[name="meta_currencyid"]').val()!='0') victim.find("select[name*='currency']").val($('[name="meta_currencyid"]').val());
+		victim.find("input[name*='price']").val($('[name="meta_price"]').val());
 
 		// Get all input elements"
 		var elements = victim.find("select, input:not(#removeDateCourse)");
@@ -92,18 +98,25 @@
 		var mm = today.getMonth()+1;
 		var yyyy = today.getFullYear();
 
-		victim.find("select[name*='minutes']").val(m);
+		victim.find("select[name*='minute']").val(m);
 		victim.find("select[name*='hour']").val(h);
 		victim.find("select[name*='day']").val(dd);
 		victim.find("select[name*='month']").val(mm);
 		victim.find("select[name*='year']").val(yyyy);
 
 		M.block_metacourse.dateform.init();
+	}
+	
+	$(document).ready(function() {
+		if ($("div.template").length < 2 && $('[name="nodates"]').val()!='1') AddDateCourse();
+	});
+	$(document.body).on("click","#addDateCourse",function(){
+		AddDateCourse();
 	});
 
 	// don't screw this up
 	$(document.body).on("click","#removeDateCourse",function(){
-		if ($("div.template").length < 2) {
+		if ($("div.template").length < 3 && $('[name="nodates"]').val()!='1') {
 			alert("You cannot remove this. Select the 'No dates' checkbox if you don't need any dates.");
 			return false;
 		}
@@ -627,3 +640,8 @@
 	$('#id_duration_timeunit option[value="1"]').remove();
 
 })();
+
+// When enrolment to meta course waiting list is enabled a coordinator must be specified. This coordinator will be used for mails concerning the meta course waiting list.
+function checkMetaCourseCoordinator(coordinator) {
+	return !$('#id_nodates_enabled').is(':checked') || (coordinator!='0' && coordinator!='');
+}

@@ -330,7 +330,7 @@ if ($metacourse) {
 		$row[] = $coordinator;
 		$total_places =$datecourse->total_places;
 
-		list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($datecourse->courseid);
+		list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($datecourse->courseid, false);
 
 		$busy_places = count($enrolled_users);
 

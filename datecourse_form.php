@@ -10,12 +10,16 @@ class datecourse_form extends moodleform {
         $PAGE->requires->js(new moodle_url('js/core.js'));
  
         $mform = $this->_form;
-		
 		//Add all meta-info and send it through.
-		$mform->addElement('hidden','meta', $this->_customdata['meta']);
+		$mform->addElement('hidden','meta', serialize($this->_customdata['meta']));
+		$mform->addElement('hidden','meta_coordinator', $this->_customdata['meta']['meta_coordinator']);
+		$mform->addElement('hidden','current_user', $USER->id);
+		$mform->addElement('hidden','meta_price', $this->_customdata['meta']['meta_price']);
+		$mform->addElement('hidden','meta_currencyid', $this->_customdata['meta']['meta_currencyid']);
+		$mform->addElement('hidden','nodates', $this->_customdata['meta']['meta_nodates_enabled']==1 ? '1' : '0');
 		$mform->setType('meta', PARAM_RAW);
 		
-        @$numberOfDates = ($this->_customdata['dateCourseNr'])? $this->_customdata['dateCourseNr'] : 1;
+        @$numberOfDates = ($this->_customdata['dateCourseNr'])? $this->_customdata['dateCourseNr'] : 0;
 
         //timezones
         $timezones = array("-11" => "-11", "-10" => "-10", "-9" => "-9", "-8" => "-8", "-7" => "-7", "-6" => "-6", "-5" => "-5", "-4" => "-4", "-3" => "-3",
@@ -60,13 +64,17 @@ class datecourse_form extends moodleform {
         $mform->addElement('header', 'header_courses', 'COURSES');
         $mform->addElement('html',"<div id='wrapper'>");
 
-        $key = $this->number;
+        $key = 0;
 		
 		// The data here is keyed by course id, reset it to zero based for easy indexing while we iterate
 		@$data = array_values($this->_customdata['data']);
-        while($key <= $numberOfDates-1) {
-            @$course_data = $data[$key];
-            if (isset($course_data->timezone)) {
+		while($key <= $numberOfDates) {
+			
+			// $key = 0 is the template used to create new date courses.
+			if ($key==0) @$course_data = null;
+			else @$course_data = $data[$key-1];
+            
+			if (isset($course_data->timezone)) {
                 $timezone = $course_data->timezone;
             } else {
                 $timezone = 0;
@@ -75,10 +83,10 @@ class datecourse_form extends moodleform {
             // Datetimeselector needs 5.5 as format, not 5:30
             $timezone = format_tz_offset($timezone);
 
-            $mform->addElement('html',"<div class='template'>");
+            $mform->addElement('html',"<div class='template'" . ($key==0 ? " style='display:none'" : "") . ">");
             $mform->addElement('hidden','datecourse['. $key .'][id]', '0');
             $mform->addElement('hidden','datecourse['. $key .'][courseid]', '0');
-            $mform->addElement('hidden','datecourse['. $key .'][deleted]', '0');
+            $mform->addElement('hidden','datecourse['. $key .'][deleted]', $key==0 ? '1' : '0');
             $mform->addElement('html',"<input type='button' id='removeDateCourse' title='Remove date' value='X' class='$key'>");
 
             $mform->addElement('checkbox', 'datecourse[' . $key . '][elearning]', 'Elearning', '', array('class' => 'elearning'));
@@ -120,14 +128,14 @@ class datecourse_form extends moodleform {
             $mform->setType('datecourse['. $key .'][timezone]', PARAM_TEXT);
 
             // All fields except remark and real unpublish date are required.
-            $mform->addRule('datecourse['. $key .'][places]', "Needs to be a number", 'numeric', null, 'client');
-            $mform->addRule('datecourse['. $key .'][places]', get_string('required'), 'required', null, 'client');
-            $mform->addRule('datecourse['. $key .'][price]', get_string('required'), 'required', null, 'client');
-            $mform->addRule('datecourse['. $key .'][timestart]', get_string('required'), 'required', null, 'client');
-            $mform->addRule('datecourse['. $key .'][timeend]', get_string('required'), 'required', null, 'client');
-            $mform->addRule('datecourse['. $key .'][timezone]', get_string('required'), 'required', null, 'client');
-            $mform->addRule('datecourse['. $key .'][publishdate]', get_string('required'), 'required', null, 'client');
-            $mform->addRule('datecourse['. $key .'][startenrolment]', get_string('required'), 'required', null, 'client');
+			$mform->addRule('datecourse['. $key .'][places]', "Needs to be a number", 'numeric', null, 'client');
+			$mform->addRule('datecourse['. $key .'][places]', get_string('required'), 'required', null, 'client');
+			$mform->addRule('datecourse['. $key .'][price]', get_string('required'), 'required', null, 'client');
+			$mform->addRule('datecourse['. $key .'][timestart]', get_string('required'), 'required', null, 'client');
+			$mform->addRule('datecourse['. $key .'][timeend]', get_string('required'), 'required', null, 'client');
+			$mform->addRule('datecourse['. $key .'][timezone]', get_string('required'), 'required', null, 'client');
+			$mform->addRule('datecourse['. $key .'][publishdate]', get_string('required'), 'required', null, 'client');
+			$mform->addRule('datecourse['. $key .'][startenrolment]', get_string('required'), 'required', null, 'client');
 			$mform->addRule('datecourse['. $key .'][unpublishdate]', get_string('required'), 'required', null, 'client');
 			$mform->addRule('datecourse['. $key .'][language]', get_string('required'), 'required', null, 'client');
 			$mform->addRule('datecourse['. $key .'][currency]', get_string('required'), 'required', null, 'client');
@@ -147,10 +155,12 @@ class datecourse_form extends moodleform {
 
         $this->add_action_buttons(true, "Save");
 
+		$awesomeData = new stdClass();
+		$awesomeData->{'datecourse[0][price]'} = 0;
+		$awesomeData->{'datecourse[0][places]'} = 0;
         if (@$data = $this->_customdata['data']) {		
-            $awesomeData = new stdClass();
 
-            $horribleCounter = 0; // he doesn't eat his vegetables
+            $horribleCounter = 1; // he doesn't eat his vegetables
             foreach ($data as $key => $dc) {
 				
                 $awesomeData->{'datecourse['. $horribleCounter .'][id]'} = $dc->id;
@@ -178,10 +188,11 @@ class datecourse_form extends moodleform {
             }
             unset($horribleCounter);
 
-            $this->set_data($awesomeData);
+            //$this->set_data($awesomeData);
         } else {
-            $this->set_data(null);
+            //$this->set_data(null);
         }
+		$this->set_data($awesomeData);
     }
 	// Perform some extra moodle validation
     function validation($data, $files) {

@@ -733,6 +733,7 @@ function update_meta_course($metaid, $datecourse, $category){
     //enrol users from the waiting list if we find available seats
     do {
       $user_enrolled = enrol_waiting_user($datecourse);
+	  
     } while ($user_enrolled);
   }
 }
@@ -989,10 +990,10 @@ function get_courses_in_category($category_id, $competence_id){
   global $DB;
   $courses = $DB->get_records_sql("
         select  distinct cde.*, da.category from {meta_datecourse} da
-        JOIN
+        RIGHT JOIN
         (SELECT d.*, pr.provider
                 FROM {meta_providers} pr JOIN (
-                    SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate
+                    SELECT c.id, c.localname,c.localname_lang, c. target, c.name, c.provider as providerid, u.username, u.firstname, u.lastname, u.email, c.unpublishdate, c.nodates_enabled
                     FROM {meta_course} c
                     LEFT JOIN {user} u on c.coordinator = u.id
                     ORDER BY c.provider asc) d
@@ -1000,7 +1001,6 @@ function get_courses_in_category($category_id, $competence_id){
         ON cde.id = da.metaid");
 
   $result = array();
-
   foreach ($courses as $i => $course) {
     $targets = json_decode($course->target);
     if ($category_id != 0 && $competence_id != 0) {
@@ -1022,18 +1022,29 @@ function get_courses_in_category($category_id, $competence_id){
   return $result;
 }
 
-function get_users_on_waitinglist($courseid) {
+function get_users_on_waitinglist($courseid, $includeMeta = true) {
   global $DB;
   $metaid = $DB->get_field('meta_datecourse', 'metaid', array('courseid'=>$courseid));
-  return $DB->get_records_sql(
-    "SELECT u.*
-         FROM {meta_waitlist} mw
-         JOIN {user} u
-         ON mw.userid = u.id
-         WHERE (mw.courseid = :courseid and mw.nodates = 0) or (mw.courseid = :metaid and mw.nodates = 1)
-		 ORDER BY mw.timecreated",
-    array("courseid"=>$courseid, "metaid"=>$metaid)
-  );
+  if ($includeMeta)
+	  return $DB->get_records_sql(
+		"SELECT u.*
+			 FROM {meta_waitlist} mw
+			 JOIN {user} u
+			 ON mw.userid = u.id
+			 WHERE (mw.courseid = :courseid and mw.nodates = 0) or (mw.courseid = :metaid and mw.nodates = 1)
+			 ORDER BY mw.timecreated",
+		array("courseid"=>$courseid, "metaid"=>$metaid)
+	  );
+  else
+	  return $DB->get_records_sql(
+		"SELECT u.*
+			 FROM {meta_waitlist} mw
+			 JOIN {user} u
+			 ON mw.userid = u.id
+			 WHERE mw.courseid = :courseid and mw.nodates = 0
+			 ORDER BY mw.timecreated",
+		array("courseid"=>$courseid)
+	  );
 }
 
 function is_user_enrolled($userid, $courseid){
@@ -1046,7 +1057,7 @@ function is_user_enrolled($userid, $courseid){
 }
 
 //newly added function that returns enrolled, not enrolled and waitlist users
-function get_datecourse_users($courseid){
+function get_datecourse_users($courseid, $includeMeta = true){
   global $DB;
 
   $context = CONTEXT_COURSE::instance($courseid);
@@ -1066,7 +1077,7 @@ function get_datecourse_users($courseid){
 
 
 
-  $waiting_users = get_users_on_waitinglist($courseid);
+  $waiting_users = get_users_on_waitinglist($courseid, $includeMeta);
 
   $excluded_uids = array_map(function ($user) {
       return $user->userid;

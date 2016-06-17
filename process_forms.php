@@ -96,6 +96,10 @@ $meta->timemodified = time();
 //if we are editing
 if ($metaid) {
 	$DB->update_record('meta_course', $meta);
+	if (empty($nodates_enabled)) {
+		// Remove meta course waiting list.
+		$DB->delete_records('meta_waitlist', array('courseid'=>$metaid, 'nodates'=>1));
+	}
 } else {
 	$metaid = $DB->insert_record('meta_course', $meta);
 	$meta->id = $metaid;
@@ -169,7 +173,7 @@ $count_deleted = array_reduce($datecourses, function ($acc, $datecourse) {
 	return $acc;
 }, 0);
 
-if ($count_deleted === count($datecourses)) {
+if ($meta->nodates_enabled!=1 && $count_deleted === count($datecourses)) {
 	// Print an error message and die here
 	print_error('deleted_all_courses_error', 'block_metacourse', $CFG->wwwroot . "blocks/metacourse/add_metacourse.php?id=$metaid");
 }
@@ -185,8 +189,8 @@ function get_unixtime($course, $key) {
 foreach ($datecourses as $key => $course) {
 	// Delete a datecourse, which is the same as a Moodle-course. 
 	$dc = new stdClass();
-	if (@$course['deleted'] == 1 && $course['courseid'] != 0) {
-		delete_datecourse((object)$course);
+	if (@$course['deleted'] == 1) {
+		if ($course['courseid'] != 0) delete_datecourse((object)$course);
 		continue;
 	}
 
@@ -302,6 +306,14 @@ foreach ($datecourses as $key => $course) {
 			 add_coordinator($meta->coordinator, $created_courseid);
 		}
 		add_coordinator($dc->coordinator, $created_courseid);
+		
+		// Enrol from waiting list.
+		$enrolCourse = new stdClass();
+		$enrolCourse->courseid = $created_courseid;
+		do {
+			$user_enrolled = enrol_waiting_user($enrolCourse);		  
+		} while ($user_enrolled);
+		//enrol_waiting_user({courseid->$created_courseid});
 
 		//add the label with the description
 		add_label($created_courseid, $meta);

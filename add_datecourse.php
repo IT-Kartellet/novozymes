@@ -63,7 +63,7 @@ if ($id == 0) {
 
 	echo $OUTPUT->header();
 
-	$mform = new datecourse_form("process_forms.php", array('meta' => serialize($meta)));
+	$mform = new datecourse_form("process_forms.php", array('meta' => $meta));
 
 	$mform->display();
 } else {
@@ -86,7 +86,7 @@ if ($id == 0) {
 	$datecourseNr = count($datecourses);
 
 	$uselessCounter = 0;
-	$mform = new datecourse_form("process_forms.php", array('dateCourseNr'=>$datecourseNr, "data"=>$datecourses, 'meta' => serialize($meta)));
+	$mform = new datecourse_form("process_forms.php", array('dateCourseNr'=>$datecourseNr, "data"=>$datecourses, 'meta' => $meta));
 	$mform->display();
 }
 

@@ -314,8 +314,12 @@ if ($deleteMeta) {
 		//delete datecourses
 		$DB->delete_records("meta_datecourse",array("metaid"=>$deleteMeta));
 
+		// delete meta course waiting list.
+		$DB->delete_records('meta_waitlist', array('courseid'=>$deleteMeta, 'nodates'=>1));
+		
 		//delete metacourses
 		$DB->delete_records("meta_course",array("id"=>$deleteMeta));
+		
 		//delete logs
 		//$DB->delete_records("log",array("module"=>"metacourse", "url"=>"view_metacourse.php?id=$deleteMeta"));
 	} catch(Exception $e){

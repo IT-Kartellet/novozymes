@@ -190,7 +190,7 @@ $string['customemail_help'] = 'Do you want the user to receive a custom "Welcome
 $string['unpublishdate'] = 'Unpublish date'; 
 $string['unpublishdate_help'] = 'When do you want the course not to be shown to student anymore?'; 
 
-$string['nodates_enabled'] = 'Meta enrolment';
+$string['nodates_enabled'] = 'No dates';
 $string['nodates_enabled_help'] = 'When selected users can enrol meta course before any date course has been planned. When sufficient participants have enroled a date course can be scheduled, and participants can be enrolled to the date course from the meta course waiting list.';
 
 $string['timezone'] = 'Timezone?';
@@ -226,3 +226,5 @@ $string['startdate'] = 'start time';
 $string['enddate'] = 'end time';
 
 $string['error_full_booked'] = 'The course is full booked. User could not be enrolled.';
+
+$string['meta_coodinator_required'] = 'Required when enrolment to meta course waiting list is selected';
