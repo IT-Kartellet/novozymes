@@ -168,7 +168,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
     $messagehtml = text_to_html($message, false, false, true);
     $result = $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
-    return $result;
+	
+	return $result;
   }
 
   private function get_ical($datecourse, $course, $user, $teacher, $method = 'REQUEST', $sequence = 0) {
@@ -386,8 +387,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
 	if ($courseid>=0) $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC);
 	else $attachment = false;
     $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
-
-    return $result;
+	
+	return $result;
   }
 
   public function send_confirmation_email($user, $courseid) {

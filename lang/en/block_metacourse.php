@@ -18,7 +18,8 @@ $string['coursedates'] = 'Course dates';
 $string['location'] = 'Location';
 $string['action'] = 'Action';
 $string['signup'] = 'Sign up'; 
-$string['promote'] = 'Promote'; 
+$string['signupwait'] = 'Sign up for<br>waiting list'; 
+$string['promote'] = 'Sign up from waiting list'; 
 $string['enrolme'] = 'Sign me up'; 
 $string['enrolOthers'] = 'Sign others up'; 
 $string['enrolOthers-wait'] = 'Sign others up for waiting list'; 
@@ -57,10 +58,17 @@ $string['nrparticipants'] = 'Enrolled';
 $string['coursedates'] = 'Course dates';
 $string['youareenrolled'] = 'You are enrolled'; 
 $string['expiredenrolment'] = 'Enrolment ended'; 
-$string['addtowaitinglist'] = 'Sign me up on the waiting list'; 
-$string['enrol_waitinglist_title'] = 'Waiting list terms title';
-$string['enrol_waitinglist_contents'] = 'Waiting list terms contents';
-$string['enrol_waitinglist_tos'] = 'Waiting list TOS';
+$string['addtowaitinglist'] = 'Sign me up on the waiting list';
+$string['enrol_meta_wait_list_explain'] = "There are no dates planned for this course at the moment. If you are interested in participating in the course, then please sign up for the waiting list. When a date has been scheduled, you will receive an e-mail.";
+//$string['enrol_waitinglist_title'] = 'Waiting list terms title';
+//$string['enrol_waitinglist_contents'] = 'Waiting list terms contents';
+//$string['enrol_waitinglist_tos'] = 'Waiting list TOS';
+$string['enrol_waitinglist_title'] = 'Waiting list sign up';
+$string['enrol_waitinglist_contents'] = 'Registration requires an accept from your manager. Please tick the box below to confirm that you have this accept. You are signing up for a waiting list and you will automatically be contacted if a seat becomes available.';
+$string['enrol_waitinglist_tos'] = 'I have an accept';
+$string['enrol_meta_waitinglist_title'] = 'Waiting list sign up';
+$string['enrol_meta_waitinglist_contents'] = 'Registration requires an accept from your manager. Please tick the box below to confirm that you have this accept. You are signing up for a waiting list you will automatically be contacted when the course has been scheduled.';
+$string['enrol_meta_waitinglist_tos'] = 'I have an accept';
 $string['unpublish_date'] = 'Unpublish date';
 
 $string['tostitle'] = 'Terms of agreement'; 
@@ -127,7 +135,7 @@ We hereby confirm that you have been added to a waiting list.
 
 Title: {$a->course}
 
-When a seat becomes available you will automatically be signed up for the course and you will receive an email confirming this.
+When a date has been scheduled you will receive an e-mail.
 
 Best regards
 {$a->coordinator}
@@ -164,7 +172,6 @@ Dear {$a->firstname} {$a->lastname},
 
 We have received your cancellation from the waiting list for:
 Title: {$a->course}
-Price: {$a->currency} {$a->price} - If no amount is stated there is no fee. (Except for language courses in Danish)
 
 Best regards
 {$a->coordinator}

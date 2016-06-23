@@ -133,20 +133,19 @@
 		}
 	});
 
-
 	// modal window for the TOS dialog
-	$(document.body).on('click','div.addToWaitingList input',function(e){
-		e.preventDefault();
-
-		enrolledCourse = $(this);
-		window.scrollTo(0, 0);
-
-		$("#lean_background").show();
-		$("#waitingSpan").show();
-		if (!$('#lean_background input[name="accept"]').is(":checked")) {
-			$('#lean_background input[name="submit"]').prop('disabled',true);
-		}
-	});
+	//$(document.body).on('click','div.addToWaitingList input',function(e){
+	//	e.preventDefault();
+	//
+	//	enrolledCourse = $(this);
+	//	window.scrollTo(0, 0);
+	//
+	//	$("#lean_background").show();
+	//	$("#waitingSpan").show();
+	//	if (!$('#lean_background input[name="accept"]').is(":checked")) {
+	//		$('#lean_background input[name="submit"]').prop('disabled',true);
+	//	}
+	//});
 
 	//enrol me
 	$(document.body).on('click','div.enrolMeButton:not(.elearning) input',function(e){
@@ -227,12 +226,33 @@
 			$('#lean_background_waiting input[name="submit"]').prop('disabled',true);
 		}
 	});
+	
+	$(document.body).on('click','div.addToMetaWaitingList input',function(e){
+		e.preventDefault();
+
+		enrolledCourse = $(this);
+		window.scrollTo(0, 0);
+
+		$("#lean_background_meta_waiting").show();
+		if (!$('#lean_background_meta_waiting input[name="accept"]').is(":checked")) {
+			$('#lean_background_meta_waiting input[name="submit"]').prop('disabled',true);
+		}
+	});
 
 	$(document.body).on('click','#lean_background_waiting input[name="accept"]', function(){
 		if ($('#lean_background_waiting input[name="submit"]').is(":disabled")) {
 			$('#lean_background_waiting input[name="submit"]').prop('disabled',false);
 		} else {
 			$('#lean_background_waiting input[name="submit"]').prop('disabled',true);
+		}
+		
+	});
+	
+	$(document.body).on('click','#lean_background_meta_waiting input[name="accept"]', function(){
+		if ($('#lean_background_meta_waiting input[name="submit"]').is(":disabled")) {
+			$('#lean_background_meta_waiting input[name="submit"]').prop('disabled',false);
+		} else {
+			$('#lean_background_meta_waiting input[name="submit"]').prop('disabled',true);
 		}
 		
 	});
@@ -245,11 +265,16 @@
 		enrolledCourse.closest('form').submit();
 	});
 
-
 	$(document.body).on('click','#lean_background_waiting input[name="cancel"]', function(){
 		$('#lean_background_waiting').hide();
-		$('#lean_background_waiting input[name="accept_unenrol"]').prop('checked',false);
+		$('#lean_background_waiting input[name="accept"]').prop('checked',false);
 		$('#lean_background_waiting input[name="submit"]').prop('disabled',true);
+	});
+	
+	$(document.body).on('click','#lean_background_meta_waiting input[name="cancel"]', function(){
+		$('#lean_background_meta_waiting').hide();
+		$('#lean_background_meta_waiting input[name="accept"]').prop('checked',false);
+		$('#lean_background_meta_waiting input[name="submit"]').prop('disabled',true);
 	});
 
 	$(document.body).on('click','#id_multipledates', function(){
