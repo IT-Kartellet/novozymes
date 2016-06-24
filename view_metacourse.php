@@ -241,7 +241,7 @@ if ($metacourse) {
 				$enrolMe->class = 'addToMetaWaitingList';
 				$enrolMe->tooltip = get_string("addtowaitinglist", "block_metacourse");
 			}
-			$table->data[] = array(get_string('signupwait', 'block_metacourse'), $OUTPUT->render($enrolMe) . get_string('enrol_meta_wait_list_explain', 'block_metacourse'));
+			$table->data[] = array(get_string('signupwait', 'block_metacourse'), text_to_html(get_string('enrol_meta_wait_list_explain', 'block_metacourse')) . $OUTPUT->render($enrolMe));
 		}
 	}
 
@@ -449,7 +449,7 @@ if ($metacourse) {
 <div id='lean_background_waiting'>
 	<div id='lean_overlay'>
 		<h1><?php echo get_string('enrol_waitinglist_title','block_metacourse') ?></h1>
-        <div id='tos_content'><?php echo get_string('enrol_waitinglist_contents','block_metacourse') ?></div>
+        <div id='tos_content'><?php echo text_to_html(get_string('enrol_waitinglist_contents','block_metacourse')) ?></div>
         <div id='cmd'>
         	<input type='checkbox' id="accept" name='accept'><label for="accept"><?php echo get_string('enrol_waitinglist_tos','block_metacourse') ?></label>
         	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','block_metacourse') ?>' >
