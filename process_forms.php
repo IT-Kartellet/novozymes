@@ -96,10 +96,6 @@ $meta->timemodified = time();
 //if we are editing
 if ($metaid) {
 	$DB->update_record('meta_course', $meta);
-	if (empty($nodates_enabled)) {
-		// Remove meta course waiting list.
-		$DB->delete_records('meta_waitlist', array('courseid'=>$metaid, 'nodates'=>1));
-	}
 } else {
 	$metaid = $DB->insert_record('meta_course', $meta);
 	$meta->id = $metaid;
@@ -185,7 +181,7 @@ function get_unixtime($course, $key) {
 	return (new DateTime($time))->getTimestamp();
 }
 
-
+$firstEnrolableCouseId = 0;
 foreach ($datecourses as $key => $course) {
 	// Delete a datecourse, which is the same as a Moodle-course. 
 	$dc = new stdClass();
@@ -284,6 +280,8 @@ foreach ($datecourses as $key => $course) {
 
 		update_meta_course($metaid, $dc, $competence);
 		$updatedCourseId = $DB->get_record('meta_datecourse', array('id'=>$dc->id));
+		
+		if ($dc->unpublishdate > time() && $firstEnrolableCouseId == 0) $firstEnrolableCouseId = $updatedCourseId->courseid;
 
 		if ($meta->coordinator != 0) {
 		//	 add_coordinator($meta->coordinator, $updatedCourseId->courseid);	
@@ -313,11 +311,24 @@ foreach ($datecourses as $key => $course) {
 		do {
 			$user_enrolled = enrol_waiting_user($enrolCourse);		  
 		} while ($user_enrolled);
+		
+		if ($dc->unpublishdate > time() && $firstEnrolableCouseId == 0) $firstEnrolableCouseId = $created_courseid;
+		
 		//enrol_waiting_user({courseid->$created_courseid});
 
 		//add the label with the description
 		add_label($created_courseid, $meta);
 	}
 }
+
+if (empty($nodates_enabled)) {
+	// Remove meta course waiting list.
+	if ($firstEnrolableCouseId != 0) $DB->execute(
+		'update meta_waitlist set courseid = :courseid, nodates = 0 where courseid = :metaid and nodates = 1', 
+		array('courseid'=>$firstEnrolableCouseId, 'metaid'=>$metaid)
+	);
+	//else $DB->delete_records('meta_waitlist', array('courseid'=>$metaid, 'nodates'=>1));
+}
+
 add_to_log(1, 'metacourse', 'Saved metacourse', '', $name, 0, $USER->id);
 redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id=".$metaid), "Your course has been saved", 5);
