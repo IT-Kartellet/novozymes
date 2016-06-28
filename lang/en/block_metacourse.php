@@ -60,8 +60,7 @@ $string['youareenrolled'] = 'You are enrolled';
 $string['expiredenrolment'] = 'Enrolment ended'; 
 $string['addtowaitinglist'] = 'Sign me up on the waiting list';
 $string['enrol_meta_wait_list_explain'] = 'There are no dates planned for this course at the moment. If you are interested in participating in the course, then please sign up for the waiting list.
-
-When a date has been scheduled, you will receive a confirmation e-mail.
+When a date has been scheduled, you will automatically be signed up for the course and receive an e-mail confirming this.
 
 ';
 //$string['enrol_waitinglist_title'] = 'Waiting list terms title';
@@ -75,7 +74,7 @@ $string['enrol_waitinglist_tos'] = 'I have an accept';
 $string['enrol_meta_waitinglist_title'] = 'Waiting list sign up';
 $string['enrol_meta_waitinglist_contents'] = 'Registration requires an accept from your manager. Please tick the box below to confirm that you have this accept.
 
-You are signing up for a waiting list, and you will automatically be contacted when the date has been scheduled.';
+You are signing up for a waiting list, when a date has been scheduled, you will automatically be signed up for the course and receive an e-mail confirming this.';
 $string['enrol_meta_waitinglist_tos'] = 'I have an accept';
 $string['unpublish_date'] = 'Unpublish date';
 
@@ -143,7 +142,7 @@ We hereby confirm that you have been added to a waiting list.
 
 Title: {$a->course}
 
-When a date has been scheduled you will receive a confirmation e-mail.
+When a date has been scheduled, you will automatically be signed up for the course and receive an e-mail confirming this.
 
 Best regards
 {$a->coordinator}
@@ -213,6 +212,9 @@ $string['timezone_help'] = 'The timezone for the place where the course is held.
 
 $string['elearning'] = 'Elearning';
 $string['elearning_help'] = 'Elearning courses are course which the student attends wholly online - they do not have an attached date, since users can access them at any time.';
+
+$string['date_course_realunpublishdate'] = 'Unpublish date';
+$string['date_course_realunpublishdate_help'] = 'Not mandatory. When used, the course will not be visible after the specified date/time.';
 
 $string['manual_enrol'] = 'Manual enrolment';
 $string['manual_enrol_help'] = 'When selected automatic enrolment is not enabled from the waiting list. Instead the coordinater should enrol from the waiting list.';

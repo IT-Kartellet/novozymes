@@ -108,6 +108,7 @@ class datecourse_form extends moodleform {
             $mform->setDefault('coordinator', $USER->id);
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][publishdate]', "Publish date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone), array("class"=>"publishdate"));
 			$mform->addElement('date_time_selector', 'datecourse['. $key .'][realunpublishdate]', get_string('unpublish_date', 'block_metacourse'), array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>true, 'timezone' => $timezone),array("class"=>"realunpublishdate"));
+			$mform->addHelpButton('datecourse[' . $key . '][realunpublishdate]', 'date_course_realunpublishdate', 'block_metacourse');
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][startenrolment]', "Start enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone), array("class"=>"startenrolment"));
             $mform->addElement('date_time_selector', 'datecourse['. $key .'][unpublishdate]', "End enrolment date", array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false, 'timezone' => $timezone),array("class"=>"unpublishdate"));
 			
