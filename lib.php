@@ -102,22 +102,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
     $username = urlencode($user->username);
     $username = str_replace('.', '%2E', $username); // prevent problems with trailing dots
-
-    $teacherCC = $DB->get_records_sql("
-      SELECT u.* from {user} u join {meta_datecourse} md on u.id = md.coordinator and md.courseid = :cid
-      ", array("cid"=>$courseid));
-    $teacherCC = reset($teacherCC);
-
-    $datecourse = $DB->get_record_sql("
-      SELECT d.*, c.currency, m.content, l.location as loc, m.name as metaname
-      FROM {meta_datecourse} d
-      JOIN {meta_currencies} c on d.currencyid=c.id
-      LEFT JOIN {meta_locations} l ON d.location = l.id
-      JOIN {meta_course} m ON d.metaid = m.id
-      where courseid = :id",
-    array("id"=>$courseid));
-	
-    $course = $DB->get_record('course', array('id' => $courseid));
 	
 	if ($courseid>=0) {
 		// Date course unenrolled.
@@ -151,7 +135,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
 		  where m.id = :id",
 		array("id"=>-$courseid));
 	}
-
 
     $a = new stdClass();
     $a->username = $username;
@@ -332,7 +315,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     return $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
   }
 
-  private function get_ical($datecourse, $course, $user, $teacher, $method = 'REQUEST', $sequence = 0) {
+  /* private function get_ical($datecourse, $course, $user, $teacher, $method = 'REQUEST', $sequence = 0) {
     global $DB;
 
     $ical = new iCalendar;
@@ -469,7 +452,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC, 'REQUEST', 1);
 
     return $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
-  }
+  } */
 
   public function send_waitlist_email($user, $courseid){
     global $CFG, $DB;
@@ -538,7 +521,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $a->coordinatorinitials = $teacherCC->username;
     $a->myhome = $CFG->wwwroot."/my";
 
-
     if ($courseid>=0) $message = get_string("emailwait", 'block_metacourse', $a);
 	else $message = get_string("emailmetawait", 'block_metacourse', $a);
     $messagehtml = text_to_html($message, false, false, true);
@@ -547,7 +529,6 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
 	
 	return $result;
-
   }
 
   public function send_confirmation_email($user, $courseid) {

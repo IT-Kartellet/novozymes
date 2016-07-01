@@ -186,7 +186,6 @@ $firstEnrolableCouseId = 0;
 foreach ($datecourses as $key => $course) {
 	// Delete a datecourse, which is the same as a Moodle-course. 
 	$dc = new stdClass();
-
 	if (@$course['deleted'] == 1) {
 		if ($course['courseid'] != 0) delete_datecourse((object)$course);
 		continue;

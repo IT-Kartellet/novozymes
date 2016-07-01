@@ -235,16 +235,13 @@ $string['timezone_help'] = 'The timezone for the place where the course is held.
 $string['elearning'] = 'Elearning';
 $string['elearning_help'] = 'Elearning courses are course which the student attends wholly online - they do not have an attached date, since users can access them at any time.';
 
-
-$string['goto_course'] = 'Go to E-learning course';
-
-
 $string['date_course_realunpublishdate'] = 'Unpublish date';
 $string['date_course_realunpublishdate_help'] = 'Not mandatory. When used, the course will not be visible after the specified date/time.';
 
 $string['manual_enrol'] = 'Manual enrolment';
 $string['manual_enrol_help'] = 'When selected automatic enrolment is not enabled from the waiting list. Instead the coordinater should enrol from the waiting list.';
 
+$string['goto_course'] = 'Go to E-learning course';
 $string['elearning_course'] = 'E-learning course';
 
 $string['no_limit'] = 'No limit';
