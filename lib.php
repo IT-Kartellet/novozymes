@@ -166,6 +166,9 @@ class enrol_manual_pluginITK extends enrol_plugin {
     } else {
       $attachment = false;
     }
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// To be removed.
+	$attachment = false;
 
     $messagehtml = text_to_html($message, false, false, true);
     $result = $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
@@ -311,6 +314,9 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $course->timemodified = time();
 
     $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC, 'REQUEST', 1);
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// To be removed.
+	$attachment = false;
 
     return $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
   }
@@ -524,9 +530,49 @@ class enrol_manual_pluginITK extends enrol_plugin {
     if ($courseid>=0) $message = get_string("emailwait", 'block_metacourse', $a);
 	else $message = get_string("emailmetawait", 'block_metacourse', $a);
     $messagehtml = text_to_html($message, false, false, true);
-	if ($courseid>=0) $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC);
+	
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	/*if ($courseid>=0) $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC);
 	else $attachment = false;
-    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
+    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment); */
+	
+	// The below, until END, to be substituted with the above.
+	if ($courseid>=0) {
+		$ical = new iCalendar;
+		$ical->add_property('method', 'PUBLISH');
+
+		$ev = new iCalendar_event;
+		$ev->add_property('uid', $course->id.'@'.'novozymes.it-kartellet.dk');
+		$ev->add_property('summary', $course->fullname);
+		$ev->add_property('description', clean_param($course->summary, PARAM_NOTAGS));
+		$ev->add_property('class', 'PUBLIC');
+		$ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
+		$ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
+
+		$ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
+		$ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
+
+		$ical->add_component($ev);
+
+		$serialized = $ical->serialize();
+		$file = $CFG->dataroot . "/" . time() . ".ics";
+
+		$fh = fopen($file, "w+");
+		fwrite($fh, $serialized);
+		fclose($fh);
+
+		if(empty($serialized)) {
+		  // TODO
+		  die('bad serialization');
+		}
+	}
+	else $file = false;
+    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $file, "event.ics");
+	if ($file) {
+      unlink($file);
+    }
+	// END substitute
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 	
 	return $result;
   }
@@ -600,26 +646,69 @@ class enrol_manual_pluginITK extends enrol_plugin {
       foreach ($a as $key => $value) {
         $search[]  = '{$a->'.$key.'}';
         $replace[] = (string)$value;
+		$search[]  = '{$a-&gt;'.$key.'}';
+        $replace[] = (string)$value;
       }
-      $message = str_replace($search, $replace, $text->text);
+      //$message = str_replace($search, $replace, $text->text);
+	  //$messagehtml = text_to_html($message);
+	  $messagehtml = str_replace($search, $replace, $text->text);
+	  $message = html_to_text($messagehtml);
     } else {
 		if ($datecourse->elearning!==null & $datecourse->elearning==1) $message = get_string("emailelearnconf", 'block_metacourse', $a);
 		else $message = get_string("emailconf", 'block_metacourse', $a);
+		$messagehtml = text_to_html($message);
     }
-    $messagehtml = text_to_html($message);
-
-    if (!$datecourse->elearning) {
+	
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    /*if (!$datecourse->elearning) {
       $attachment = $this->get_ical($datecourse, $course, $user, $teacherCC);
     } else {
       $attachment = false;
     }
+    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);*/
+	
+	// The below, until END, to be substituted with the above.
+	if (!$datecourse->elearning) {
+      $ical = new iCalendar;
+      $ical->add_property('method', 'PUBLISH');
 
-    $result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $attachment);
+      $ev = new iCalendar_event;
+      $ev->add_property('uid', $course->id . '@' . 'novozymes.it-kartellet.dk');
+      $ev->add_property('summary', $course->fullname);
+      $ev->add_property('description', clean_param($course->summary, PARAM_NOTAGS));
+      $ev->add_property('class', 'PUBLIC');
+      $ev->add_property('last-modified', Bennu::timestamp_to_datetime($course->timemodified));
+      $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
+      $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
+      $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
+
+      $ical->add_component($ev);
+
+      $serialized = $ical->serialize();
+      $file = $CFG->dataroot . "/" . time() . ".ics";
+
+      $fh = fopen($file, "w+");
+      fwrite($fh, $serialized);
+      fclose($fh);
+
+      if (empty($serialized)) {
+        // TODO
+        die('bad serialization');
+      }
+    } else {
+      $file = false;
+    }
+	$result =  $this->send_enrolment_email($user, $teacherCC, $subject, $message, $messagehtml, $file, "invite.ics");
+	if ($file) {
+      unlink($file);
+    }
+	// END substitute
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
     return $result;
   }
 
-  private function send_enrolment_email($user, $from, $subject, $messagetext, $messagehtml='', $attachment='') {
+  private function send_enrolment_email($user, $from, $subject, $messagetext, $messagehtml='', $attachment='', $attachname=false) {
     global $CFG;
 	
 	if ($from===false) {
@@ -747,10 +836,24 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $mail->Body    =  $messagehtml;
     $mail->AltBody =  "\n$messagetext\n";
 
-    if ($attachment) {
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    /*if ($attachment) {
       $mail->AltBody = $mail->Body;
       $mail->Ical = $attachment;
+    }*/
+	// The below, until END, to be substituted with the above.
+	if ($attachment && $attachname) {
+      if (preg_match( "~\\.\\.~" ,$attachment )) {    // Security check for ".." in dir path
+        $temprecipients[] = array($supportuser->email, fullname($supportuser, true));
+        $mail->AddStringAttachment('Error in attachment.  User attempted to attach a filename with a unsafe name.', 'error.txt', '8bit', 'text/plain');
+      } else {
+        require_once($CFG->libdir.'/filelib.php');
+        $mimetype = mimeinfo('type', $attachname);
+        $mail->AddAttachment($attachment, $attachname, 'base64', $mimetype);
+      }
     }
+	// END substitute
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
     // Check if the email should be sent in an other charset then the default UTF-8
     if ((!empty($CFG->sitemailcharset) || !empty($CFG->allowusermailcharset))) {
