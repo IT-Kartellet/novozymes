@@ -128,6 +128,13 @@ div.addToWaitingList > form input[type='submit']{
   width: 1em;
 }
 
+div.addToMetaWaitingList > form input[type='submit']{
+  background-image: url('/blocks/metacourse/pix/e16k9t.jpg');
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 1em;
+}
+
 div.enrolOthers > form input[type='submit']{
   background-image: url('/blocks/metacourse/pix/96ht85.png');
   background-repeat: no-repeat;
@@ -138,7 +145,8 @@ div.enrolOthers > form input[type='submit']{
 div.unEnrolMeButton > form input[type='submit']:hover, 
 div.enrolMeButton > form input[type='submit']:hover,
 div.enrolOthers > form input[type='submit']:hover,
-div.addToWaitingList > form input[type='submit']:hover  {
+div.addToWaitingList > form input[type='submit']:hover,
+div.addToMetaWaitingList > form input[type='submit']:hover  {
   background-position: center;
 }
 
@@ -215,7 +223,8 @@ div.who_enrol {
 
 #lean_background,
 #lean_background_unenrol,
-#lean_background_waiting {
+#lean_background_waiting,
+#lean_background_meta_waiting {
   margin: auto;
   position: fixed;
   top: 0; left: 0; bottom: 0; right: 0;
@@ -1314,4 +1323,6 @@ disabled look for disabled choices in the results dropdown
   }
 }
 
-
+.paginate_disabled_previous, .paginate_disabled_next {
+	display: none;
+}

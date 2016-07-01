@@ -27,10 +27,13 @@ $meta['meta_instructors'] = optional_param('instructors',"",PARAM_TEXT);
 $meta['meta_comment'] = optional_param_array('comment',"",PARAM_RAW);
 $meta['meta_multiple_dates'] = optional_param_array('multiple_dates',"",PARAM_RAW);
 $meta['meta_duration'] = optional_param_array('duration',"",PARAM_TEXT);
+$meta['meta_price'] = optional_param('price',"",PARAM_TEXT);
+$meta['meta_currencyid'] = optional_param('currencyid',"",PARAM_INT);
 $meta['meta_coordinator'] = optional_param('coordinator',"",PARAM_INT);
 $meta['meta_provider'] = optional_param('provider',"",PARAM_TEXT);
 $meta['meta_unpublishdate'] = $_POST['unpublishdate'];
 $meta['meta_competence'] = $_POST['competence'];
+$meta['meta_nodates_enabled'] = optional_param('nodates_enabled', false, PARAM_BOOL);
 $meta['customemail'] = optional_param('customemail', false, PARAM_BOOL);
 
 if ($meta['customemail']) {
@@ -60,7 +63,7 @@ if ($id == 0) {
 
 	echo $OUTPUT->header();
 
-	$mform = new datecourse_form("process_forms.php", array('meta' => serialize($meta)));
+	$mform = new datecourse_form("process_forms.php", array('meta' => $meta));
 
 	$mform->display();
 } else {
@@ -79,11 +82,11 @@ if ($id == 0) {
 
 	echo $OUTPUT->header();
 
-	$datecourses = $DB->get_records_sql("SELECT d.*, c.category FROM {meta_datecourse} d left join {course} c on c.id = d.courseid WHERE metaid = :metaid ORDER BY d.id ASC", array("metaid"=>$id));
+	$datecourses = $DB->get_records_sql("SELECT d.*, c.category FROM {meta_datecourse} d left join {course} c on c.id = d.courseid WHERE metaid = :metaid AND deleted = 0 ORDER BY d.startdate, d.id ASC", array("metaid"=>$id));
 	$datecourseNr = count($datecourses);
 
 	$uselessCounter = 0;
-	$mform = new datecourse_form("process_forms.php", array('dateCourseNr'=>$datecourseNr, "data"=>$datecourses, 'meta' => serialize($meta)));
+	$mform = new datecourse_form("process_forms.php", array('dateCourseNr'=>$datecourseNr, "data"=>$datecourses, 'meta' => $meta));
 	$mform->display();
 }
 

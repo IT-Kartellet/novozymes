@@ -27,8 +27,8 @@ echo $OUTPUT->header();
 global $DB, $USER;
 
 $metacourse = $DB->get_records_sql("
-	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, c.cancellation, c.lodging, c.coordinator, c.multiple_dates, p.provider, c.contact, c.timemodified
-	FROM {meta_course} c join {meta_providers} p on c.provider = p.id where c.id = :id", array("id"=>$id));
+	SELECT c.id, c.name, c.localname, c.localname_lang, c.purpose, c.target, c.target_description, c.content, c.instructors, c.comment, c.duration, c.duration_unit, if(c.price is null or c.price='', '', concat(c.price, if(cur.currency is null, '', concat(' ', cur.currency)))) as price, c.cancellation, c.lodging, c.coordinator, c.multiple_dates, p.provider, c.contact, c.timemodified, c.nodates_enabled
+	FROM {meta_course} c join {meta_providers} p on c.provider = p.id left join {meta_currencies} cur on c.currencyid = cur.id where c.id = :id", array("id"=>$id));
 $metacourse = reset($metacourse);
 
 $cancellation = "";
@@ -41,7 +41,10 @@ if ($metacourse) {
 	$title = null;
 	$localTitle = null;
 	$localLang = null;
-
+	$nodates = 0;
+	if ($metacourse->coordinator!==null) $meta_coordinator = $metacourse->coordinator;
+	else $meta_coordinator = 0;
+	
 	foreach ($metacourse as $key => $course) {
 		//if field empty
 		if ($course == "") {
@@ -96,6 +99,10 @@ if ($metacourse) {
 		}
 		if ($key == 'localname_lang') {
 			$localLang = $course;
+			continue;
+		}
+		if ($key == 'nodates_enabled') {
+			$nodates = $course;
 			continue;
 		}
 		if ($key == 'id') continue; //we don't want to display the id
@@ -195,6 +202,7 @@ if ($metacourse) {
 			default:
 				break;
 		}
+		
 		if (!$course || !$key) { continue; }
 		$table->data[] = array(ucfirst($key), $course);
 	}
@@ -203,6 +211,38 @@ if ($metacourse) {
 	if ($isTeacher) {
 		$nr_of_views = $DB->count_records('meta_views_log', array("metaid"=>$id));
 		$table->data[] = array(get_string('nrviews','block_metacourse'), $nr_of_views);
+	}
+	
+	// Read date courses.
+	$datecourses = $DB->get_records_sql("SELECT d.*, c.currency FROM {meta_datecourse} d join {meta_currencies} c on d.currencyid=c.id where metaid = :id AND deleted = 0 ORDER BY startdate ASC", array("id"=>$id));
+	
+	// Sign on to meta course waiting list.
+	if ($nodates == 1) {
+		$showMetaWaitEnrol = true;
+		foreach ($datecourses as $key => $datecourse) {
+			if (($datecourse->realunpublishdate == null || $datecourse->realunpublishdate > time()) and
+				$datecourse->publishdate < time() and
+				($datecourse->elearning || $datecourse->startdate > time()) and
+				!is_null($datecourse->courseid) and
+				($datecourse->unpublishdate > time() || $datecourse->unpublishdate == 0) and
+				$datecourse->startenrolment < time()
+				) $showMetaWaitEnrol = false;
+		}
+		if ($showMetaWaitEnrol) {
+			if ($DB->record_exists_sql(
+				'SELECT * FROM {meta_waitlist} WHERE courseid = :courseid AND userid = :userid AND nodates = 1',
+				array('courseid'=>$id, 'userid'=>$USER->id))) {
+				$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$id, "userid"=>$USER->id, "nodates"=>1)), "");
+				$enrolMe->class = 'unEnrolMeButton';
+				$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");
+			}
+			else {
+				$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$id, "userid"=>$USER->id, "nodates"=>1)), "");
+				$enrolMe->class = 'addToMetaWaitingList';
+				$enrolMe->tooltip = get_string("addtowaitinglist", "block_metacourse");
+			}
+			$table->data[] = array(get_string('signupwait', 'block_metacourse'), text_to_html(get_string('enrol_meta_wait_list_explain', 'block_metacourse')) . $OUTPUT->render($enrolMe));
+		}
 	}
 
 	if (!empty($localTitle) && (current_language() == $localLang)) {
@@ -214,7 +254,6 @@ if ($metacourse) {
 	echo html_writer::table($table);
 
 	echo html_writer::tag('h1', get_string('coursedates','block_metacourse'), array('id' => 'course_header', 'class' => 'main'));
-	$datecourses = $DB->get_records_sql("SELECT d.*, c.currency FROM {meta_datecourse} d join {meta_currencies} c on d.currencyid=c.id where metaid = :id ORDER BY startdate ASC", array("id"=>$id));
 
 	$date_table = new html_table();
 	$date_table->id = "view_date_table";
@@ -230,7 +269,16 @@ if ($metacourse) {
 								get_string("nrparticipants", "block_metacourse"), 
 								get_string('signup', 'block_metacourse')
 							);
+	
 	foreach ($datecourses as $key => $datecourse) {
+		
+		$isPublished = ($datecourse->realunpublishdate == null || $datecourse->realunpublishdate > time());
+		$isCoordinator = ($USER->id == $datecourse->coordinator ||$USER->id == $meta_coordinator || is_siteadmin($USER));
+		
+		if (!$isPublished && !$isCoordinator) {
+			continue;
+		}
+		
 		if (!$isTeacher) {
 			// if not published skip it.
 			if ($datecourse->publishdate > time()) {
@@ -296,7 +344,7 @@ if ($metacourse) {
 		$row[] = $coordinator;
 		$total_places =$datecourse->total_places;
 
-		list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($datecourse->courseid);
+		list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($datecourse->courseid, false);
 
 		$busy_places = count($enrolled_users);
 
@@ -305,7 +353,7 @@ if ($metacourse) {
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/unenrol_from_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'unEnrolMeButton';
 			$enrolMe->tooltip = get_string("unenrolmebutton", "block_metacourse");
-		} else if (!$datecourse->elearning && $busy_places >= $total_places) {
+		} else if (!$datecourse->elearning && ($busy_places >= $total_places || count($waiting_users)>0)) {
 			// waiting list
 			$enrolMe = new single_button(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id)), "");
 			$enrolMe->class = 'addToWaitingList';
@@ -326,7 +374,7 @@ if ($metacourse) {
 		$enrolOthers->class="enrolOthers";
 
 		//Set one tooltip if waiting list and another without waiting list.
-		if($busy_places >= $total_places){
+		if(!$datecourse->elearning && ($busy_places >= $total_places || count($waiting_users)>0)){
 			$enrolOthers->tooltip = get_string("enrolOthers-wait", "block_metacourse");
 		}else{
 			$enrolOthers->tooltip = get_string("enrolOthers", "block_metacourse");
@@ -375,7 +423,7 @@ if ($metacourse) {
 <div id='lean_background'>
 	<div id='lean_overlay'>
 		<h1><?php echo get_string('tostitle','block_metacourse') ?></h1>
-        <div id='tos_content'><?php echo get_string('toscontent','block_metacourse') ?></div>
+        <div id='tos_content'><?php echo text_to_html(get_string('toscontent','block_metacourse')) ?></div>
         <div id='cmd'>
         	<input type='checkbox' id="accept" name='accept'><label for="accept"><?php echo get_string('tosaccept','block_metacourse') ?></label>
         	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','block_metacourse') ?>' >
@@ -401,9 +449,22 @@ if ($metacourse) {
 <div id='lean_background_waiting'>
 	<div id='lean_overlay'>
 		<h1><?php echo get_string('enrol_waitinglist_title','block_metacourse') ?></h1>
-        <div id='tos_content'><?php echo get_string('enrol_waitinglist_contents','block_metacourse') ?></div>
+        <div id='tos_content'><?php echo text_to_html(get_string('enrol_waitinglist_contents','block_metacourse')) ?></div>
         <div id='cmd'>
         	<input type='checkbox' id="accept" name='accept'><label for="accept"><?php echo get_string('enrol_waitinglist_tos','block_metacourse') ?></label>
+        	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','block_metacourse') ?>' >
+        	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
+        </div>
+		<div id='lean_close'></div>
+    </div>
+</div>
+
+<div id='lean_background_meta_waiting'>
+	<div id='lean_overlay'>
+		<h1><?php echo get_string('enrol_meta_waitinglist_title','block_metacourse') ?></h1>
+        <div id='tos_content'><?php echo text_to_html(get_string('enrol_meta_waitinglist_contents','block_metacourse')) ?></div>
+        <div id='cmd'>
+        	<input type='checkbox' id="accept" name='accept'><label for="accept"><?php echo get_string('enrol_meta_waitinglist_tos','block_metacourse') ?></label>
         	<input id='accept_enrol' type='button' name='submit' value='<?php echo get_string('enrolme','block_metacourse') ?>' >
         	<input type='button' name='cancel' value='<?php echo get_string('cancel') ?>' >
         </div>

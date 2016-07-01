@@ -35,11 +35,14 @@ $courseInstructors    = optional_param("courseInstructors","",PARAM_TEXT);
 $courseComment        = optional_param("courseComment","",PARAM_RAW);
 $courseDurationNumber = optional_param("courseDurationNumber",0,PARAM_INT);
 $courseDurationUnit   = optional_param("courseDurationUnit",0,PARAM_INT);
+$coursePrice          = optional_param("coursePrice","",PARAM_TEXT);
+$courseCurrencyId     = optional_param("courseCurrencyId",0,PARAM_INT);
 $courseCancellation   = optional_param("courseCancellation","",PARAM_RAW);
 $courseLodging   	  = optional_param("courseLodging","",PARAM_RAW);
 $courseContact   	  = optional_param("courseContact","",PARAM_RAW);
 $courseCoordinator    = optional_param("courseCoordinator",0,PARAM_INT);
 $courseProvider       = optional_param("courseProvider",0,PARAM_INT);
+$courseNoDatesEnabled = optional_param("courseNoDatesEnabled",0,PARAM_INT);
 
 /// allow others to enroll you
 $newAllow = optional_param("newAllow",0, PARAM_INT);
@@ -47,7 +50,10 @@ $removeAllow = optional_param("removeAllow",0, PARAM_INT);
 $enrolGuy = optional_param("enrolGuy",0,PARAM_INT);
 $unenrolGuy = optional_param("unenrolGuy",0,PARAM_INT);
 $enrolCourse = optional_param("enrolCourse",0,PARAM_INT);
+// Non-siteadmins should always send emails
+$sendEmail = !is_siteadmin() || optional_param("sendEmail", false, PARAM_BOOL);
 $enrolRole = optional_param("enrolRole", "", PARAM_TEXT);
+$source = optional_param("source", "", PARAM_TEXT);
 
 $getTemplate = optional_param("getTemplate", 0, PARAM_INT);
 
@@ -65,28 +71,36 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 
 		$course = $DB->get_record('course', array('id' => $enrolCourse));
 			
-		list($students, $not_enrolled_users) = get_datecourse_users($enrolCourse);
+		list($students, $not_enrolled_users, $waiting_users) = get_datecourse_users($enrolCourse);
 	
 		$enrol = new enrol_manual_pluginITK();
 
+		//if (!$datecourse->elearning && $enrolRole === 'student' && ($datecourse->total_places <= count($students) || count($waiting_users) > 0)) {
 		if (!$datecourse->elearning && $enrolRole === 'student' && $datecourse->total_places <= count($students)) {
-			$waitRecord = new stdClass();
-			$waitRecord->userid = $enrolGuy;
-			$waitRecord->courseid = $enrolCourse;
-			$waitRecord->timestart = 0;
-			$waitRecord->timeend = 0;
-			$waitRecord->timecreated = time();
-			$DB->insert_record('meta_waitlist', $waitRecord);
+			if ($source=="waiting") {
+				throw new Exception(get_string("error_full_booked", "block_metacourse"));
+			}
+			else {
+				$waitRecord = new stdClass();
+				$waitRecord->userid = $enrolGuy;
+				$waitRecord->courseid = $enrolCourse;
+				$waitRecord->timestart = 0;
+				$waitRecord->timeend = 0;
+				$waitRecord->timecreated = time();
+				$DB->insert_record('meta_waitlist', $waitRecord);
 
-			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully added to the waiting list.");
+				add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully added to the waiting list.");
 
-			$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
+				if ($sendEmail) {
+					$enrol->send_waitlist_email($enrolGuy, $enrolCourse);
+				}
 
-			echo json_encode(array(
-				'action' => 'enrol',
-				'status' => 'waitlist',
-			));
-			return;
+				echo json_encode(array(
+					'action' => 'enrol',
+					'status' => 'waitlist',
+				));
+				return;
+			}
 		}
 
 		if (!$instance) {
@@ -109,8 +123,22 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 		$DB->set_field("user_enrolments", "status", 0, array("enrolid"=>$instance->id, "userid"=>$enrolGuy));
 
 		if (is_user_enrolled($enrolGuy, $enrolCourse)) {
+			
+			if ($source=="waiting") {
+				$metaid = $DB->get_field('meta_datecourse', 'metaid', array('courseid'=>$enrolCourse));
+				$wait = $DB->get_record_sql(
+					"SELECT mw.*
+						 FROM {meta_waitlist} mw
+						 WHERE userid = :userid and ((mw.courseid = :courseid and mw.nodates = 0) or (mw.courseid = :metaid and mw.nodates = 1))",
+					array("userid"=>$enrolGuy, "courseid"=>$enrolCourse, "metaid"=>$metaid)
+				);
+				if ($wait!==false) $DB->delete_records('meta_waitlist', array('id' => $wait->id));
+			}
+			
 			add_to_log($enrolCourse, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_others_into_course.php', "$enrolGuy successfully enrolled.");
-			$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+			if ($sendEmail) {
+				$enrol->send_confirmation_email($enrolUser, $enrolCourse);
+			}
 			echo json_encode(array(
 				'action' => 'enrol',
 				'status' => 'done',
@@ -134,7 +162,18 @@ if ($enrolGuy && $enrolCourse && $enrolRole) {
 
 if ($unenrolGuy && $enrolCourse) {
 	try {
-		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
+		$metaid = $DB->get_field('meta_datecourse', 'metaid', array('courseid'=>$enrolCourse));
+		
+		$wait = $DB->get_record_sql(
+			"SELECT mw.*
+				 FROM {meta_waitlist} mw
+				 WHERE userid = :userid and ((mw.courseid = :courseid and mw.nodates = 0) or (mw.courseid = :metaid and mw.nodates = 1))",
+			array("userid"=>$unenrolGuy, "courseid"=>$enrolCourse, "metaid"=>$metaid)
+		);
+		if ($wait===false) $waiting = false;
+		else $waiting = true;
+		
+		$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol = :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$enrolCourse));
 		$instance = reset($instance);
 
 		//check if on waiting list
@@ -144,19 +183,28 @@ if ($unenrolGuy && $enrolCourse) {
 			'nodates' => 0,
 		));
 		
-		$DB->delete_records('meta_waitlist', array(
-			'courseid' => $enrolCourse,
-			'userid' => $unenrolGuy,
-			'nodates' => 0,
-		));
+		if ($waiting) {
+			$DB->delete_records('meta_waitlist', array('id' => $wait->id));
+		}
 
 		$PAGE->set_context(context_course::instance($enrolCourse)); // Needed in send mail
+
 		$enrolments = enrol_get_plugin('manual');
 		$enrolments->unenrol_user($instance, $unenrolGuy);
 		$enrol = new enrol_manual_pluginITK();
 		$enrol->sendUnenrolMail($unenrolGuy, $enrolCourse, $waiting);
 
-		add_to_log($enrolCourse, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Unenrolled $unenrolGuy from $enrolCourse");
+
+		$enrol = new enrol_manual_pluginITK();
+		$enrol->unenrol_user($instance, $unenrolGuy);
+
+		if ($sendEmail) {
+			if ($waiting && $wait->nodates == 1) $enrol->sendUnenrolMail($unenrolGuy, -$metaid, $waiting);
+			else $enrol->sendUnenrolMail($unenrolGuy, $enrolCourse, $waiting);
+		}
+		
+		if ($waiting && $wait->nodates == 1) add_to_log(SITEID, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Unenrolled $unenrolGuy from meta course $metaid");
+		else add_to_log($enrolCourse, 'block_metacourse', 'remove enrolment', 'blocks/metacourse/enrol_others_into_course.php', "Unenrolled $unenrolGuy from $enrolCourse");
 
 		echo json_encode("done");
 	} catch (Exception $e) {
@@ -279,8 +327,12 @@ if ($deleteMeta) {
 		//delete datecourses
 		$DB->delete_records("meta_datecourse",array("metaid"=>$deleteMeta));
 
+		// delete meta course waiting list.
+		$DB->delete_records('meta_waitlist', array('courseid'=>$deleteMeta, 'nodates'=>1));
+		
 		//delete metacourses
 		$DB->delete_records("meta_course",array("id"=>$deleteMeta));
+		
 		//delete logs
 		//$DB->delete_records("log",array("module"=>"metacourse", "url"=>"view_metacourse.php?id=$deleteMeta"));
 	} catch(Exception $e){
@@ -320,9 +372,12 @@ if ($saveTemplate) {
 		$template->duration       = $courseDurationNumber;
 		//TODO:
 		$template->duration_unit  = $courseDurationUnit;
+		$template->price          = $coursePrice=="" ? null : $coursePrice;
+		$template->currencyid     = $courseCurrencyId==0 ? null : $courseCurrencyId;
 		$template->cancellation   = $courseCancellation;
 		$template->coordinator    = $courseCoordinator;
 		$template->provider       = $courseProvider;
+		$template->nodates_enabled= $courseNoDatesEnabled;
 		$template->timemodified   = time();
 		
 		$DB->insert_record("meta_template", $template);

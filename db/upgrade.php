@@ -247,5 +247,82 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2016030901, 'metacourse');
     }
 
+    if ($oldversion < 2016031501) {
+        $table = new xmldb_table('meta_datecourse');
+        $field = new xmldb_field('deleted', XMLDB_TYPE_INTEGER, 1, true, false, false, 0);
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_block_savepoint(true, 2016031501, 'metacourse');
+    }
+	
+	if ($oldversion < 2016053001) {
+		$table = new xmldb_table('meta_course');
+		$field = new xmldb_field('price', XMLDB_TYPE_TEXT, null, null, null, null, null, 'duration_unit');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		$field = new xmldb_field('currencyid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'price');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		
+		upgrade_block_savepoint(true, 2016053001, 'metacourse');
+	}
+	
+	if ($oldversion < 2016060101) {
+		$table = new xmldb_table('meta_course');
+		$table->add_key('currencyid', XMLDB_KEY_FOREIGN, array('currencyid'), 'meta_currencies', array('id'));
+		
+		upgrade_block_savepoint(true, 2016060101, 'metacourse');
+	}
+	
+	if ($oldversion < 2016060201) {
+		$table = new xmldb_table('meta_datecourse');
+		$field = new xmldb_field('realunpublishdate', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'unpublishdate');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		
+		upgrade_block_savepoint(true, 2016060201, 'metacourse');
+	}
+	
+	if ($oldversion < 2016060701) {
+		$table = new xmldb_table('meta_course');
+		$field = new xmldb_field('nodates_enabled', XMLDB_TYPE_INTEGER, 1, true, false, false, 0, 'unpublishdate');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		
+		$table = new xmldb_table('meta_datecourse');
+		$field = new xmldb_field('manual_enrol', XMLDB_TYPE_INTEGER, 1, true, false, false, 0, 'elearning');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		
+		upgrade_block_savepoint(true, 2016060701, 'metacourse');
+	}
+	
+	if ($oldversion < 2016060702) {
+		$table = new xmldb_table('meta_template');
+		$field = new xmldb_field('price', XMLDB_TYPE_TEXT, null, null, null, null, null, 'duration_unit');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		$field = new xmldb_field('currencyid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'price');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		$field = new xmldb_field('nodates_enabled', XMLDB_TYPE_INTEGER, 1, true, false, false, 0, 'unpublishdate');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		$table->add_key('currencyid', XMLDB_KEY_FOREIGN, array('currencyid'), 'meta_currencies', array('id'));
+		
+		upgrade_block_savepoint(true, 2016060702, 'metacourse');
+	}
+
     return $result;
 }
