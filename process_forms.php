@@ -108,7 +108,8 @@ if ($custom_emails) {
 			'lang' => $lang
 		));
 
-		$text = html_to_text($email['text']);
+		//$text = html_to_text($email['text']);
+		$text = $email['text'];
 		if ($record) {
 			$record->text = $text;
 			$DB->update_record('meta_custom_emails', $record);

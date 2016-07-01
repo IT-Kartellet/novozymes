@@ -120,6 +120,18 @@ Best regards
 {$a->coordinator}
 ';
 
+$string['emailelearnconf'] = '
+Dear {$a->firstname} {$a->lastname},
+ 
+We hereby confirm that you have been signed up for the e-Learning:
+Title: {$a->course}
+
+To cancel your participation please follow the link to {$a->myhome}
+
+Best regards
+{$a->coordinator}
+';
+
 //Enrolment email
 $string['emailwait'] = '
 Dear {$a->firstname} {$a->lastname},
@@ -158,6 +170,16 @@ Dates: {$a->periodfrom} - {$a->periodto}
 Price: {$a->currency} {$a->price} - If no amount is stated there is no fee. (Except for language courses in Danish)
 
 If your cancellation exceeds the cancellation deadline your department will be required to pay the full course feed. The cancellation policy can be seen in the course description. 
+
+Best regards
+{$a->coordinator}
+';
+
+$string['emailunenrolelearnconf'] = '
+Dear {$a->firstname} {$a->lastname},
+ 
+We have recieved your cancellation for the e-Learning:
+Title: {$a->course}
 
 Best regards
 {$a->coordinator}

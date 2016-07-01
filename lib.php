@@ -157,7 +157,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
       if ($courseid>=0) $message = get_string("emailunenrolwaitconf", 'block_metacourse', $a);
 	  else $message = get_string("emailunenrolmetawaitconf", 'block_metacourse', $a);
     } else {
-      $message = get_string("emailunenrolconf", 'block_metacourse', $a);
+		if ($courseid>=0 && $datecourse->elearning!==null && $datecourse->elearning==1) $message = get_string("emailunenrolelearnconf", 'block_metacourse', $a);
+		else $message = get_string("emailunenrolconf", 'block_metacourse', $a);
     }
 
     if (!$datecourse->elearning && $courseid>=0) {
@@ -463,7 +464,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
       }
       $message = str_replace($search, $replace, $text->text);
     } else {
-      $message = get_string("emailconf", 'block_metacourse', $a);
+		if ($datecourse->elearning!==null & $datecourse->elearning==1) $message = get_string("emailelearnconf", 'block_metacourse', $a);
+		else $message = get_string("emailconf", 'block_metacourse', $a);
     }
     $messagehtml = text_to_html($message);
 
