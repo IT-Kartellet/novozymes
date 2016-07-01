@@ -3,6 +3,7 @@
 require_once("$CFG->libdir/formslib.php");
 
 class metacourse_form extends moodleform {
+		
     //Add elements to form
     public function definition() {
         global $CFG, $DB, $USER, $PAGE;
@@ -103,6 +104,14 @@ class metacourse_form extends moodleform {
             return $template->name;
         }, $templates);
         $templates = array("0"=>"") + $templates;
+		
+		//create the currency select
+        $currencies = $DB->get_records_sql("SELECT * FROM {meta_currencies} order by currency");
+        $currencies = array_map(function($curr){
+            return $curr->currency;
+        }, $currencies);
+		$currencies[0] = get_string('none', 'block_metacourse');
+		ksort($currencies);
 
         //ELEMENTS
         $mform->addElement('header', 'header', 'Course Form');
@@ -150,6 +159,9 @@ class metacourse_form extends moodleform {
 
         $mform->addElement('duration', 'duration', "Duration");
         $mform->setDefault('duration', 1);
+		
+		$mform->addElement('text', 'price', get_string('price', 'block_metacourse'), array("class"=>"price"));
+		$mform->addElement('select', 'currencyid', get_string('currency', 'block_metacourse'), $currencies, array("class"=>"currency"));
 
         $mform->addElement('editor', 'cancellation', 'Cancellation policy',null, array('maxfiles'=>EDITOR_UNLIMITED_FILES, 'noclean'=>true));
         $mform->addHelpButton('cancellation', 'cancellation', 'block_metacourse');
@@ -181,6 +193,9 @@ class metacourse_form extends moodleform {
         $mform->addElement('date_time_selector', 'unpublishdate', get_string("unpublishdate", "block_metacourse"), array('startyear'=>2013, 'stopyear'=>2030, 'optional'=>false));
         $mform->addHelpButton('unpublishdate', 'unpublishdate', 'block_metacourse');
         $mform->addElement('select', 'competence', 'Competence', $categories, null);
+		
+		$mform->addElement('checkbox', 'nodates_enabled', get_string('nodates_enabled', 'block_metacourse'));
+        $mform->addHelpButton('nodates_enabled', 'nodates_enabled', 'block_metacourse');
 
         $mform->addElement('html',"<input type='button' id='saveTemplate' value='Add to templates'>");
 
@@ -211,6 +226,7 @@ class metacourse_form extends moodleform {
         // $mform->addRule('target', get_string('required'), 'required', null, 'client');
         $mform->addRule('content', get_string('required'), 'required', null, 'client');
         $mform->addRule('cancellation', get_string('required'), 'required', null, 'client');
+		$mform->addRule('coordinator', get_string('meta_coodinator_required', 'block_metacourse'), 'callback', 'checkMetaCourseCoordinator', 'client');
 
         //BUTTONS
         $this->set_data($data);

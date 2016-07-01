@@ -33,6 +33,9 @@ $content = $meta['meta_content'];
 $instructors = $meta['meta_instructors'];
 $comment = $meta['meta_comment'];
 $duration = $meta['meta_duration'];
+$price = $meta['meta_price'];
+if ($meta['meta_currencyid'] == 0) $currencyid = null;
+else $currencyid = $meta['meta_currencyid'];
 $cancellation = $meta['meta_cancellation'];
 $lodging = $meta['meta_lodging'];
 $contact = $meta['meta_contact'];
@@ -40,6 +43,7 @@ $multiple_dates = $meta['meta_multiple_dates'];
 $coordinator = $meta['meta_coordinator'];
 $provider = $meta['meta_provider'];
 $competence = $meta['meta_competence'];
+$nodates_enabled = $meta['meta_nodates_enabled'];
 
 if ($meta['customemail']) {
 	$custom_emails = $meta['custom_email'];
@@ -77,6 +81,8 @@ $meta->instructors = $instructors;
 $meta->comment = $comment['text'];
 $meta->duration = ($duration['number']) ? $duration['number'] : 0;
 $meta->duration_unit = $duration['timeunit'];
+$meta->price = $price;
+$meta->currencyid = $currencyid;
 $meta->cancellation = $cancellation['text'];
 $meta->lodging = $lodging['text'];
 $meta->contact = $contact['text'];
@@ -84,6 +90,7 @@ $meta->multiple_dates = $multiple_dates['text'];
 $meta->coordinator = $coordinator;
 $meta->provider = $provider;
 $meta->unpublishdate = date_timestamp_get(date_create($umt));
+$meta->nodates_enabled = !empty($nodates_enabled) ? 1 : 0;
 $meta->timemodified = time();
 
 //if we are editing
@@ -101,7 +108,8 @@ if ($custom_emails) {
 			'lang' => $lang
 		));
 
-		$text = html_to_text($email['text']);
+		//$text = html_to_text($email['text']);
+		$text = $email['text'];
 		if ($record) {
 			$record->text = $text;
 			$DB->update_record('meta_custom_emails', $record);
@@ -162,22 +170,24 @@ $count_deleted = array_reduce($datecourses, function ($acc, $datecourse) {
 	return $acc;
 }, 0);
 
-if ($count_deleted === count($datecourses)) {
+if ($meta->nodates_enabled!=1 && $count_deleted === count($datecourses)) {
 	// Print an error message and die here
 	print_error('deleted_all_courses_error', 'block_metacourse', $CFG->wwwroot . "blocks/metacourse/add_metacourse.php?id=$metaid");
 }
 
 function get_unixtime($course, $key) {
+	if ($course[$key] == null) return null;
 	$time = "{$course[$key]['year']}-{$course[$key]['month']}-{$course[$key]['day']} {$course[$key]['hour']}:{$course[$key]['minute']}{$course['timezone']}";
 
 	return (new DateTime($time))->getTimestamp();
 }
 
+$firstEnrolableCouseId = 0;
 foreach ($datecourses as $key => $course) {
 	// Delete a datecourse, which is the same as a Moodle-course. 
 	$dc = new stdClass();
-	if (@$course['deleted'] == 1 && $course['courseid'] != 0) {
-		delete_course($course['courseid'], false);
+	if (@$course['deleted'] == 1) {
+		if ($course['courseid'] != 0) delete_datecourse((object)$course);
 		continue;
 	}
 
@@ -209,6 +219,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->startdate = $starttime;
 	$dc->enddate = $endtime;
 	$dc->publishdate = get_unixtime($course, 'publishdate');
+	$dc->realunpublishdate = get_unixtime($course, 'realunpublishdate');
 	$dc->unpublishdate = get_unixtime($course, 'unpublishdate');
 	$dc->startenrolment = get_unixtime($course, 'startenrolment');
 	$dc->timezone = $course['timezone'];
@@ -220,15 +231,7 @@ foreach ($datecourses as $key => $course) {
 	$dc->currencyid = $course['currency'];
 	$dc->total_places = $places;
 	$dc->elearning = !empty($course['elearning']) ? 1 : 0;
-	// only if have a new course we add the free seats
-	if (@!$dc->id) {
-		$dc->free_places = $places;
-	} else {
-		// update the nr of free places
-		$places = $DB->get_records_sql("SELECT total_places, free_places from {meta_datecourse} where id=:id",array("id"=>$dc->id));
-		$places = reset($places);
-		$dc->free_places = ($dc->total_places - $places->total_places) + $places->free_places;
-	}
+	$dc->manual_enrol = !empty($course['manual_enrol']) ? 1 : 0;
 
 	$dc->coordinator = $course['coordinator'];
 	$dc->remarks = (isset($course['remarks'])) ? $course['remarks'] : '';
@@ -246,12 +249,40 @@ foreach ($datecourses as $key => $course) {
 				$dc->courseid = $created_courseid;
 			}
 		}
+		$existing_datecourse = $DB->get_record('meta_datecourse', array(
+			'id' => $dc->id
+		));
+
+		$changes = array();
+		if (!$dc->elearning) {
+			foreach (array(
+			 'location',
+			 'startdate',
+			 'enddate'
+		 	) as $property) {
+				if ($existing_datecourse->{$property} != $dc->{$property}) {
+					$changes[] = $property;
+				}
+			}
+		}
+
+		if (count($changes)) {
+			list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($dc->courseid);
+
+			$lib = new enrol_manual_pluginITK();
+			foreach ($enrolled_users as $user) {
+				$lib->send_course_updated_email($user, $dc, $existing_datecourse, $changes);
+			}
+		}
+
 		$DB->update_record('meta_datecourse', $dc);
 		$dc = $DB->get_records_sql("SELECT * FROM {meta_datecourse} where id = :id",array("id"=>$dc->id));
 		$dc = reset($dc);
 
 		update_meta_course($metaid, $dc, $competence);
 		$updatedCourseId = $DB->get_record('meta_datecourse', array('id'=>$dc->id));
+		
+		if ($dc->unpublishdate > time() && $firstEnrolableCouseId == 0) $firstEnrolableCouseId = $updatedCourseId->courseid;
 
 		if ($meta->coordinator != 0) {
 		//	 add_coordinator($meta->coordinator, $updatedCourseId->courseid);	
@@ -274,10 +305,31 @@ foreach ($datecourses as $key => $course) {
 			 add_coordinator($meta->coordinator, $created_courseid);
 		}
 		add_coordinator($dc->coordinator, $created_courseid);
+		
+		// Enrol from waiting list.
+		$enrolCourse = new stdClass();
+		$enrolCourse->courseid = $created_courseid;
+		do {
+			$user_enrolled = enrol_waiting_user($enrolCourse);		  
+		} while ($user_enrolled);
+		
+		if ($dc->unpublishdate > time() && $firstEnrolableCouseId == 0) $firstEnrolableCouseId = $created_courseid;
+		
+		//enrol_waiting_user({courseid->$created_courseid});
 
 		//add the label with the description
 		add_label($created_courseid, $meta);
 	}
 }
+
+if (empty($nodates_enabled)) {
+	// Remove meta course waiting list.
+	if ($firstEnrolableCouseId != 0) $DB->execute(
+		'update meta_waitlist set courseid = :courseid, nodates = 0 where courseid = :metaid and nodates = 1', 
+		array('courseid'=>$firstEnrolableCouseId, 'metaid'=>$metaid)
+	);
+	//else $DB->delete_records('meta_waitlist', array('courseid'=>$metaid, 'nodates'=>1));
+}
+
 add_to_log(1, 'metacourse', 'Saved metacourse', '', $name, 0, $USER->id);
 redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id=".$metaid), "Your course has been saved", 5);

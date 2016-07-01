@@ -58,14 +58,20 @@
 		}
 	});
 
-	$(document.body).on("click","#addDateCourse",function(){
+	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	function AddDateCourse() {
 		//used to duplicate the datecourses;
 		var course = $("div.template").last().clone(true, true);
+		course.css("display","");
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
 		var index = $('.template').length - 1 + countDeleted;
 
 		victim.find('input').not("#removeDateCourse, [type='checkbox']").val("");
+		if ($('[name="meta_coordinator"]').val()=='0') victim.find("select[name*='coordinator']").val($('[name="current_user"]').val());
+		else victim.find("select[name*='coordinator']").val($('[name="meta_coordinator"]').val());
+		if ($('[name="meta_currencyid"]').val()!='0') victim.find("select[name*='currency']").val($('[name="meta_currencyid"]').val());
+		victim.find("input[name*='price']").val($('[name="meta_price"]').val());
 
 		// Get all input elements"
 		var elements = victim.find("select, input:not(#removeDateCourse)");
@@ -92,23 +98,30 @@
 		var mm = today.getMonth()+1;
 		var yyyy = today.getFullYear();
 
-		victim.find("select[name*='minutes']").val(m);
+		victim.find("select[name*='minute']").val(m);
 		victim.find("select[name*='hour']").val(h);
 		victim.find("select[name*='day']").val(dd);
 		victim.find("select[name*='month']").val(mm);
 		victim.find("select[name*='year']").val(yyyy);
 
 		M.block_metacourse.dateform.init();
+	}
+	
+	$(document).ready(function() {
+		if ($("div.template").length < 2 && $('[name="nodates"]').val()!='1') AddDateCourse();
+	});
+	$(document.body).on("click","#addDateCourse",function(){
+		AddDateCourse();
 	});
 
 	// don't screw this up
 	$(document.body).on("click","#removeDateCourse",function(){
-		if ($("div.template").length < 2) {
+		if ($("div.template").length < 3 && $('[name="nodates"]').val()!='1') {
 			alert("You cannot remove this. Select the 'No dates' checkbox if you don't need any dates.");
 			return false;
 		}
 
-		if (confirm("Please note – that this will delete the date from all files – including the participants ”My courses” file.")) {
+		if (confirm("Please note – unless the course has already been held, that this will delete the date from all files – including the participants ”My courses” file.")) {
 			var klass = $(this).attr('class');
 
 			$(this).parent(".template").remove();
@@ -120,20 +133,19 @@
 		}
 	});
 
-
 	// modal window for the TOS dialog
-	$(document.body).on('click','div.addToWaitingList input',function(e){
-		e.preventDefault();
-
-		enrolledCourse = $(this);
-		window.scrollTo(0, 0);
-
-		$("#lean_background").show();
-		$("#waitingSpan").show();
-		if (!$('#lean_background input[name="accept"]').is(":checked")) {
-			$('#lean_background input[name="submit"]').prop('disabled',true);
-		}
-	});
+	//$(document.body).on('click','div.addToWaitingList input',function(e){
+	//	e.preventDefault();
+	//
+	//	enrolledCourse = $(this);
+	//	window.scrollTo(0, 0);
+	//
+	//	$("#lean_background").show();
+	//	$("#waitingSpan").show();
+	//	if (!$('#lean_background input[name="accept"]').is(":checked")) {
+	//		$('#lean_background input[name="submit"]').prop('disabled',true);
+	//	}
+	//});
 
 	//enrol me
 	$(document.body).on('click','div.enrolMeButton:not(.elearning) input',function(e){
@@ -214,12 +226,33 @@
 			$('#lean_background_waiting input[name="submit"]').prop('disabled',true);
 		}
 	});
+	
+	$(document.body).on('click','div.addToMetaWaitingList input',function(e){
+		e.preventDefault();
+
+		enrolledCourse = $(this);
+		window.scrollTo(0, 0);
+
+		$("#lean_background_meta_waiting").show();
+		if (!$('#lean_background_meta_waiting input[name="accept"]').is(":checked")) {
+			$('#lean_background_meta_waiting input[name="submit"]').prop('disabled',true);
+		}
+	});
 
 	$(document.body).on('click','#lean_background_waiting input[name="accept"]', function(){
 		if ($('#lean_background_waiting input[name="submit"]').is(":disabled")) {
 			$('#lean_background_waiting input[name="submit"]').prop('disabled',false);
 		} else {
 			$('#lean_background_waiting input[name="submit"]').prop('disabled',true);
+		}
+		
+	});
+	
+	$(document.body).on('click','#lean_background_meta_waiting input[name="accept"]', function(){
+		if ($('#lean_background_meta_waiting input[name="submit"]').is(":disabled")) {
+			$('#lean_background_meta_waiting input[name="submit"]').prop('disabled',false);
+		} else {
+			$('#lean_background_meta_waiting input[name="submit"]').prop('disabled',true);
 		}
 		
 	});
@@ -232,11 +265,16 @@
 		enrolledCourse.closest('form').submit();
 	});
 
-
 	$(document.body).on('click','#lean_background_waiting input[name="cancel"]', function(){
 		$('#lean_background_waiting').hide();
-		$('#lean_background_waiting input[name="accept_unenrol"]').prop('checked',false);
+		$('#lean_background_waiting input[name="accept"]').prop('checked',false);
 		$('#lean_background_waiting input[name="submit"]').prop('disabled',true);
+	});
+	
+	$(document.body).on('click','#lean_background_meta_waiting input[name="cancel"]', function(){
+		$('#lean_background_meta_waiting').hide();
+		$('#lean_background_meta_waiting input[name="accept"]').prop('checked',false);
+		$('#lean_background_meta_waiting input[name="submit"]').prop('disabled',true);
 	});
 
 	$(document.body).on('click','#id_multipledates', function(){
@@ -512,11 +550,14 @@
 		var courseComment        = tinyMCE.get('id_comment').getContent();
 		var courseDurationNumber = $("#id_duration_number").val();
 		var courseDurationUnit   = $("#id_duration_timeunit").find(":selected").val();
+		var coursePrice          = $("#id_price").val();
+		var courseCurrencyId     = $("#id_currencyid").find(":selected").val();
 		var courseCancellation   = tinyMCE.get('id_cancellation').getContent();
 		var courseLodging   	 = tinyMCE.get('id_lodging').getContent();
 		var courseContact   	 = tinyMCE.get('id_contact').getContent();
 		var courseCoordinator    = $("#id_coordinator").find(":selected").val();
 		var courseProvider       = $("#id_provider").find(":selected").val();
+		var courseNoDatesEnabled = $("#id_nodates_enabled").is(':checked') ? 1 : 0;
 
 		$.ajax({
 		  type: "POST", 
@@ -534,11 +575,14 @@
 		  	courseComment : courseComment,
 		  	courseDurationNumber : courseDurationNumber,
 		  	courseDurationUnit : courseDurationUnit,
+			coursePrice : coursePrice,
+			courseCurrencyId : courseCurrencyId,
 		  	courseCancellation : courseCancellation,
 		  	courseLodging : courseLodging,
 		  	courseContact : courseContact,
 		  	courseCoordinator : courseCoordinator,
-		  	courseProvider : courseProvider
+		  	courseProvider : courseProvider,
+			courseNoDatesEnabled : courseNoDatesEnabled
 	  	  },
 	  	  success : function(e){
 				// add the template at the top in the template select
@@ -578,12 +622,15 @@
 					$('#id_instructors').val("");
 					$('#id_duration_number').val("");
 					$('#id_duration_timeunit').val("");
+					$('#id_price').val("");
+					$('#id_currencyid').val(0);
 					tinyMCE.get('id_cancellation').setContent("");
 					tinyMCE.get('id_comment').setContent("");
 					tinyMCE.get('id_lodging').setContent("");
 					tinyMCE.get('id_contact').setContent("");
 					$('#id_coordinator').val("");
 					$('#id_provider').val("");
+					$('#id_nodates_enabled').prop("checked", false);
 				}else {
 					var metacourse = JSON.parse(e);
 					$('#id_name').val(metacourse.name);
@@ -597,6 +644,8 @@
 					$('#id_comment').val(metacourse.comment);
 					$('#id_duration_number').val(metacourse.duration);
 					$('#id_duration_timeunit').val(metacourse.duration_unit);
+					$('#id_price').val(metacourse.price);
+					$('#id_currencyid').val(metacourse.currencyid===null ? 0 : metacourse.currencyid);
 					tinyMCE.get('id_cancellation').setContent(metacourse.cancellation);
 					tinyMCE.get('id_comment').setContent(metacourse.comment);
 					tinyMCE.get('id_lodging').setContent(metacourse.lodging);
@@ -605,6 +654,7 @@
 					$('#id_provider').val(metacourse.provider);
 					$('#id_purpose').trigger('change');
 					$('#id_content').trigger('change');
+					$('#id_nodates_enabled').prop("checked", metacourse.nodates_enabled==0 ? false : true);
 					tinyMCE.triggerSave();
 				}
 			}
@@ -615,3 +665,8 @@
 	$('#id_duration_timeunit option[value="1"]').remove();
 
 })();
+
+// When enrolment to meta course waiting list is enabled a coordinator must be specified. This coordinator will be used for mails concerning the meta course waiting list.
+function checkMetaCourseCoordinator(coordinator) {
+	return !$('#id_nodates_enabled').is(':checked') || (coordinator!='0' && coordinator!='');
+}

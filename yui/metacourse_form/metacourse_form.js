@@ -8,8 +8,8 @@ YUI.add('moodle-block_metacourse-metacourse_form', function(Y) {
 
         handleSelectAll: function () {
             var checkboxes = Y.all('.checkboxgroup1');
-
-            Y.one('.selectallornone').on('click', function (e) {
+			if(Y.one('.selectallornone')){
+					Y.one('.selectallornone').on('click', function (e) {
                 if (checkboxes.some(function (checkbox) {
                         return checkbox.get('checked');
                     })) {
@@ -20,6 +20,7 @@ YUI.add('moodle-block_metacourse-metacourse_form', function(Y) {
 
                 e.preventDefault();
             });
+			}
         }
     }
 }, '@VERSION@', {

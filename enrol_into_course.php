@@ -11,29 +11,33 @@ $PAGE->set_context(context_system::instance());
 
 $courseid = required_param("courseid", PARAM_INT);
 $userid = required_param("userid", PARAM_INT);
+$nodates = optional_param("nodates", 0, PARAM_INT);
+
 $enrol = new enrol_manual_pluginITK();
-
-$context = context_course::instance($courseid);
-
-$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$courseid));
-$instance = reset($instance);
 $user = $DB->get_record("user", array("id"=>$userid), '*', MUST_EXIST);
 
-//check if we still have places
-/*
-list($sql, $params) = get_enrolled_sql($context, '', 0, true);
-$sql = "SELECT u.*, je.* FROM {user} u
-		JOIN ($sql AND eu1_e.roleid = 5) je ON je.id = u.id";
-$busy_places = count($DB->get_records_sql($sql, $params));
-*/
-list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($courseid);
-$busy_places = count($enrolled_users);
+if ($nodates==0) {
+	$context = context_course::instance($courseid);
 
-$datecourse = $DB->get_record('meta_datecourse', array('courseid' => $courseid));
+	$instance = $DB->get_records_sql("SELECT * FROM {enrol} where enrol= :enrol and courseid = :courseid and status = 0", array('enrol'=>'manual','courseid'=>$courseid));
+	$instance = reset($instance);
 
-$total_places = intval($datecourse->total_places);
+	//check if we still have places
+	/*
+	list($sql, $params) = get_enrolled_sql($context, '', 0, true);
+	$sql = "SELECT u.*, je.* FROM {user} u
+			JOIN ($sql AND eu1_e.roleid = 5) je ON je.id = u.id";
+	$busy_places = count($DB->get_records_sql($sql, $params));
+	*/
+	list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($courseid);
+	$busy_places = count($enrolled_users);
 
-if ($datecourse->elearning || $total_places - $busy_places > 0) {
+	$datecourse = $DB->get_record('meta_datecourse', array('courseid' => $courseid));
+
+	$total_places = intval($datecourse->total_places);
+}
+
+if ($nodates==0 && ($datecourse->elearning || ($total_places > $busy_places && count($waiting_users) == 0))) {
 	$current_enrolment = $DB->get_records_sql("
 		SELECT u.id as userid, e.id as enrolid FROM {user} u 
 		JOIN {user_enrolments} ue ON ue.userid = u.`id`
@@ -76,12 +80,19 @@ if ($datecourse->elearning || $total_places - $busy_places > 0) {
 	$waitRecord->timestart = 0;
 	$waitRecord->timeend = 0;
 	$waitRecord->timecreated = time();
+	$waitRecord->nodates = $nodates;
 	$DB->insert_record('meta_waitlist', $waitRecord);
 
 	$wait = true;
 
-	add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "$userid successfully added to the waiting list. Email sent? 1");
-
-	$enrol->send_waitlist_email($user, $courseid);
-	redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$datecourse->metaid}"), "You've been signed up for the waitlist", 5);
+	if ($nodates==0) {
+		add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "$userid successfully added to the waiting list. Email sent? 1");
+		$enrol->send_waitlist_email($user, $courseid);
+		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$datecourse->metaid}"), "You've been signed up for the waitlist", 5);
+	}
+	else {
+		add_to_log(SITEID, 'block_metacourse', 'add enrolment', 'blocks/metacourse/unenrol_from_course.php', "$userid successfully added to the waiting list for meta course $courseid. Email sent? 1");
+		$enrol->send_waitlist_email($userid, -$courseid);
+		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$courseid}"), "You've been signed up for the waitlist", 5);
+	}
 }

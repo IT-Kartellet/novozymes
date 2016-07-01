@@ -11,12 +11,15 @@ $string['contentheader'] = 'Metacourse Settings';
 $string['modulenameplural'] = 'Courses';
 $string['metacourse:view'] = 'View the block';
 $string['metacourse:addinstance'] = 'Add the block on the My page';
+$string['none'] = 'none';
 $string['coursesavailable'] = 'Course menu';
 $string['instructors'] = 'Instructors'; 
 $string['coursedates'] = 'Course dates'; 
-$string['location'] = 'Location'; 
-$string['action'] = 'Action'; 
+$string['location'] = 'Location';
+$string['action'] = 'Action';
 $string['signup'] = 'Sign up'; 
+$string['signupwait'] = 'Sign up for<br>waiting list'; 
+$string['promote'] = 'Sign up from waiting list'; 
 $string['enrolme'] = 'Sign me up'; 
 $string['enrolOthers'] = 'Sign others up'; 
 $string['enrolOthers-wait'] = 'Sign others up for waiting list'; 
@@ -48,16 +51,32 @@ $string['nrviews'] = 'Views';
 $string['viewcourse'] = 'View course'; 
 $string['courseend'] = 'End'; 
 $string['coursestart'] = 'Start'; 
-$string['price'] = 'Price'; 
+$string['price'] = 'Price';
+$string['currency'] = 'Currency';
 $string['availableseats'] = 'Seats'; 
 $string['nrparticipants'] = 'Enrolled'; 
 $string['coursedates'] = 'Course dates';
 $string['youareenrolled'] = 'You are enrolled'; 
 $string['expiredenrolment'] = 'Enrolment ended'; 
-$string['addtowaitinglist'] = 'Sign me up on the waiting list'; 
-$string['enrol_waitinglist_title'] = 'Waiting list terms title';
-$string['enrol_waitinglist_contents'] = 'Waiting list terms contents';
-$string['enrol_waitinglist_tos'] = 'Waiting list TOS';
+$string['addtowaitinglist'] = 'Sign me up on the waiting list';
+$string['enrol_meta_wait_list_explain'] = 'There are no dates planned for this course at the moment. If you are interested in participating in the course, then please sign up for the waiting list.
+When a date has been scheduled, you will automatically be signed up for the course and receive an e-mail confirming this.
+
+';
+//$string['enrol_waitinglist_title'] = 'Waiting list terms title';
+//$string['enrol_waitinglist_contents'] = 'Waiting list terms contents';
+//$string['enrol_waitinglist_tos'] = 'Waiting list TOS';
+$string['enrol_waitinglist_title'] = 'Waiting list sign up';
+$string['enrol_waitinglist_contents'] = 'Registration requires an accept from your manager. Please tick the box below to confirm that you have this accept.
+
+You are signing up for a waiting list, and you will automatically be contacted if a seat becomes available.';
+$string['enrol_waitinglist_tos'] = 'I have an accept';
+$string['enrol_meta_waitinglist_title'] = 'Waiting list sign up';
+$string['enrol_meta_waitinglist_contents'] = 'Registration requires an accept from your manager. Please tick the box below to confirm that you have this accept.
+
+You are signing up for a waiting list, when a date has been scheduled, you will automatically be signed up for the course and receive an e-mail confirming this.';
+$string['enrol_meta_waitinglist_tos'] = 'I have an accept';
+$string['unpublish_date'] = 'Unpublish date';
 
 $string['tostitle'] = 'Terms of agreement'; 
 $string['tosaccept'] = 'I accept the terms of agreement'; 
@@ -101,6 +120,18 @@ Best regards
 {$a->coordinator}
 ';
 
+$string['emailelearnconf'] = '
+Dear {$a->firstname} {$a->lastname},
+ 
+We hereby confirm that you have been signed up for the e-Learning:
+Title: {$a->course}
+
+To cancel your participation please follow the link to {$a->myhome}
+
+Best regards
+{$a->coordinator}
+';
+
 //Enrolment email
 $string['emailwait'] = '
 Dear {$a->firstname} {$a->lastname},
@@ -111,6 +142,19 @@ Title: {$a->course}
 Dates: {$a->periodfrom} - {$a->periodto}
 
 When a seat becomes available you will automatically be signed up for the course and you will receive an email confirming this.
+
+Best regards
+{$a->coordinator}
+';
+
+$string['emailmetawait'] = '
+Dear {$a->firstname} {$a->lastname},
+ 
+We hereby confirm that you have been added to a waiting list.
+
+Title: {$a->course}
+
+When a date has been scheduled, you will automatically be signed up for the course and receive an e-mail confirming this.
 
 Best regards
 {$a->coordinator}
@@ -131,6 +175,16 @@ Best regards
 {$a->coordinator}
 ';
 
+$string['emailunenrolelearnconf'] = '
+Dear {$a->firstname} {$a->lastname},
+ 
+We have recieved your cancellation for the e-Learning:
+Title: {$a->course}
+
+Best regards
+{$a->coordinator}
+';
+
 $string['emailunenrolwaitconf'] = '
 Dear {$a->firstname} {$a->lastname},
 
@@ -138,6 +192,15 @@ We have received your cancellation from the waiting list for:
 Title: {$a->course}
 Dates: {$a->periodfrom} - {$a->periodto}
 Price: {$a->currency} {$a->price} - If no amount is stated there is no fee. (Except for language courses in Danish)
+
+Best regards
+{$a->coordinator}
+';
+$string['emailunenrolmetawaitconf'] = '
+Dear {$a->firstname} {$a->lastname},
+
+We have received your cancellation from the waiting list for:
+Title: {$a->course}
 
 Best regards
 {$a->coordinator}
@@ -163,6 +226,9 @@ $string['customemail_help'] = 'Do you want the user to receive a custom "Welcome
 $string['unpublishdate'] = 'Unpublish date'; 
 $string['unpublishdate_help'] = 'When do you want the course not to be shown to student anymore?'; 
 
+$string['nodates_enabled'] = 'No dates';
+$string['nodates_enabled_help'] = 'When selected users can enrol meta course before any date course has been planned. When sufficient participants have enroled a date course can be scheduled, and participants can be enrolled to the date course from the meta course waiting list.';
+
 $string['timezone'] = 'Timezone?';
 $string['timezone_help'] = 'The timezone for the place where the course is held. Remember to account for daylight saving time (DST). For example if the course is held in Denmark (timezone = +1), and DST is active, you have to select +2, since DST adds one hour.';
 
@@ -170,6 +236,35 @@ $string['elearning'] = 'Elearning';
 $string['elearning_help'] = 'Elearning courses are course which the student attends wholly online - they do not have an attached date, since users can access them at any time.';
 
 $string['goto_course'] = 'Go to e-learning course';
+
+$string['date_course_realunpublishdate'] = 'Unpublish date';
+$string['date_course_realunpublishdate_help'] = 'Not mandatory. When used, the course will not be visible after the specified date/time.';
+
+$string['manual_enrol'] = 'Manual enrolment';
+$string['manual_enrol_help'] = 'When selected automatic enrolment is not enabled from the waiting list. Instead the coordinater should enrol from the waiting list.';
+
 $string['elearning_course'] = 'E-learning course';
 
 $string['no_limit'] = 'No limit';
+
+$string['course_details_updated_subject'] = 'Course details updated for the course {$a}';
+$string['course_details_updated_body'] = '
+Dear {$a->firstname} {$a->lastname},
+
+Please notice, that the {$a->changes_summary} for the course {$a->coursename} has been updated. {$a->changes}
+
+Your Outlook invite has automatically been updated, so no actions are required from you. This e-mail was just to inform you about the changes.
+If you have any questions, please let me know.
+
+Best regards,
+{$a->coordinator}';
+
+$string['course_details_updated_location'] = 'the location has changed from {$a->old} to {$a->new}';
+$string['course_details_updated_time'] = 'the {$a->name} has been changed from {$a->old} to {$a->new}';
+
+$string['startdate'] = 'start time';
+$string['enddate'] = 'end time';
+
+$string['error_full_booked'] = 'The course is full booked. User could not be enrolled.';
+
+$string['meta_coodinator_required'] = 'Required when enrolment to meta course waiting list is selected';

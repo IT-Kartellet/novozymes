@@ -70,7 +70,6 @@ if ($id == -1) {
 		  		$dc->lang = $course['language'];
 		  		$dc->price = $course['price'];
 		  		$dc->total_places = $course['places'];
-		  		$dc->free_places = $course['places'];
 		  		$dc->open = 1;
 		  		$dc->timemodified = time();
 		  		$datecourseid = $DB->insert_record('meta_datecourse', $dc);
