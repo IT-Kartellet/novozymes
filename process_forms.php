@@ -271,7 +271,7 @@ foreach ($datecourses as $key => $course) {
 
 			$lib = new enrol_manual_pluginITK();
 			foreach ($enrolled_users as $user) {
-				$lib->send_course_updated_email($user, $dc, $existing_datecourse, $changes);
+				//$lib->send_course_updated_email($user, $dc, $existing_datecourse, $changes);
 			}
 		}
 
