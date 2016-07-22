@@ -12,6 +12,7 @@ $PAGE->set_context(context_system::instance());
 $courseid = required_param("courseid", PARAM_INT);
 $userid = required_param("userid", PARAM_INT);
 $nodates = optional_param("nodates", 0, PARAM_INT);
+$redirect = optional_param("redirect", "", PARAM_TEXT);
 
 $enrol = new enrol_manual_pluginITK();
 $user = $DB->get_record("user", array("id"=>$userid), '*', MUST_EXIST);
@@ -68,7 +69,10 @@ if ($nodates==0 && ($datecourse->elearning || ($total_places > $busy_places && c
 	if (is_user_enrolled($userid, $courseid)) {
 		$enrol->send_confirmation_email($user, $courseid);
 		add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "$userid successfully enrolled");
-		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$datecourse->metaid}"), "You've been signed up", 5);
+		if ($redirect=="elearn")
+			redirect(new moodle_url($CFG->wwwroot."/course/view.php?id={$datecourse->courseid}"), "You've been signed up", 5);
+		else
+			redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$datecourse->metaid}"), "You've been signed up", 5);
 	} else {
 		add_to_log($courseid, 'block_metacourse', 'add enrolment', 'blocks/metacourse/enrol_into_course.php', "Tried to enrol $userid into course $courseid, but somehow that failed");
 		redirect(new moodle_url($CFG->wwwroot."/blocks/metacourse/view_metacourse.php?id={$datecourse->metaid}"), "There was problem with your signup", 5);

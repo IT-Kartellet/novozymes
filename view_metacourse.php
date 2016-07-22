@@ -292,14 +292,21 @@ if ($metacourse) {
 		if(is_null($datecourse->courseid)){
 			continue; // For some reason this datecourse is not assigned to a moodle course
 		}
+		
 		// get coordinator
 		$cor = $DB->get_records_sql("SELECT username FROM {user} where id = :id", array("id"=>$datecourse->coordinator));
 		$cor = reset($cor);
+		
+		// get user relations to course
+		list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($datecourse->courseid, false);
 
 		$row = array();
 		
 		if (!empty($datecourse->elearning) && (is_user_enrolled($USER->id, $datecourse->courseid) || $isTeacher)) {
-			$cell = new html_table_cell(html_writer::link(new moodle_url('/course/view.php', array('id' => $datecourse->courseid)), get_string('goto_course', 'block_metacourse')));
+			if (array_key_exists($USER->id, $waiting_users) || array_key_exists($USER->id, $enrolled_users))
+				$cell = new html_table_cell(html_writer::link(new moodle_url('/course/view.php', array('id' => $datecourse->courseid)), get_string('goto_course', 'block_metacourse')));
+			else
+				$cell = new html_table_cell(html_writer::link(new moodle_url('/blocks/metacourse/enrol_into_course.php', array("courseid"=>$datecourse->courseid, "userid"=>$USER->id, "redirect"=>"elearn")), get_string('goto_course', 'block_metacourse')));
 			$cell->colspan = 2;
 			$row[] = $cell;
 		} else {
@@ -343,8 +350,6 @@ if ($metacourse) {
 		}
 		$row[] = $coordinator;
 		$total_places =$datecourse->total_places;
-
-		list($enrolled_users, $not_enrolled_users, $waiting_users) = get_datecourse_users($datecourse->courseid, false);
 
 		$busy_places = count($enrolled_users);
 
