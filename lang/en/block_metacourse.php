@@ -30,7 +30,9 @@ $string['competence'] = 'Competence';
 $string['listofcourses'] = "List of all courses";
 $string['coursesfor'] = "Courses for";
 $string['countries'] = "Countries";
-$string['published'] = 'Published'; 
+$string['published'] = 'Published';
+
+$string['print'] = 'Print'; 
 
 // need translation
 

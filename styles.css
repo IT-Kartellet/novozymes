@@ -1318,9 +1318,16 @@ disabled look for disabled choices in the results dropdown
 
 @media print
 {
-  .block_navigation, .block_settings, #page-footer, #view_date_table, #meta_wrapper #course_header, ul.nav {
+  .block_navigation, .block_settings, .metacourse_print, #page-footer, #view_date_table, #meta_wrapper #course_header, ul.nav {
     display: none;
   }
+}
+
+@media print
+{
+	.no_print {
+		display: none !important;
+	}
 }
 
 .paginate_disabled_previous, .paginate_disabled_next {

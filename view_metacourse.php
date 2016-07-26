@@ -241,7 +241,13 @@ if ($metacourse) {
 				$enrolMe->class = 'addToMetaWaitingList';
 				$enrolMe->tooltip = get_string("addtowaitinglist", "block_metacourse");
 			}
-			$table->data[] = array(get_string('signupwait', 'block_metacourse'), text_to_html(get_string('enrol_meta_wait_list_explain', 'block_metacourse')) . $OUTPUT->render($enrolMe));
+			$row = new html_table_row(array(get_string('signupwait', 'block_metacourse'), text_to_html(get_string('enrol_meta_wait_list_explain', 'block_metacourse')) . $OUTPUT->render($enrolMe)));
+			//foreach ($row->cells as $key => $cell) {
+			//	$cell->attributes['class'] = 'no_print';
+			//}
+			$row->attributes['class'] = 'no_print';
+			//$table->data[] = array(get_string('signupwait', 'block_metacourse'), text_to_html(get_string('enrol_meta_wait_list_explain', 'block_metacourse')) . $OUTPUT->render($enrolMe));
+			$table->data[] = $row;
 		}
 	}
 
@@ -418,6 +424,9 @@ if ($metacourse) {
 		}
 	}
 	echo html_writer::table($date_table);
+	
+	//echo html_writer::tag('a', get_string('coursedates','block_metacourse'), array('id' => 'course_header', 'class' => 'main'));
+	echo html_writer::tag('a', '<img title="'.get_string('print','block_metacourse').'" src="'.$CFG->wwwroot.'/blocks/metacourse/pix/print.png"> '.get_string('print','block_metacourse'), array('class' => 'metacourse_print', 'href' => 'javascript: window.print()'));
 
 	echo html_writer::end_tag('div');
 
