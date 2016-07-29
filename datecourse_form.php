@@ -58,8 +58,7 @@ class datecourse_form extends moodleform {
         $currencies = array_map(function($curr){
             return $curr->currency;
         }, $currencies);
-
-        $coordinators = get_available_coordinators();
+        $coordinators = get_available_coordinators($this->_customdata['meta']['meta_provider']);
 
         $mform->addElement('header', 'header_courses', 'COURSES');
         $mform->addElement('html',"<div id='wrapper'>");

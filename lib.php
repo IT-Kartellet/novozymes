@@ -1347,15 +1347,23 @@ function get_datecourse_users($courseid, $includeMeta = true){
   return array($enrolled_users, $not_enrolled_users, $waiting_users);
 }
 
-function get_available_coordinators() {
+function get_available_coordinators($provider = null) {
   global $DB;
-
-  $coordinators = $DB->get_records_sql("
-    select distinct u.id, u.username, u.`firstname`, u.lastname, u.email
-    from {user} u
-    where u.id <> 1 and u.deleted <> 1 and u.suspended <> 1 AND u.email <> '' AND u.firstname <> ''
-    ORDER BY username ASC
- ");
+  
+  if ($provider===null)
+	  $coordinators = $DB->get_records_sql("
+		select distinct u.id, u.username, u.`firstname`, u.lastname, u.email
+		from {user} u
+		where u.id <> 1 and u.deleted <> 1 and u.suspended <> 1 AND u.email <> '' AND u.firstname <> ''
+		ORDER BY username ASC
+	  ");
+  else
+	  $coordinators = $DB->get_records_sql("
+		select distinct u.id, u.username, u.`firstname`, u.lastname, u.email
+		from {user} u inner join {role_assignments} a on u.id = a.userid inner join {meta_providers} p on a.roleid = p.role
+		where u.id <> 1 and u.deleted <> 1 and u.suspended <> 1 AND u.email <> '' AND u.firstname <> '' and p.id = :provider
+		ORDER BY username ASC
+	  ", array('provider' => $provider));
 
   return array_map(function ($arg){
     return strtoupper($arg->username) . " - " . $arg->firstname . " " . $arg->lastname;
