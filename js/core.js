@@ -61,7 +61,7 @@
 	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 	function AddDateCourse() {
 		//used to duplicate the datecourses;
-		var course = $("div.template").first().clone(true, true);
+		var course = $("div.template").last().clone(true, true);
 		course.css("display","");
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
@@ -98,11 +98,11 @@
 		var mm = today.getMonth()+1;
 		var yyyy = today.getFullYear();
 
-		victim.find("select[name*='minute']").val(m);
-		victim.find("select[name*='hour']").val(h);
-		victim.find("select[name*='day']").val(dd);
-		victim.find("select[name*='month']").val(mm);
-		victim.find("select[name*='year']").val(yyyy);
+		//victim.find("select[name*='minute']").val(m);
+		//victim.find("select[name*='hour']").val(h);
+		//victim.find("select[name*='day']").val(dd);
+		//victim.find("select[name*='month']").val(mm);
+		//victim.find("select[name*='year']").val(yyyy);
 
 		M.block_metacourse.dateform.init();
 	}
