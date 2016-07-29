@@ -61,7 +61,7 @@
 	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 	function AddDateCourse() {
 		//used to duplicate the datecourses;
-		var course = $("div.template").last().clone(true, true);
+		var course = $("div.template").first().clone(true, true);
 		course.css("display","");
 		$("#wrapper").append(course);
 		var victim = $(".template").last();
