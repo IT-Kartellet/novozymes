@@ -281,6 +281,10 @@ if ($metacourse) {
 		$isPublished = ($datecourse->realunpublishdate == null || $datecourse->realunpublishdate > time());
 		$isCoordinator = ($USER->id == $datecourse->coordinator ||$USER->id == $meta_coordinator || is_siteadmin($USER));
 		
+		if (!$isPublished) {
+			continue;
+		}
+		
 		if (!$isPublished && !$isCoordinator) {
 			continue;
 		}
@@ -392,7 +396,7 @@ if ($metacourse) {
 		}
 
 		// check if the enrolment is expired
-		if ($datecourse->unpublishdate < time() && $datecourse->unpublishdate != 0) {
+		if (!$isPublished || ($datecourse->unpublishdate < time() && $datecourse->unpublishdate != 0)) {
 			$enrolMe->disabled = true;
 			$enrolOthers->disabled = true;
 		}
