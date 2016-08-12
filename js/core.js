@@ -60,6 +60,7 @@
 
 	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 	function AddDateCourse() {
+		
 		//used to duplicate the datecourses;
 		var course = $("div.template").last().clone(true, true);
 		course.css("display","");
@@ -73,6 +74,7 @@
 		if ($('[name="meta_currencyid"]').val()!='0') victim.find("select[name*='currency']").val($('[name="meta_currencyid"]').val());
 		victim.find("input[name*='price']").val($('[name="meta_price"]').val());
 
+		
 		// Get all input elements"
 		var elements = victim.find("select, input:not(#removeDateCourse)");
 
@@ -108,7 +110,7 @@
 	}
 	
 	$(document).ready(function() {
-		if ($("div.template").length < 2 && $('[name="nodates"]').val()!='1') AddDateCourse();
+		//if ($("div.template").length < 2 && $('[name="nodates"]').val()!='1') AddDateCourse();
 	});
 	$(document.body).on("click","#addDateCourse",function(){
 		AddDateCourse();

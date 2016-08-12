@@ -58,7 +58,7 @@ class datecourse_form extends moodleform {
         $currencies = array_map(function($curr){
             return $curr->currency;
         }, $currencies);
-        $coordinators = get_available_coordinators($this->_customdata['meta']['meta_provider']);
+        $coordinators = get_available_coordinators($this->_customdata['meta']['meta_provider'], $this->_customdata['meta']['meta_id'], $this->_customdata['meta']['meta_coordinator']);
 
         $mform->addElement('header', 'header_courses', 'COURSES');
         $mform->addElement('html',"<div id='wrapper'>");
@@ -67,10 +67,11 @@ class datecourse_form extends moodleform {
 		
 		// The data here is keyed by course id, reset it to zero based for easy indexing while we iterate
 		@$data = array_values($this->_customdata['data']);
-		while($key <= $numberOfDates) {
-			
+		
+		//while($key <= $numberOfDates) {
+		while($key <= ($this->_customdata['meta']['meta_nodates_enabled']==1 || $numberOfDates > 0 ? $numberOfDates : $numberOfDates + 1)) {
 			// $key = 0 is the template used to create new date courses.
-			if ($key==0) @$course_data = null;
+			if ($key==0 || $numberOfDates==0) @$course_data = null;
 			else @$course_data = $data[$key-1];
             
 			if (isset($course_data->timezone)) {
@@ -158,6 +159,7 @@ class datecourse_form extends moodleform {
 		$awesomeData = new stdClass();
 		$awesomeData->{'datecourse[0][price]'} = 0;
 		$awesomeData->{'datecourse[0][places]'} = 0;
+		$awesomeData->{'datecourse[0][coordinator]'} = $this->_customdata['meta']['meta_coordinator'];
         if (@$data = $this->_customdata['data']) {		
 
             $horribleCounter = 1; // he doesn't eat his vegetables
@@ -182,7 +184,6 @@ class datecourse_form extends moodleform {
                 $awesomeData->{'datecourse['. $horribleCounter .'][currency]'} = $dc->currencyid;
                 $awesomeData->{'datecourse['. $horribleCounter .'][places]'} = $dc->total_places;
                 $awesomeData->{'datecourse['. $horribleCounter .'][coordinator]'} = $dc->coordinator;
-				//var_dump($awesomeData->{'datecourse['. $horribleCounter .'][timeend]'});
 
                 $horribleCounter++;
             }
@@ -190,6 +191,11 @@ class datecourse_form extends moodleform {
 
             //$this->set_data($awesomeData);
         } else {
+			if ($this->_customdata['meta']['meta_nodates_enabled']!==1) {
+				$awesomeData->{'datecourse[1][price]'} = 0;
+				$awesomeData->{'datecourse[1][places]'} = 0;
+				$awesomeData->{'datecourse[1][coordinator]'} = $this->_customdata['meta']['meta_coordinator'];
+			}
             //$this->set_data(null);
         }
 		$this->set_data($awesomeData);
