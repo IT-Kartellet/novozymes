@@ -74,10 +74,8 @@
 		if ($('[name="meta_currencyid"]').val()!='0') victim.find("select[name*='currency']").val($('[name="meta_currencyid"]').val());
 		victim.find("input[name*='price']").val($('[name="meta_price"]').val());
 
-		
 		// Get all input elements"
 		var elements = victim.find("select, input:not(#removeDateCourse)");
-
 		$.each(elements, function(ix, element) {
 			$label = $('label[for="' + element.id + '"]', victim); // make sure the correct element is focused when clicking the label
 			$label.attr('for', $label.attr('for').replace(/\d+/, index));
@@ -88,9 +86,20 @@
 			$wrapper = $(element).closest('.fitem'); // And the id of the wrapper
 			$wrapper[0].id = $wrapper[0].id.replace(/\d+/, index);
 		});
-
+		
+		// Get all calendar buttons
+		var elements = victim.find("a[name*='[calendar]']");
+		$.each(elements, function(ix, element) {
+			element.name = element.name.replace(/\d+/, index);
+		});
+		
+		// Get all elements with yui id
+		var elements = victim.find("[id*='yui']");
+		$.each(elements, function(ix, element) {
+			element.id = "";
+		});
+		
 		victim.find('#removeDateCourse').attr('class', 'none');
-
 		// update dates
 		var today = new Date();
 
@@ -105,8 +114,15 @@
 		//victim.find("select[name*='day']").val(dd);
 		//victim.find("select[name*='month']").val(mm);
 		//victim.find("select[name*='year']").val(yyyy);
-
 		M.block_metacourse.dateform.init();
+		M.form.dateselector.init_date_selectors({"firstdayofweek":"0","mon":"Mon","tue":"Tue","wed":"Wed","thu":"Thu","fri":"Fri","sat":"Sat","sun":"Sun","january":"January","february":"February","march":"March","april":"April","may":"May","june":"June","july":"July","august":"August","september":"September","october":"October","november":"November","december":"December"});
+		//M.block_navigation.init_add_tree({"id":"4","instance":"4","candock":false,"courselimit":"20","expansionlimit":0});
+		//M.block_navigation.init_add_tree({"id":"5","instance":"5","candock":false});
+		//M.core.init_popuphelp();
+		//M.util.help_popups.setup(Y);
+		//M.core.init_popuphelp();
+		//M.core_formchangechecker.init({"formid":"mform2"});
+		//M.form.shortforms({"formid":"mform2"});
 	}
 	
 	$(document).ready(function() {
@@ -540,7 +556,6 @@
 	//template
 	$("#saveTemplate").one("click",function(e){
 		e.preventDefault();
-		console.log("CLICK");
 		var courseName           = $("#id_name").val();
 		var courseLocalName      = $("#id_localname").val();
 		var courseLocalNameLang  = $("#id_localname_lang").find(":selected").val();
@@ -594,7 +609,7 @@
 				//     $("select[name='providers']").append($("<option value= '" + v.id + "'>" + v.provider + "</option>"));
 				// });
 				//console.log(e);
-				alert(e);
+				//alert(e);
 			},
 			error : function(err){
 				alert(err);
