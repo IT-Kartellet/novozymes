@@ -114,15 +114,27 @@
 		//victim.find("select[name*='day']").val(dd);
 		//victim.find("select[name*='month']").val(mm);
 		//victim.find("select[name*='year']").val(yyyy);
+		
 		M.block_metacourse.dateform.init();
 		M.form.dateselector.init_date_selectors({"firstdayofweek":"0","mon":"Mon","tue":"Tue","wed":"Wed","thu":"Thu","fri":"Fri","sat":"Sat","sun":"Sun","january":"January","february":"February","march":"March","april":"April","may":"May","june":"June","july":"July","august":"August","september":"September","october":"October","november":"November","december":"December"});
-		//M.block_navigation.init_add_tree({"id":"4","instance":"4","candock":false,"courselimit":"20","expansionlimit":0});
-		//M.block_navigation.init_add_tree({"id":"5","instance":"5","candock":false});
-		//M.core.init_popuphelp();
-		//M.util.help_popups.setup(Y);
-		//M.core.init_popuphelp();
-		//M.core_formchangechecker.init({"formid":"mform2"});
-		//M.form.shortforms({"formid":"mform2"});
+		
+		/*
+		M.util.load_flowplayer();
+		setTimeout("fix_column_widths()", 20);
+		M.block_metacourse.dateform.init();
+		M.block_metacourse.metacourse_form.init();
+		M.form.dateselector.init_date_selectors({"firstdayofweek":"0","mon":"Mon","tue":"Tue","wed":"Wed","thu":"Thu","fri":"Fri","sat":"Sat","sun":"Sun","january":"January","february":"February","march":"March","april":"April","may":"May","june":"June","july":"July","august":"August","september":"September","october":"October","november":"November","december":"December"});
+		M.block_navigation.init_add_tree({"id":"4","instance":"4","candock":false,"courselimit":"20","expansionlimit":0});
+		M.block_navigation.init_add_tree({"id":"5","instance":"5","candock":false});
+		M.util.help_popups.setup(Y);
+		M.core.init_popuphelp();
+		M.util.init_block_hider(Y, {"id":"inst4","title":"Navigation","preference":"block4hidden","tooltipVisible":"Hide Navigation block","tooltipHidden":"Show Navigation block"});
+		M.util.init_block_hider(Y, {"id":"inst5","title":"Administration","preference":"block5hidden","tooltipVisible":"Hide Administration block","tooltipHidden":"Show Administration block"});
+		M.core_formchangechecker.init({"formid":"mform2"});
+		M.form.shortforms({"formid":"mform2"});
+		M.util.js_pending('random57ac4e36c8e964'); Y.on('domready', function() {  M.util.js_pending('random57ac4e36c8e964'); Y.use('mform', function(Y) { M.form.initFormDependencies(Y, "mform2", {"datecourse[0][realunpublishdate][enabled]":{"notchecked":{"1":["datecourse[0][realunpublishdate][day]","datecourse[0][realunpublishdate][month]","datecourse[0][realunpublishdate][year]","datecourse[0][realunpublishdate][hour]","datecourse[0][realunpublishdate][minute]","datecourse[0][realunpublishdate][calendar]"]}},"datecourse[1][realunpublishdate][enabled]":{"notchecked":{"1":["datecourse[1][realunpublishdate][day]","datecourse[1][realunpublishdate][month]","datecourse[1][realunpublishdate][year]","datecourse[1][realunpublishdate][hour]","datecourse[1][realunpublishdate][minute]","datecourse[1][realunpublishdate][calendar]"]}},"datecourse[2][realunpublishdate][enabled]":{"notchecked":{"1":["datecourse[2][realunpublishdate][day]","datecourse[2][realunpublishdate][month]","datecourse[2][realunpublishdate][year]","datecourse[2][realunpublishdate][hour]","datecourse[2][realunpublishdate][minute]","datecourse[2][realunpublishdate][calendar]"]}},"datecourse[3][realunpublishdate][enabled]":{"notchecked":{"1":["datecourse[3][realunpublishdate][day]","datecourse[3][realunpublishdate][month]","datecourse[3][realunpublishdate][year]","datecourse[3][realunpublishdate][hour]","datecourse[3][realunpublishdate][minute]","datecourse[3][realunpublishdate][calendar]"]}},"datecourse[4][realunpublishdate][enabled]":{"notchecked":{"1":["datecourse[4][realunpublishdate][day]","datecourse[4][realunpublishdate][month]","datecourse[4][realunpublishdate][year]","datecourse[4][realunpublishdate][hour]","datecourse[4][realunpublishdate][minute]","datecourse[4][realunpublishdate][calendar]"]}},"datecourse[5][realunpublishdate][enabled]":{"notchecked":{"1":["datecourse[5][realunpublishdate][day]","datecourse[5][realunpublishdate][month]","datecourse[5][realunpublishdate][year]","datecourse[5][realunpublishdate][hour]","datecourse[5][realunpublishdate][minute]","datecourse[5][realunpublishdate][calendar]"]}}});  M.util.js_complete('random57ac4e36c8e964'); });  M.util.js_complete('random57ac4e36c8e964'); });
+		M.util.js_pending('random57ac4e36c8e965'); Y.on('domready', function() { M.util.js_complete("init");  M.util.js_complete('random57ac4e36c8e965'); });
+		*/
 	}
 	
 	$(document).ready(function() {

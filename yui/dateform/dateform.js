@@ -3,11 +3,19 @@ YUI.add('moodle-block_metacourse-dateform', function(Y) {
 
     M.block_metacourse.dateform = {
         init: function (settings) {
+			
+			//  Handle elearning checkbox (enable/disable dependent fields)
             var nodes = Y.all('input.elearning');
-
             nodes.each(this.handleChecked);
             nodes.on('change', function (e) {
                 this.handleChecked(e.currentTarget);
+            }.bind(this));
+			
+			// Handle enable/disable checkbox for optional date fields. For some reason needed when adding new date courses, for existing date courses yui initialization works fine.
+			var nodes = Y.all('input[name*="[enabled]"');
+            //nodes.each(this.handleEnableDisable);
+            nodes.on('change', function (e) {
+                this.handleEnableDisable(e.currentTarget);
             }.bind(this));
         },
 
@@ -27,8 +35,13 @@ YUI.add('moodle-block_metacourse-dateform', function(Y) {
                     element.set('value', -1);
                 }
             });
-
-        }
+        },
+		
+		handleEnableDisable: function (target) {
+			$(target._node.parentNode.parentNode).find('select').each(function (key, fld) {
+				fld.disabled = !target._node.checked;
+			});
+		}
     }
 }, '@VERSION@', {
     requires: []
