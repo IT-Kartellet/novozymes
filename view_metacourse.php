@@ -276,7 +276,19 @@ if ($metacourse) {
 								get_string('signup', 'block_metacourse')
 							);
 	
+	$lastYr = "0000";
+	$currentYr = date("Y");
 	foreach ($datecourses as $key => $datecourse) {
+		
+		$yr = (new DateTime(null))->setTimestamp($datecourse->startdate)->format("Y");
+		if (empty($datecourse->elearning) && $lastYr!=$yr && $yr<$currentYr) {
+			$row = array();
+			$cell = new html_table_cell(html_writer::link('#', $yr, array('class' => 'year_link_collapsed', 'data-year' => $yr)));
+			$cell->colspan = 9;
+			$row[] = $cell;
+			$date_table->data[] = $row;
+			$lastYr = $yr;
+		}
 		
 		$isPublished = ($datecourse->realunpublishdate == null || $datecourse->realunpublishdate > time());
 		$isCoordinator = ($USER->id == $datecourse->coordinator ||$USER->id == $meta_coordinator || is_siteadmin($USER));
@@ -421,10 +433,16 @@ if ($metacourse) {
 
 		$row[] = $action;
 
+		$row = new html_table_row($row);
+		if (empty($datecourse->elearning) && $yr<$currentYr) $row->attributes['class'] = 'hidden yr' . $yr;
+		
 		$date_table->data[] = $row;
 
 		if ($datecourse->remarks) {
-			$date_table->data[] = array($datecourse->remarks, "","","","","","","","");
+			//$date_table->data[] = array($datecourse->remarks, "","","","","","","","");
+			$row = new html_table_row(array($datecourse->remarks, "","","","","","","",""));
+			if (empty($datecourse->elearning) && $yr<$currentYr) $row->attributes['class'] = 'hidden yr' . $yr;
+			$date_table->data[] = $row;
 		}
 	}
 	echo html_writer::table($date_table);
@@ -436,6 +454,24 @@ if ($metacourse) {
 
 	$tos = $DB->get_records_sql("SELECT * FROM {meta_tos}");
 	$tos = reset($tos);
+	
+	//$timezones = DateTimeZone::listIdentifiers();
+	//var_dump($timezones);
+	//$tzUTC = new DateTimeZone("UTC");
+	//$tzDK = new DateTimeZone("Europe/Copenhagen");
+	//$tzFR = new DateTimeZone("America/New_York");
+	//$tm1 = new DateTime('2016-01-01', $tzUTC);
+	//$tm2 = new DateTime('2016-12-31', $tzUTC);
+	//var_dump($tzDK->getTransitions($tm1->getTimestamp(), $tm2->getTimestamp()));
+	//var_dump('<br>');
+	//var_dump($tzFR->getTransitions($tm1->getTimestamp(), $tm2->getTimestamp()));
+	//var_dump('<br>');
+	//for ($i=1; $i<13; $i++) {
+	//	$tm = new DateTime('2016-'.$i.'-01', $tzUTC);
+	//	var_dump($tzDK->getOffset($tm));
+	//}
+	
+	
 
 ?>
 <div id='lean_background'>

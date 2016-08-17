@@ -34,6 +34,16 @@ function format_tz_offset($offset) {
 }
 
 function format_date_with_tz($timestamp, $offset, $asString = true) {
+	
+	$offset = format_tz_offset($offset);
+	$tz = new DateTimeZone("UTC");
+	$tm = new DateTime(null, $tz);
+	$tm->setTimestamp($timestamp + 3600 * $offset);
+	if ($asString) {
+		$tm = $tm->format("d M Y - h:i A");
+	}
+	return $tm;
+	
   $oldtimezone = date_default_timezone_get();
 
   $offset = format_tz_offset($offset);

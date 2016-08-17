@@ -9,6 +9,7 @@ require_login();
 // require_capability('moodle/course:create', context_system::instance());
 
 $newLocation    = optional_param("newLocation", "",PARAM_TEXT);
+$newLocationTZ    = optional_param("newLocationTZ", "",PARAM_TEXT);
 $newTarget    = optional_param("newTarget", "",PARAM_TEXT);
 $getLocations   = optional_param("getLocations",0, PARAM_INT);
 $getProviders   = optional_param("getProviders",0, PARAM_INT);
@@ -16,6 +17,7 @@ $deleteLocation = optional_param("deleteLocation", 0, PARAM_INT);
 $renameLocationID = optional_param("renameLocationID", 0, PARAM_INT);
 $renameProviderID = optional_param("renameProviderID", 0, PARAM_INT);
 $renameLocationText = optional_param("renameLocationText", "", PARAM_TEXT);
+$changeLocationTZ = optional_param("changeLocationTZ", "", PARAM_TEXT);
 $renameProviderText = optional_param("renameProviderText", "", PARAM_TEXT);
 $newProvider    = optional_param("newProvider", "", PARAM_TEXT);
 $deleteProvider = optional_param("deleteProvider", 0, PARAM_INT);
@@ -220,9 +222,10 @@ if ($removeAllow != 0) {
 	}
 }
 
-if ($newLocation) {
+if ($newLocation && $newLocationTZ) {
 	$loc = new stdClass();
 	$loc->location = $newLocation;
+	$loc->timezonename = $newLocationTZ == '-- UNDEFINED --' ? null : $newLocationTZ;
 	$loc->active = 1;
 
 	$loc_id = $DB->insert_record("meta_locations", $loc);
@@ -233,10 +236,12 @@ if ($newLocation) {
 
 }
 
-if ($renameLocationID && $renameLocationText) {
+if ($renameLocationID && $renameLocationText && $changeLocationTZ) {
 	
-	$loc_id = $DB->set_field('meta_locations', 'location', $renameLocationText, array('id'=>$renameLocationID));
-	$loc = $DB->set_field('meta_locations', 'location', $renameLocationText, array('id' => $renameLocationID));
+	//$loc_id = $DB->set_field('meta_locations', 'location', $renameLocationText, array('id'=>$renameLocationID));
+	//$loc = $DB->set_field('meta_locations', 'location', $renameLocationText, array('id' => $renameLocationID));
+	$DB->set_field('meta_locations', 'location', $renameLocationText, array('id' => $renameLocationID));
+	$DB->set_field('meta_locations', 'timezonename', $changeLocationTZ == '-- UNDEFINED --' ? null : $changeLocationTZ, array('id' => $renameLocationID));
 	$locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");
 
 	echo json_encode($locations);

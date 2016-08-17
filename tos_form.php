@@ -23,12 +23,18 @@ class tos_form extends moodleform {
         //LOCATIONS
         $locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");      
         $locations = array_map(function ($arg){
-                return $arg->location;
+				if ($arg->timezonename===null) return $arg->location;
+                else return $arg->location . ' | ' . $arg->timezonename;
             }, $locations);
+		$tmzones = DateTimeZone::listIdentifiers();
+		$timezones = array();
+		$timezones['-- UNDEFINED --'] = '-- UNDEFINED --';
+		foreach ($tmzones as $tz) $timezones[$tz] = $tz;
 
         $mform->addElement('header', 'header_locations', 'Locations');
 
         $mform->addElement('text', 'addLocation', 'New location');
+		$mform->addElement('select', 'addLocationTZ', 'Time zone', $timezones, null);
         $mform->setType('addLocation', PARAM_TEXT);
         $mform->addElement('button', 'addLoc', "Add location");
 
@@ -36,8 +42,9 @@ class tos_form extends moodleform {
         $mform->setType('locations', PARAM_TEXT);
         $mform->addElement('button', 'deleteLoc', "Delete selected location");
         $mform->addElement('text', 'renameLocation', 'Rename selected location');
+		$mform->addElement('select', 'changeLocationTZ', 'Change time zone', $timezones, null);
         $mform->setType('renameLocation', PARAM_TEXT);
-        $mform->addElement('button', 'renameLoc', "Rename");
+        $mform->addElement('button', 'renameLoc', "Update");
 
 
 

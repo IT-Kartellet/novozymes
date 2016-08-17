@@ -57,6 +57,25 @@
 			parent.html(itk_course_template.html());
 		}
 	});
+	
+	$('.year_link_collapsed,.year_link_expanded').on("click", function(e) {
+		e = e||event; 
+        e.preventDefault ? e.preventDefault() : e.returnValue = false;
+		var target = e.target;
+		console.log(e);
+		var yr = target.attributes['data-year'].value;
+		if (target.className=='year_link_collapsed') {
+			$('.yr'+yr).each(function (ix, row) {
+				row.className = row.className.replace('hidden', '').trim();
+			});
+			target.className = 'year_link_expanded';
+		} else {
+			$('.yr'+yr).each(function (ix, row) {
+				row.className = 'hidden '+row.className;
+			});
+			target.className = 'year_link_collapsed';
+		}
+	});
 
 	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 	function AddDateCourse() {
@@ -328,13 +347,16 @@
 	$('input[name="addLoc"]').on('click',function(e){
 		e.preventDefault();
 		var newLoc = $('input[name="addLocation"]').val();
+		var newLocTZ = $('#id_addLocationTZ').val();
+		
 		$('input[name="addLocation"]').val("");
+		$('#id_addLocationTZ').val("-- UNDEFINED --");
 
 		// add the location
 		$.ajax({
 		  type: "POST", 
 		  url: "./api.php",
-		  data: { newLocation: newLoc }
+		  data: { newLocation: newLoc, newLocationTZ: newLocTZ }
 		})
 		  .done(function( msg ) {
 		    if (msg) {
@@ -349,7 +371,7 @@
 						$("select[name='locations'] > option").remove();
 						locations = $.parseJSON(locations);
 						$.each(locations, function(k, v){
-						    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + "</option>"));
+						    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + (v.timezonename === null ? "" : " | " + v.timezonename) + "</option>"));
 						});
 					});
 		    };
@@ -432,7 +454,7 @@
 				$("select[name='locations'] > option").remove();
 				locations = $.parseJSON(locations);
 				$.each(locations, function(k, v){
-				    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + "</option>"));
+				    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + (v.timezonename === null ? "" : " | " + v.timezonename) + "</option>"));
 				});
 			});
 		   
@@ -442,19 +464,21 @@
 		e.preventDefault();
 		var locId = $("select[name='locations']").find(":selected").val();
 		var locText = $("#id_renameLocation").val();
+		var locTZ = $("#id_changeLocationTZ").val();
+		
 		$("#id_renameLocation").val("");
 
 		$.ajax({
 		  type: "POST", 
 		  url: "./api.php",
-		  data: { renameLocationID: locId, renameLocationText: locText }
+		  data: { renameLocationID: locId, renameLocationText: locText, changeLocationTZ: locTZ }
 		})
 			.done(function(locations){
 				// remove all the locations, and draw them again.
 				$("select[name='locations'] > option").remove();
 				locations = $.parseJSON(locations);
 				$.each(locations, function(k, v){
-				    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + "</option>"));
+				    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + (v.timezonename === null ? "" : " | " + v.timezonename) + "</option>"));
 				});
 			});
 		   

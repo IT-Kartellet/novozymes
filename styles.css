@@ -1333,3 +1333,19 @@ disabled look for disabled choices in the results dropdown
 .paginate_disabled_previous, .paginate_disabled_next {
 	display: none;
 }
+
+.hidden {
+	display: none;
+}
+
+.year_link_collapsed {
+	padding: 0 5px 0 20px;
+	background-image: url('/blocks/metacourse/pix/collapsed.svg');
+	background-repeat: no-repeat;
+}
+
+.year_link_expanded {
+	padding: 0 5px 0 20px;
+	background-image: url('/blocks/metacourse/pix/expanded.svg');
+	background-repeat: no-repeat;
+}

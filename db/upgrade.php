@@ -323,6 +323,22 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
 		
 		upgrade_block_savepoint(true, 2016060702, 'metacourse');
 	}
+	
+	if ($oldversion < 2016081702) {
+		$table = new xmldb_table('meta_locations');
+		$field = new xmldb_field('timezonename', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'location');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		
+		$table = new xmldb_table('meta_datecourse');
+		$field = new xmldb_field('timezonename', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'timezone');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		
+		upgrade_block_savepoint(true, 2016081702, 'metacourse');
+	}
 
     return $result;
 }
