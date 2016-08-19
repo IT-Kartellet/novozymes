@@ -1,6 +1,8 @@
 
 <?php
 
+//require_once('../lib.php');
+
 function xmldb_block_metacourse_upgrade($oldversion = 0) {
     global $DB;
     $dbman = $DB->get_manager();
@@ -324,7 +326,7 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
 		upgrade_block_savepoint(true, 2016060702, 'metacourse');
 	}
 	
-	if ($oldversion < 2016081702) {
+	if ($oldversion < 2016081901) {
 		$table = new xmldb_table('meta_locations');
 		$field = new xmldb_field('timezonename', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'location');
 		if (!$dbman->field_exists($table, $field)) {
@@ -337,7 +339,62 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
             $dbman->add_field($table, $field);
         }
 		
-		upgrade_block_savepoint(true, 2016081702, 'metacourse');
+		$DB->set_field('meta_locations', 'timezonename', 'Europe/Copenhagen');
+		
+		upgrade_block_savepoint(true, 2016081901, 'metacourse');
+	}
+	
+	function format_tz_offset($offset) {
+	  if (strstr($offset, ':30')) {
+		// Convert from xx:30 to xx.5 so we can multiply by it
+		// 30 minutes = 0.5 hour. I hope we do something smarter before we have to take :45 offsets into account ...
+		$offset = intval($offset);
+
+		if ($offset >= 0) {
+		  $offset += .5;
+		} else {
+		  $offset -= .5;
+		}
+	  }
+
+	  return $offset;
+	}
+	if ($oldversion < 2016081902) {
+		$rs = $DB->get_records_sql("SELECT c.id, c.timezone, c.startdate, c.enddate, c.location, l.location AS locationname, l.timezonename, c.metaid, c.deleted FROM meta_datecourse AS c left join meta_locations AS l ON c.location = l.id where elearning is null or elearning = 0");
+		foreach ($rs as $key => $rec) {
+			$offs = 3600 * format_tz_offset($rec->timezone);
+			if ($rec->timezonename==null) $tznm = 'Europe/Copenhagen';
+			else $tznm = $rec->timezonename;
+			$tz = new DateTimeZone($tznm);
+			$start = new DateTime();
+			$start->setTimestamp($rec->startdate);
+			$tzoffs = $tz->getOffset($start);
+			
+			if ($offs!=$tzoffs) {
+				$tznm = timezone_name_from_abbr("", $offs, 0);
+				if ($tznm!==false) {
+					$tz = new DateTimeZone($tznm);
+					$tzoffs = $tz->getOffset($start);
+				}
+			}
+			if ($offs!=$tzoffs) {
+				$tznm = timezone_name_from_abbr("", $offs, 1);
+				if ($tznm!==false) {
+					$tz = new DateTimeZone($tznm);
+					$tzoffs = $tz->getOffset($start);
+				}
+			}
+			
+			if ($offs==$tzoffs) {
+				$end = new DateTime();
+				$end->setTimestamp($rec->enddate);
+				$tzoffs = $tz->getOffset($end);
+				if ($offs==$tzoffs) {
+					$DB->set_field('meta_datecourse', 'timezonename', $tznm, array('id' => $rec->id));
+				}
+			}
+		}
+		upgrade_block_savepoint(true, 2016081902, 'metacourse');
 	}
 
     return $result;

@@ -370,9 +370,13 @@
 						// remove all the locations, and draw them again.
 						$("select[name='locations'] > option").remove();
 						locations = $.parseJSON(locations);
+						var lastId = 0;
 						$.each(locations, function(k, v){
 						    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + (v.timezonename === null ? "" : " | " + v.timezonename) + "</option>"));
+							lastId = v.id;
 						});
+						if (lastId != 0) $("select[name='locations']").val(lastId);
+						selectLocation();
 					});
 		    };
 		  });
@@ -438,6 +442,36 @@
 		  }
 		})
 	});
+	
+	function selectLocation() {
+		var ls = $("select[name='locations']")[0];
+		var curLocationInfo = ls.selectedOptions[0].text.split(' | ');
+		if (curLocationInfo.length>1) {
+			var nm="";
+			for (var i=0; i<curLocationInfo.length-1; i++) {
+				if (i>0) nm+=' | ';
+				nm+=curLocationInfo[i];
+			}
+			$("#id_renameLocation").val(nm);
+			$("#id_changeLocationTZ").val(curLocationInfo[curLocationInfo.length-1]);
+		}
+		else {
+			$("#id_renameLocation").val(curLocationInfo[0]);
+			$("#id_changeLocationTZ").val("-- UNDEFINED --");
+		}
+	}
+	
+	function selectProvider() {
+		var ls = $("select[name='providers']")[0];
+		$("#id_renameProvider").val($("select[name='providers']")[0].selectedOptions[0].text);
+	}
+	
+	$(document).ready(function(){
+		if ($("select[name='locations']").length>0) selectLocation();
+		if ($("select[name='providers']").length>0) selectProvider();
+	});
+	$("select[name='locations']").on('change', selectLocation);
+	$("select[name='providers']").on('change', selectProvider);
 
 	$('input[name="deleteLoc"]').on('click',function(e){
 		e.preventDefault();
@@ -456,6 +490,7 @@
 				$.each(locations, function(k, v){
 				    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + (v.timezonename === null ? "" : " | " + v.timezonename) + "</option>"));
 				});
+				selectLocation();
 			});
 		   
 	});
@@ -477,9 +512,13 @@
 				// remove all the locations, and draw them again.
 				$("select[name='locations'] > option").remove();
 				locations = $.parseJSON(locations);
+				var id = 0;
 				$.each(locations, function(k, v){
+					if (locId==v.id) id = locId;
 				    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + (v.timezonename === null ? "" : " | " + v.timezonename) + "</option>"));
 				});
+				if (id!=0) $("select[name='locations']").val(id);
+				selectLocation();
 			});
 		   
 	});
@@ -498,9 +537,13 @@
 			.done(function(providers){
 				$("select[name='providers'] > option").remove();
 				providers = $.parseJSON(providers);
+				var id = 0;
 				$.each(providers, function(k, v){
+					if (proId==v.id) id = proId;
 				    $("select[name='providers']").append($("<option value= '" + v.id + "'>" + v.provider + "</option>"));
 				});
+				if (id!=0) $("select[name='providers']").val(id);
+				selectProvider();
 			});
 	});
 
@@ -560,9 +603,13 @@
 						// remove all the locations, and draw them again.
 						$("select[name='providers'] > option").remove();
 						providers = $.parseJSON(providers);
+						var lastId = 0;
 						$.each(providers, function(k, v){
 						    $("select[name='providers']").append($("<option value= '" + v.id + "'>" + v.provider + "</option>"));
+							lastId = v.id;
 						});
+						if (lastId != 0) $("select[name='providers']").val(lastId);
+						selectProvider();
 					});
 		    };
 		  });
@@ -585,6 +632,7 @@
 				$.each(providers, function(k, v){
 				    $("select[name='providers']").append($("<option value= '" + v.id + "'>" + v.provider + "</option>"));
 				});
+				selectProvider();
 			});
 		   
 	});
