@@ -285,6 +285,7 @@ if ($metacourse) {
 			$row = array();
 			$cell = new html_table_cell(html_writer::link('#', $yr, array('class' => 'year_link_collapsed', 'data-year' => $yr)));
 			$cell->colspan = 9;
+			$cell->style = 'text-align:left';
 			$row[] = $cell;
 			$date_table->data[] = $row;
 			$lastYr = $yr;
