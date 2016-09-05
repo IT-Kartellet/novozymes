@@ -37,7 +37,7 @@ class metacourse_form extends moodleform {
         $coordinators = $nocoordinator + $coordinators;
 
         //get the locations from the database
-        $locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");
+        $locations = $DB->get_records_sql("SELECT * FROM {meta_locations} order by location");
         $locations = array_map(function ($arg){
             return $arg->location;
         }, $locations);

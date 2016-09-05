@@ -242,7 +242,7 @@ if ($renameLocationID && $renameLocationText && $changeLocationTZ) {
 	//$loc = $DB->set_field('meta_locations', 'location', $renameLocationText, array('id' => $renameLocationID));
 	$DB->set_field('meta_locations', 'location', $renameLocationText, array('id' => $renameLocationID));
 	$DB->set_field('meta_locations', 'timezonename', $changeLocationTZ == '-- UNDEFINED --' ? null : $changeLocationTZ, array('id' => $renameLocationID));
-	$locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");
+	$locations = $DB->get_records_sql("SELECT * FROM {meta_locations} order by location");
 
 	echo json_encode($locations);
 }
@@ -284,7 +284,7 @@ if ($newProvider) {
 }
 
 if ($getLocations == 1) {
-	$locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");
+	$locations = $DB->get_records_sql("SELECT * FROM {meta_locations} order by location");
 
 	echo json_encode($locations);
 }
@@ -303,7 +303,7 @@ if ($deleteLocation != 0) {
 		echo "Could not delete location";
 	}
 
-	$locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");
+	$locations = $DB->get_records_sql("SELECT * FROM {meta_locations} order by location");
 	echo json_encode($locations);
 }
 

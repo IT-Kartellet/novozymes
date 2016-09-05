@@ -21,7 +21,7 @@ class tos_form extends moodleform {
 
 
         //LOCATIONS
-        $locations = $DB->get_records_sql("SELECT * FROM {meta_locations}");      
+        $locations = $DB->get_records_sql("SELECT * FROM {meta_locations} order by location");      
         $locations = array_map(function ($arg){
 				if ($arg->timezonename===null) return $arg->location;
                 else return $arg->location . ' | ' . $arg->timezonename;

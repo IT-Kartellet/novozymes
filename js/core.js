@@ -62,7 +62,6 @@
 		e = e||event; 
         e.preventDefault ? e.preventDefault() : e.returnValue = false;
 		var target = e.target;
-		console.log(e);
 		var yr = target.attributes['data-year'].value;
 		if (target.className=='year_link_collapsed') {
 			$('.yr'+yr).each(function (ix, row) {
@@ -370,10 +369,19 @@
 						// remove all the locations, and draw them again.
 						$("select[name='locations'] > option").remove();
 						locations = $.parseJSON(locations);
-						var lastId = 0;
+						var arrLocation = [];
 						$.each(locations, function(k, v){
+							arrLocation.push(v);
+						});
+						arrLocation.sort(function (x, y) {
+							if (x.location.toUpperCase()<y.location.toUpperCase()) return -1;
+							if (x.location.toUpperCase()>y.location.toUpperCase()) return 1;
+							return 0;
+						});
+						var lastId = 0;
+						$.each(arrLocation, function(k, v){
 						    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + (v.timezonename === null ? "" : " | " + v.timezonename) + "</option>"));
-							lastId = v.id;
+							if (parseInt(v.id)>lastId) lastId = parseInt(v.id);
 						});
 						if (lastId != 0) $("select[name='locations']").val(lastId);
 						selectLocation();
@@ -487,7 +495,16 @@
 				// remove all the locations, and draw them again.
 				$("select[name='locations'] > option").remove();
 				locations = $.parseJSON(locations);
+				var arrLocation = [];
 				$.each(locations, function(k, v){
+					arrLocation.push(v);
+				});
+				arrLocation.sort(function (x, y) {
+					if (x.location.toUpperCase()<y.location.toUpperCase()) return -1;
+					if (x.location.toUpperCase()>y.location.toUpperCase()) return 1;
+					return 0;
+				});
+				$.each(arrLocation, function(k, v){
 				    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + (v.timezonename === null ? "" : " | " + v.timezonename) + "</option>"));
 				});
 				selectLocation();
@@ -512,8 +529,17 @@
 				// remove all the locations, and draw them again.
 				$("select[name='locations'] > option").remove();
 				locations = $.parseJSON(locations);
-				var id = 0;
+				var arrLocation = [];
 				$.each(locations, function(k, v){
+					arrLocation.push(v);
+				});
+				arrLocation.sort(function (x, y) {
+					if (x.location.toUpperCase()<y.location.toUpperCase()) return -1;
+					if (x.location.toUpperCase()>y.location.toUpperCase()) return 1;
+					return 0;
+				});
+				var id = 0;
+				$.each(arrLocation, function(k, v){
 					if (locId==v.id) id = locId;
 				    $("select[name='locations']").append($("<option value= '" + v.id + "'>" + v.location + (v.timezonename === null ? "" : " | " + v.timezonename) + "</option>"));
 				});
@@ -692,8 +718,6 @@
 				// $.each(providers, function(k, v){
 				//     $("select[name='providers']").append($("<option value= '" + v.id + "'>" + v.provider + "</option>"));
 				// });
-				//console.log(e);
-				//alert(e);
 			},
 			error : function(err){
 				alert(err);
