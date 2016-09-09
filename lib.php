@@ -561,7 +561,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
 
 		$ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
 		$ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
-
+		$ev->add_property('location', $datecourse->loc);
 		$ical->add_component($ev);
 
 		$serialized = $ical->serialize();
@@ -691,6 +691,7 @@ class enrol_manual_pluginITK extends enrol_plugin {
       $ev->add_property('dtstamp', Bennu::timestamp_to_datetime()); // now
       $ev->add_property('dtstart', Bennu::timestamp_to_datetime($datecourse->startdate)); // when event starts
       $ev->add_property('dtend', Bennu::timestamp_to_datetime($datecourse->enddate));
+	  $ev->add_property('location', $datecourse->loc);
 
       $ical->add_component($ev);
 
