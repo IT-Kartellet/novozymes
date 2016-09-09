@@ -396,6 +396,63 @@ function xmldb_block_metacourse_upgrade($oldversion = 0) {
 		}
 		upgrade_block_savepoint(true, 2016081902, 'metacourse');
 	}
+	
+	if ($oldversion < 2016091101) {
+		$DB->execute('CREATE TABLE meta_datecourse_backup LIKE meta_datecourse');
+		$DB->execute('INSERT meta_datecourse_backup SELECT * FROM meta_datecourse');
+		
+		$rs = $DB->get_records_sql("SELECT c.id, c.timezone, c.startdate, c.enddate, c.location, l.location AS locationname, l.timezonename, c.metaid, c.deleted FROM meta_datecourse AS c left join meta_locations AS l ON c.location = l.id where (elearning is null or elearning = 0) order by c.id");
+		foreach ($rs as $key => $rec) {
+			$dc = new stdClass();
+			$dc->id = $rec->id;
+			
+			$offs = 3600 * format_tz_offset($rec->timezone);
+			
+			// Update timezone from location.
+			if ($rec->timezonename==null) $tznm = 'Europe/Copenhagen';
+			else $tznm = $rec->timezonename;
+			$dc->timezonename = $tznm;
+			//$DB->set_field('meta_datecourse', 'timezonename', $tznm, array('id' => $rec->id));
+			
+			// Get corresponding offset (use start date as base).
+			$tz = new DateTimeZone($tznm);
+			$dt = new DateTime();
+			$dt->setTimestamp($rec->startdate);
+			$tzoffs = $tz->getOffset($dt);
+			$tzoffs2 = $tzoffs / 3600;
+			if ($tzoffs2 >= 0) {
+				$h = floor($tzoffs2);
+				$m = 60 * ($tzoffs2 - $h);
+				if ($m == 0) $dc->timezone = '+' . $h;
+				else $dc->timezone = '+' . $h . ':' . $m;
+				//if ($m == 0) $DB->set_field('meta_datecourse', 'timezone', '+' . $h, array('id' => $rec->id));
+				//else $DB->set_field('meta_datecourse', 'timezone', '+' . $h . ':' . $m, array('id' => $rec->id));
+			}
+			else {
+				$h = floor(-$tzoffs2);
+				$m = 60 * (-$tzoffs2 - $h);
+				if ($m == 0) $dc->timezone = '-' . $h;
+				else $dc->timezone = '-' . $h . ':' . $m;
+				//if ($m == 0) $DB->set_field('meta_datecourse', 'timezone', '-' . $h, array('id' => $rec->id));
+				//else $DB->set_field('meta_datecourse', 'timezone', '-' . $h . ':' . $m, array('id' => $rec->id));
+			}
+			
+			// Correct start and end time if neccesary for new time zone.
+			if ($offs!=$tzoffs) $dc->startdate = $rec->startdate + $offs - $tzoffs;
+			//if ($offs!=$tzoffs) $DB->set_field('meta_datecourse', 'startdate', $rec->startdate + $offs - $tzoffs, array('id' => $rec->id));
+			$dt = new DateTime();
+			$dt->setTimestamp($rec->enddate);
+			$tzoffs = $tz->getOffset($dt);
+			if ($offs!=$tzoffs) $dc->enddate = $rec->enddate + $offs - $tzoffs;
+			//if ($offs!=$tzoffs) $DB->set_field('meta_datecourse', 'enddate', $rec->enddate + $offs - $tzoffs, array('id' => $rec->id));
+			
+			//$dc->timemodified = time();
+			//$DB->set_field('meta_datecourse', 'timemodified', time(), array('id' => $rec->id));
+			
+			$DB->update_record('meta_datecourse', $dc);
+		}
+		upgrade_block_savepoint(true, 2016091101, 'metacourse');
+	}
 
     return $result;
 }
