@@ -443,7 +443,7 @@ if ($exportExcel) {
 		foreach ($enrolled_users as $user) {
 			$user->startdate = $course->startdate;
 			$user->enddate = $course->enddate;
-			$user->timezone = $course->timezone;
+			$user->timezonename = $course->timezonename;
 			$user->price = $course->price . ' ' . $course->currency;
 			$users[] = $user;
 		}
@@ -467,8 +467,8 @@ if ($exportExcel) {
 			'Department' => @$user->department,
 			'Business area' => @$user->institution,
 			'Country' => @$user->country,
-			'Start date' => !empty($user->startdate) ? format_date_with_tz($user->startdate, $user->timezone) : '',
-			'End date' => !empty($user->enddate) ? format_date_with_tz($user->enddate, $user->timezone): '',
+			'Start date' => !empty($user->startdate) ? format_date_with_tznm($user->startdate, $user->timezonename) : '',
+			'End date' => !empty($user->enddate) ? format_date_with_tznm($user->enddate, $user->timezonename): '',
 			'Price' => !empty($user->price) ? $user->price: '',
 		);
 	}

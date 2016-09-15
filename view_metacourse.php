@@ -291,8 +291,8 @@ if ($metacourse) {
 			$lastYr = $yr;
 		}
 		
-		$isPublished = ($datecourse->realunpublishdate == null || $datecourse->realunpublishdate > time());
 		$isCoordinator = ($USER->id == $datecourse->coordinator ||$USER->id == $meta_coordinator || is_siteadmin($USER));
+		$isPublished = ($isCoordinator || $isTeacher|| ($datecourse->realunpublishdate == null || $datecourse->realunpublishdate > time()));
 		
 		if (!$isPublished) {
 			continue;
@@ -337,12 +337,12 @@ if ($metacourse) {
 				$start = "-";
 				$end = "-";
 			} else{
-				$start = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
+				$start = format_date_with_tznm($datecourse->startdate, $datecourse->timezonename);
 				if ($isTeacher) {
 					$start = "<a href='/course/view.php?id=$datecourse->courseid'>".$start."</a>";
 				}
 
-				$end = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+				$end = format_date_with_tznm($datecourse->enddate, $datecourse->timezonename);
 			}
 			$row[] = $start;
 			$row[] = $end;
@@ -409,7 +409,7 @@ if ($metacourse) {
 		}
 
 		// check if the enrolment is expired
-		if (!$isPublished || ($datecourse->unpublishdate < time() && $datecourse->unpublishdate != 0)) {
+		if (!$isPublished || ($datecourse->unpublishdate < time() && $datecourse->unpublishdate != 0) || ($datecourse->realunpublishdate !== null && $datecourse->realunpublishdate < time())) {
 			$enrolMe->disabled = true;
 			$enrolOthers->disabled = true;
 		}
@@ -454,25 +454,7 @@ if ($metacourse) {
 	echo html_writer::end_tag('div');
 
 	$tos = $DB->get_records_sql("SELECT * FROM {meta_tos}");
-	$tos = reset($tos);
-	
-	//$timezones = DateTimeZone::listIdentifiers();
-	//var_dump($timezones);
-	//$tzUTC = new DateTimeZone("UTC");
-	//$tzDK = new DateTimeZone("Europe/Copenhagen");
-	//$tzFR = new DateTimeZone("America/New_York");
-	//$tm1 = new DateTime('2016-01-01', $tzUTC);
-	//$tm2 = new DateTime('2016-12-31', $tzUTC);
-	//var_dump($tzDK->getTransitions($tm1->getTimestamp(), $tm2->getTimestamp()));
-	//var_dump('<br>');
-	//var_dump($tzFR->getTransitions($tm1->getTimestamp(), $tm2->getTimestamp()));
-	//var_dump('<br>');
-	//for ($i=1; $i<13; $i++) {
-	//	$tm = new DateTime('2016-'.$i.'-01', $tzUTC);
-	//	var_dump($tzDK->getOffset($tm));
-	//}
-	
-	
+	$tos = reset($tos);	
 
 ?>
 <div id='lean_background'>

@@ -234,6 +234,9 @@ $string['nodates_enabled_help'] = 'When selected users can enrol meta course bef
 $string['timezone'] = 'Timezone?';
 $string['timezone_help'] = 'The timezone for the place where the course is held. Remember to account for daylight saving time (DST). For example if the course is held in Denmark (timezone = +1), and DST is active, you have to select +2, since DST adds one hour.';
 
+$string['timezonename'] = 'Timezone?';
+$string['timezonename_help'] = 'The timezone for the place where the course is held. This is automatically set when the location is selected unless no time zone has been specified for the location.';
+
 $string['elearning'] = 'Elearning';
 $string['elearning_help'] = 'Elearning courses are course which the student attends wholly online - they do not have an attached date, since users can access them at any time.';
 

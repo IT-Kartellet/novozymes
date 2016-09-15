@@ -177,9 +177,16 @@ if ($meta->nodates_enabled!=1 && $count_deleted === count($datecourses)) {
 
 function get_unixtime($course, $key) {
 	if ($course[$key] == null) return null;
-	$time = "{$course[$key]['year']}-{$course[$key]['month']}-{$course[$key]['day']} {$course[$key]['hour']}:{$course[$key]['minute']}{$course['timezone']}";
-
-	return (new DateTime($time))->getTimestamp();
+	
+	$tz = new DateTimeZone($course['timezonename']);
+	$dt = new DateTime();
+	$dt->setTimezone($tz);
+	$dt->setDate($course[$key]['year'], $course[$key]['month'], $course[$key]['day']);
+	$dt->setTime($course[$key]['hour'], $course[$key]['minute']);
+	return $dt->getTimestamp();
+	
+	//$time = "{$course[$key]['year']}-{$course[$key]['month']}-{$course[$key]['day']} {$course[$key]['hour']}:{$course[$key]['minute']}{$tzoffs}";//
+	//return (new DateTime($time))->getTimestamp();
 }
 
 $firstEnrolableCouseId = 0;
@@ -222,7 +229,8 @@ foreach ($datecourses as $key => $course) {
 	$dc->realunpublishdate = get_unixtime($course, 'realunpublishdate');
 	$dc->unpublishdate = get_unixtime($course, 'unpublishdate');
 	$dc->startenrolment = get_unixtime($course, 'startenrolment');
-	$dc->timezone = $course['timezone'];
+	//$dc->timezone = $course['timezone'];
+	$dc->timezonename = $course['timezonename'];
 	$dc->location = $location;
 	$dc->country = $course['country'];
 	$dc->lang = $course['language'];
@@ -236,6 +244,24 @@ foreach ($datecourses as $key => $course) {
 	$dc->coordinator = $course['coordinator'];
 	$dc->remarks = (isset($course['remarks'])) ? $course['remarks'] : '';
 	$dc->timemodified = time();
+	
+	// The following sets the old timezone field on basis of the new timezonename. 
+	$tz = new DateTimeZone($dc->timezonename);
+	$dt = new DateTime();
+	$dt->setTimestamp($dc->startdate);
+	$tzoffs = $tz->getOffset($dt) / 3600;
+	if ($tzoffs >= 0) {
+		$h = floor($tzoffs);
+		$m = 60 * ($tzoffs - $h);
+		if ($m == 0) $dc->timezone = '+' . $h;
+		else $dc->timezone = '+' . $h . ':' . $m;
+	}
+	else {
+		$h = floor(-$tzoffs);
+		$m = 60 * (-$tzoffs - $h);
+		if ($m == 0) $dc->timezone = '-' . $h;
+		else $dc->timezone = '-' . $h . ':' . $m;
+	}
 
 	//if we have id we update on old one
 	if (@$dc->id) {

@@ -1,4 +1,5 @@
 YUI.add('moodle-block_metacourse-dateform', function(Y) {
+	var tmzones = JSON.parse(Y.one('input[name="locationTimeZones"')._node.value);
     M.block_metacourse = M.block_metacourse || {};
 
     M.block_metacourse.dateform = {
@@ -9,6 +10,12 @@ YUI.add('moodle-block_metacourse-dateform', function(Y) {
             nodes.each(this.handleChecked);
             nodes.on('change', function (e) {
                 this.handleChecked(e.currentTarget);
+            }.bind(this));
+			
+			//  Handle location selection. When selecting location, time zone should automatically be set.
+            var nodes = Y.all('select.location');
+            nodes.on('change', function (e) {
+                this.handleLocationUpdate(e.currentTarget);
             }.bind(this));
 			
 			// Handle enable/disable checkbox for optional date fields. For some reason needed when adding new date courses, for existing date courses yui initialization works fine.
@@ -36,6 +43,10 @@ YUI.add('moodle-block_metacourse-dateform', function(Y) {
                 }
             });
         },
+		
+		handleLocationUpdate: function (target) {
+			$(target._node.parentNode.parentNode.parentNode).find('select.timezonename').val(tmzones[target._node.value]);
+		},
 		
 		handleEnableDisable: function (target) {
 			$(target._node.parentNode.parentNode).find('select').each(function (key, fld) {

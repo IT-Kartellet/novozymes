@@ -85,6 +85,14 @@ function format_date_with_tz($timestamp, $offset, $asString = true) {
   return $date;
 }
 
+function format_date_with_tznm($timestamp, $timezone) {
+	$tz = new DateTimeZone($timezone);
+	$tm = new DateTime();
+	$tm->setTimezone($tz);
+	$tm->setTimestamp($timestamp);
+	return $tm->format("d M Y - h:i A");
+}
+
 // Implodes a list like humans would do, e.g. array(x, y, z) => x, y, and z
 function human_implode(array $items) {
   if (count($items) == 1) {
@@ -153,8 +161,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $a->course = $datecourse->metaname;
     $a->department = $user->department;
 	if ($courseid>=0) {
-		$a->periodfrom = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
-		$a->periodto = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+		$a->periodfrom = format_date_with_tznm($datecourse->startdate, $datecourse->timezonename);
+		$a->periodto = format_date_with_tznm($datecourse->enddate, $datecourse->timezonename);
 		$a->location = $datecourse->loc;
 	}
     $a->currency = $datecourse->currency;
@@ -262,8 +270,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
       if (in_array($key, $changed_attributes)) {
         $changes_summary[] = strtolower(get_string($key, 'block_metacourse'));
 
-        $old = format_date_with_tz($existing_datecourse->{$key}, $existing_datecourse->timezone, false);
-        $new = format_date_with_tz($datecourse->{$key}, $datecourse->timezone, false);
+        $old = format_date_with_tznm($existing_datecourse->{$key}, $existing_datecourse->timezonename, false);
+        $new = format_date_with_tznm($datecourse->{$key}, $datecourse->timezonename, false);
 
         $format = array();
         if ($old->format('d M Y') !== $new->format('d M Y')) {
@@ -406,8 +414,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
       if (in_array($key, $changed_attributes)) {
         $changes_summary[] = strtolower(get_string($key, 'block_metacourse'));
 
-        $old = format_date_with_tz($existing_datecourse->{$key}, $existing_datecourse->timezone, false);
-        $new = format_date_with_tz($datecourse->{$key}, $datecourse->timezone, false);
+        $old = format_date_with_tznm($existing_datecourse->{$key}, $existing_datecourse->timezonename, false);
+        $new = format_date_with_tznm($datecourse->{$key}, $datecourse->timezonename, false);
 
         $format = array();
         if ($old->format('d M Y') !== $new->format('d M Y')) {
@@ -527,8 +535,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $a->course = $datecourse->metaname;
     $a->department = $user->department;
 	if ($courseid>=0) {
-		$a->periodfrom = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
-		$a->periodto = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+		$a->periodfrom = format_date_with_tznm($datecourse->startdate, $datecourse->timezonename);
+		$a->periodto = format_date_with_tznm($datecourse->enddate, $datecourse->timezonename);
 		$a->location = $datecourse->loc;
 	}
     $a->currency = $datecourse->currency;
@@ -631,8 +639,8 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $a->lastname = $user->lastname;
     $a->course = $datecourse->metaname;
     $a->department = $user->department;
-    $a->periodfrom = format_date_with_tz($datecourse->startdate, $datecourse->timezone);
-    $a->periodto = format_date_with_tz($datecourse->enddate, $datecourse->timezone);
+    $a->periodfrom = format_date_with_tznm($datecourse->startdate, $datecourse->timezonename);
+    $a->periodto = format_date_with_tznm($datecourse->enddate, $datecourse->timezonename);
     $a->currency = $datecourse->currency;
     $a->price = $datecourse->price;
     $a->location = $datecourse->loc;

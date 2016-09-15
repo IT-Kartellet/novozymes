@@ -453,7 +453,7 @@
 	
 	function selectLocation() {
 		var ls = $("select[name='locations']")[0];
-		var curLocationInfo = ls.selectedOptions[0].text.split(' | ');
+		var curLocationInfo = ls.options[ls.selectedIndex].text.split(' | ');
 		if (curLocationInfo.length>1) {
 			var nm="";
 			for (var i=0; i<curLocationInfo.length-1; i++) {
@@ -471,7 +471,7 @@
 	
 	function selectProvider() {
 		var ls = $("select[name='providers']")[0];
-		$("#id_renameProvider").val($("select[name='providers']")[0].selectedOptions[0].text);
+		$("#id_renameProvider").val($("select[name='providers']")[0].options[ls.selectedIndex].text);
 	}
 	
 	$(document).ready(function(){
