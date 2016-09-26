@@ -3,7 +3,8 @@
 require_once($CFG->dirroot.'/calendar/lib.php');
 require_once($CFG->libdir.'/bennu/bennu.inc.php');
 
-require('../../vendor/autoload.php');
+//require('../../vendor/autoload.php');
+require($CFG->dirroot.'/vendor/autoload.php');
 
 function block_metacourse_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
   $fs = get_file_storage();
