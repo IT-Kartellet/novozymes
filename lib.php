@@ -649,9 +649,10 @@ class enrol_manual_pluginITK extends enrol_plugin {
     $a->coordinatorinitials = $teacherCC->username;
     $a->myhome = $CFG->wwwroot."/my";
 
-    $lang_id = $DB->get_field('meta_languages', 'id', array(
+    /*$lang_id = $DB->get_field('meta_languages', 'id', array(
       'iso' => $user->lang
-    ));
+    ));*/
+	$lang_id = $datecourse->lang;
 
     $text = $DB->get_record('meta_custom_emails', array(
       'metaid' => $metacourse_id,
